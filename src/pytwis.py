@@ -101,8 +101,38 @@ class Pytwis:
         
         return (True, result)
             
-    def change_password(self, username, auth_secret, old_password, new_password):
-        pass
+    def change_password(self, auth_secret, old_password, new_password):
+        result = {'error': None}
+        
+        # Check if the user is logged in.
+        loggedin, user_id = self._is_loggedin(auth_secret)
+        if not loggedin:
+            result['error'] = 'Not logged in'
+            return (False, result)
+        
+        # Check if the old password matches.
+        user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
+        stored_password = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
+        if stored_password != old_password:
+            result['error'] = 'Incorrect old password'
+            return (False, result)
+        
+        # TODO: add the new password check.
+        
+        # Generate the new authentication secret.
+        new_auth_secret = secrets.token_hex()
+        
+        # Replace the old password by the new one and the old authentication secret by the new one.
+        with self._rc.pipeline() as pipe:
+            pipe.multi()
+            pipe.hset(user_id_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY, new_password)
+            pipe.hset(user_id_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
+            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, user_id)
+            pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
+            pipe.execute()
+        
+        result[self.USER_ID_PROFILE_AUTH_KEY] = new_auth_secret
+        return (True, result)
     
     def login(self, username, password):
         result = {'error': None}

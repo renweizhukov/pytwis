@@ -42,7 +42,13 @@ $ ./pytwis_clt.py -d xxx.xxx.xxx.xxx -t yyyy -p zzzzzz
 > logout
 ```
 
-(4) Exit the console program.
+(4) Change the password. Assume that the old password is yyyyyy and the new password is zzzzzz.
+
+```bash
+> changepassword yyyyyy zzzzzz zzzzzz
+```
+
+(5) Exit the console program.
 
 ```bash
 > exit

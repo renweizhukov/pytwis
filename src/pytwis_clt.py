@@ -39,7 +39,20 @@ def pytwis_command_parser(raw_command):
     elif command_with_args[0] == 'logout':
         pass
     elif command_with_args[0] == 'changepassword':
-        pass
+        # changepassword must have three arguments: old_password, new_password, and confirmed_new_password.
+        if len(splited_raw_command) < 2:
+            raise ValueError('changepassword has NO arguments')
+            
+        args = splited_raw_command[1]
+        arg_dict = parse.parse('{old_password} {new_password} {confirmed_new_password}', args)
+        if arg_dict is None:
+            raise ValueError('changepassword has incorrect arguments')
+        elif arg_dict['new_password'] != arg_dict['confirmed_new_password']:
+            raise ValueError('The confirmed new password is different from the new password')
+        elif arg_dict['new_password'] == arg_dict['old_password']:
+            raise ValueError('The new password is the same as the old password')
+        
+        print('changepassword: old = {}, new = {}'.format(arg_dict['old_password'], arg_dict['new_password']))
     elif command_with_args[0] == 'post':
         pass
     elif command_with_args[0] == 'follow':
@@ -70,22 +83,24 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
     elif command == 'login':
         succeeded, result = twis.login(args['username'], args['password'])
         if succeeded:
-            auth_secret.append(result['auth'])
+            auth_secret[0] = result['auth']
             print('Succeeded in logging into username {}'.format(args['username']))
         else:
             print("Couldn't log into username {} with error = {}".format(args['username'], result['error']))
     elif command == 'logout':
-        if len(auth_secret) == 0:
-            # Not logged in
-            print('Not logged in.')
-            return
-        
         succeeded, result = twis.logout(auth_secret[0])
         if succeeded:
-            auth_secret[:] = []
+            auth_secret[0] = ''
             print('Logged out of username {}'.format(result['username']))
         else:
             print("Couldn't log out with error = {}".format(result['error']))
+    elif command == 'changepassword':
+        succeeded, result = twis.change_password(auth_secret[0], args['old_password'], args['new_password'])
+        if succeeded:
+            auth_secret[0] = result['auth']
+            print('Succeeded in changing the password')
+        else:
+            print("Couldn't change the password with error = {}".format(result['error']))
     else:
         pass
 
@@ -117,7 +132,7 @@ def pytwis_cli():
               file=sys.stderr)
         return -1
     
-    auth_secret = []
+    auth_secret = ['']
     while True:
         try:
             command_with_args = pytwis_command_parser(
