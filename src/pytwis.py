@@ -23,6 +23,18 @@ class Pytwis:
     FOLLOWER_ZSET_KEY_FORMAT = 'follower:{}'
     FOLLOWING_ZSET_KEY_FORMAT = 'following:{}'
     
+    NEXT_POST_ID_KEY = 'next_post_id'
+    
+    POST_ID_KEY_FORMAT = 'post:{}'
+    POST_ID_USERID_KEY = 'userid'
+    POST_ID_UNIXTIME_KEY = 'unix_time'
+    POST_ID_BODY_KEY = 'body'
+    
+    GENERAL_TIMELINE_KEY = 'timeline'
+    GENERAL_TIMELINE_MAX_POST_CNT = 1000
+    
+    POST_ID_USER_KEY_FORMAT = 'posts:{}'
+    
     def __init__(self, hostname = '127.0.0.1', port = 6379, password = ''):
         # TODO: Set unix_socket_path='/tmp/redis.sock' to use Unix domain socket 
         # if the host name is 'localhost'. Note that need to uncomment the following 
@@ -186,7 +198,49 @@ class Pytwis:
         return (True, result)
     
     def post_tweet(self, auth_secret, tweet):
-        pass
+        result = {'error': None}
+        
+        # Check if the user is logged in.
+        loggedin, user_id = self._is_loggedin(auth_secret)
+        if not loggedin:
+            result['error'] = 'Not logged in'
+            return (False, result)
+        
+        # Get the next user-id. If the key "next_user_id" doesn't exist,
+        # it will be created and initialized as 0, and then incremented by 1.
+        post_id = self._rc.incr(self.NEXT_POST_ID_KEY)
+        post_id_key = self.POST_ID_KEY_FORMAT.format(post_id)
+        
+        post_id_user_key = self.POST_ID_USER_KEY_FORMAT.format(user_id)
+        
+        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(user_id)
+        followers = self._rc.zrange(follower_zset_key, 0, -1)
+        
+        unix_time = int(time.time())
+        with self._rc.pipeline() as pipe:
+            pipe.multi()
+            # Store the tweet with its user ID and UNIX timestamp.
+            pipe.hmset(post_id_key,
+                       {self.POST_ID_USERID_KEY: user_id,
+                        self.POST_ID_UNIXTIME_KEY: unix_time,
+                        self.POST_ID_BODY_KEY: tweet})
+            
+            # Add the tweet to the user timeline.
+            pipe.lpush(post_id_user_key, post_id)
+            
+            # Write fanout the tweet to all the followers' timelines.
+            for follower in followers:
+                post_id_follower_key = self.POST_ID_USER_KEY_FORMAT.format(follower)
+                pipe.lpush(post_id_follower_key, post_id)
+            
+            # Add the tweet to the general timeline and left trim the general timeline to only retain 
+            # the latest GENERAL_TIMELINE_MAX_POST_CNT tweets.
+            pipe.lpush(self.GENERAL_TIMELINE_KEY, post_id)
+            pipe.ltrim(self.GENERAL_TIMELINE_KEY, 0, self.GENERAL_TIMELINE_MAX_POST_CNT - 1)
+            
+            pipe.execute()
+        
+        return (True, result)
     
     def follow(self, auth_secret, followee_username):
         result = {'error': None}
@@ -319,4 +373,56 @@ class Pytwis:
         return (True, result)
     
     def get_timeline(self, auth_secret, max_cnt_tweets):
-        pass
+        result = {'error': None}
+        
+        if auth_secret == '':
+            # An empty authentication secret implies getting the general timeline.
+            timeline_key = self.GENERAL_TIMELINE_KEY
+        else:
+            # Check if the user is logged in.
+            loggedin, user_id = self._is_loggedin(auth_secret)
+            if not loggedin:
+                result['error'] = 'Not logged in'
+                return (False, result)
+            
+            # Get the user timeline.
+            timeline_key = self.POST_ID_USER_KEY_FORMAT.format(user_id)
+        
+        result['tweets'] = []
+        if max_cnt_tweets == 0:
+            return (True, result)
+        elif max_cnt_tweets == -1:
+            # Return all the tweets in the timeline.
+            last_tweet_index = -1
+        else:
+            # Return at most max_cnt_tweets tweets.
+            last_tweet_index = max_cnt_tweets - 1
+            
+        # Get the post IDs of the tweets.
+        post_ids = self._rc.lrange(timeline_key, 0, last_tweet_index)
+        
+        with self._rc.pipeline() as pipe:
+            # Get the tweets with their user IDs and UNIX timestamps.
+            pipe.multi()
+            for post_id in post_ids:
+                post_id_key = self.POST_ID_KEY_FORMAT.format(post_id)
+                pipe.hgetall(post_id_key)
+            result['tweets'] = pipe.execute()
+        
+            # Get the user_id-to-username mappings for all the user IDs associated with the tweets.
+            user_id_set = { tweet[self.POST_ID_USERID_KEY] for tweet in result['tweets'] }
+            user_id_list = []
+            pipe.multi()
+            for user_id in user_id_set:
+                user_id_list.append(user_id)
+                user_id_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
+                pipe.hget(user_id_key, self.USER_ID_PROFILE_USERNAME_KEY)
+            username_list = pipe.execute()
+        
+        user_id_to_username = { user_id: username for user_id, username in zip(user_id_list, username_list) }
+        
+        # Add the username for the user ID of each tweet.
+        for tweet in result['tweets']:
+            tweet[self.USER_ID_PROFILE_USERNAME_KEY] = user_id_to_username[tweet[self.POST_ID_USERID_KEY]]
+        
+        return (True, result)

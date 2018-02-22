@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import sys
+import datetime
 import parse
+import sys
+
 import pytwis
 
 def pytwis_command_parser(raw_command):
@@ -55,7 +57,11 @@ def pytwis_command_parser(raw_command):
         
         print('changepassword: old = {}, new = {}'.format(arg_dict['old_password'], arg_dict['new_password']))
     elif command_with_args[0] == 'post':
-        pass
+        # post must have one argument: tweet
+        if len(splited_raw_command) < 2:
+            raise ValueError('post has NO arguments')
+        
+        arg_dict = {'tweet': splited_raw_command[1]}
     elif command_with_args[0] == 'follow':
         # follow must have one argument: followee.
         if len(splited_raw_command) < 2:
@@ -75,7 +81,12 @@ def pytwis_command_parser(raw_command):
         # followings doesn't have any arguments.
         pass
     elif command_with_args[0] == 'timeline':
-        pass
+        # timeline has either zero or one argument.
+        max_cnt_tweets = -1
+        if len(splited_raw_command) >= 2:
+            max_cnt_tweets = int(splited_raw_command[1])
+            
+        arg_dict = {'max_cnt_tweets': max_cnt_tweets}
     elif command_with_args[0] == 'exit' or command_with_args[0] == 'quit':
         # exit or quit doesn't have any arguments.
         pass
@@ -85,6 +96,17 @@ def pytwis_command_parser(raw_command):
     command_with_args.append(arg_dict)
     
     return command_with_args
+
+def print_tweets(tweets):
+    print('=' * 60)
+    for index, tweet in enumerate(tweets):
+        print('-' * 60)
+        print('Tweet {}:'.format(index))
+        print('Username:', tweet['username'])
+        print('Time:', datetime.datetime.fromtimestamp(int(tweet['unix_time'])).strftime('%Y-%m-%d %H:%M:%S'))
+        print('Body:\n\t', tweet['body'])
+        print('-' * 60)
+    print('=' * 60)
 
 def pytwis_command_processor(twis, auth_secret, command_with_args):
     command = command_with_args[0]
@@ -117,6 +139,12 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
             print('Succeeded in changing the password')
         else:
             print("Couldn't change the password with error = {}".format(result['error']))
+    elif command == 'post':
+        succeeded, result = twis.post_tweet(auth_secret[0], args['tweet'])
+        if succeeded:
+            print('Succeeded in posting the tweet')
+        else:
+            print("Couldn't post the tweet with error = {}".format(result['error']))
     elif command == 'follow':
         succeeded, result = twis.follow(auth_secret[0], args['followee'])
         if succeeded:
@@ -143,12 +171,25 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
         succeeded, result = twis.get_following(auth_secret[0])
         if succeeded:
             print('Succeeded in get the list of {} followings'.format(len(result['following_list'])))
-            print('=' * 20)
+            print('=' * 60)
             for following in result['following_list']:
                 print('\t' + following)
-            print('=' * 20)
+            print('=' * 60)
         else:
             print("Couldn't get the following list with error = {}".format(result['error']))
+    elif command == 'timeline':
+        succeeded, result = twis.get_timeline(auth_secret[0], args['max_cnt_tweets'])
+        if succeeded:
+            if auth_secret[0] != '':
+                print('Succeeded in get {} tweets in the user timeline'.format(len(result['tweets'])))
+            else:
+                print('Succeeded in get {} tweets in the general timeline'.format(len(result['tweets'])))
+            print_tweets(result['tweets'])
+        else:
+            if auth_secret[0] != '':
+                print("Couldn't get the user timeline with error = {}".format(result['error']))
+            else:
+                print("Couldn't get the general timeline with error = {}".format(result['error']))
     else:
         pass
 
@@ -190,7 +231,7 @@ def pytwis_cli():
                       .format(args.redis_hostname, args.redis_port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':
                 # Log out of the current user before exiting.
-                if len(auth_secret) > 0:
+                if len(auth_secret[0]) > 0:
                     pytwis_command_processor(twis, auth_secret, ['logout', {}])
                 print('pytwis is exiting.')
                 return 0;

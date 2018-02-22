@@ -32,6 +32,7 @@ Note that the following commands have to be executed after a successful log-in.
 * unfollow
 * followers
 * followings
+* post
 
 (1) Register a new user xxxxxx with password yyyyyy.
 
@@ -81,7 +82,21 @@ Note that the following commands have to be executed after a successful log-in.
 > followings
 ```
 
-(9) Exit the console program.
+(9) Post a tweet
+
+```bash
+> post tweet
+```
+
+(10) Get the general/user timeline.
+
+```bash
+> timeline [max-tweet-count]
+```
+
+It will return the user timeline if a user is logged in and will return the general timeline otherwise. Also, it will return all the tweets in the timeline if max-tweet-count is not specified.
+
+(11) Exit the console program.
 
 ```bash
 > exit
