@@ -24,6 +24,15 @@ $ ./pytwis_clt.py -d xxx.xxx.xxx.xxx -t yyyy -p zzzzzz
 
 ## 2. Online commands after successfully connecting to the twitter clone.
 
+Note that the following commands have to be executed after a successful log-in.
+
+* logout
+* changepassword
+* follow
+* unfollow
+* followers
+* followings
+
 (1) Register a new user xxxxxx with password yyyyyy.
 
 ```bash
@@ -48,7 +57,31 @@ $ ./pytwis_clt.py -d xxx.xxx.xxx.xxx -t yyyy -p zzzzzz
 > changepassword yyyyyy zzzzzz zzzzzz
 ```
 
-(5) Exit the console program.
+(5) Follow a user xxxxxx.
+
+```bash
+> follow xxxxxx
+```
+
+(6) Unfollow a user.
+
+```bash
+> unfollow xxxxxx
+```
+
+(7) Get the follower list of a user.
+
+```bash
+> followers
+```
+
+(8) Get the following list of a user.
+
+```bash
+> followings
+```
+
+(9) Exit the console program.
 
 ```bash
 > exit

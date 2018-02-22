@@ -37,6 +37,7 @@ def pytwis_command_parser(raw_command):
         
         print('login: username = {}, password = {}'.format(arg_dict['username'], arg_dict['password']))
     elif command_with_args[0] == 'logout':
+        # logout doesn't have any arguments.
         pass
     elif command_with_args[0] == 'changepassword':
         # changepassword must have three arguments: old_password, new_password, and confirmed_new_password.
@@ -56,12 +57,27 @@ def pytwis_command_parser(raw_command):
     elif command_with_args[0] == 'post':
         pass
     elif command_with_args[0] == 'follow':
-        pass
+        # follow must have one argument: followee.
+        if len(splited_raw_command) < 2:
+            raise ValueError('follow has NO arguments')
+        
+        arg_dict = {'followee': splited_raw_command[1]}
+    elif command_with_args[0] == 'unfollow':
+        # unfollow must have one argument: followee.
+        if len(splited_raw_command) < 2:
+            raise ValueError('unfollow has NO arguments')
+        
+        arg_dict = {'followee': splited_raw_command[1]}
     elif command_with_args[0] == 'followers':
+        # followers doesn't have any arguments.
+        pass
+    elif command_with_args[0] == 'followings':
+        # followings doesn't have any arguments.
         pass
     elif command_with_args[0] == 'timeline':
         pass
     elif command_with_args[0] == 'exit' or command_with_args[0] == 'quit':
+        # exit or quit doesn't have any arguments.
         pass
     else:
         raise ValueError('Invalid pytwis command')
@@ -101,14 +117,46 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
             print('Succeeded in changing the password')
         else:
             print("Couldn't change the password with error = {}".format(result['error']))
+    elif command == 'follow':
+        succeeded, result = twis.follow(auth_secret[0], args['followee'])
+        if succeeded:
+            print('Succeeded in following username {}'.format(args['followee']))
+        else:
+            print("Couldn't follow the username {} with error = {}".format(args['followee'], result['error']))
+    elif command == 'unfollow':
+        succeeded, result = twis.unfollow(auth_secret[0], args['followee'])
+        if succeeded:
+            print('Succeeded in unfollowing username {}'.format(args['followee']))
+        else:
+            print("Couldn't unfollow the username {} with error = {}".format(args['followee'], result['error']))
+    elif command == 'followers':
+        succeeded, result = twis.get_followers(auth_secret[0])
+        if succeeded:
+            print('Succeeded in get the list of {} followers'.format(len(result['follower_list'])))
+            print('=' * 20)
+            for follower in result['follower_list']:
+                print('\t' + follower)
+            print('=' * 20)
+        else:
+            print("Couldn't get the follower list with error = {}".format(result['error']))
+    elif command == 'followings':
+        succeeded, result = twis.get_following(auth_secret[0])
+        if succeeded:
+            print('Succeeded in get the list of {} followings'.format(len(result['following_list'])))
+            print('=' * 20)
+            for following in result['following_list']:
+                print('\t' + following)
+            print('=' * 20)
+        else:
+            print("Couldn't get the following list with error = {}".format(result['error']))
     else:
         pass
 
 def pytwis_cli():
     # TODO: Add epilog for the help information about online commands after connecting to the Twitter clone.
     parser = argparse.ArgumentParser(description=\
-                                     '''Connect to the Redis database of a Twitter clone and 
-                                        then run commands to access and update the database.''')
+                                     'Connect to the Redis database of a Twitter clone and '
+                                     'then run commands to access and update the database.')
     parser.add_argument('-d', '--hostname', dest='redis_hostname', default = '127.0.0.1', 
                         help='the Redis server hostname. If not specified, will be defaulted to 127.0.0.1.')
     parser.add_argument('-t', '--port', dest='redis_port', default = 6379,
@@ -136,7 +184,9 @@ def pytwis_cli():
     while True:
         try:
             command_with_args = pytwis_command_parser(
-                input("Please enter a command (register, login, logout, changepassword, post, follow, followers, timeline):\n{}:{}> "\
+                input('Please enter a command '
+                      '(register, login, logout, changepassword, post, '
+                      'follow, unfollow, followers, followings, timeline):\n{}:{}> '\
                       .format(args.redis_hostname, args.redis_port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':
                 # Log out of the current user before exiting.
