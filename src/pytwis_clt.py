@@ -8,6 +8,47 @@ import sys
 
 import pytwis
 
+
+def validate_command(raw_command):
+    parsed_command = raw_command.split()
+    arg_count = len(parsed_command) - 1
+
+    if (len(parsed_command) == 0):
+        return
+
+    if (parsed_command[0] == 'register'):
+        if (arg_count < 2):
+            raise ValueError('register {user_name} {password}')
+    elif (parsed_command[0] == 'login'):
+        if (arg_count < 2):
+            raise ValueError('login {user_name} {password}')
+    elif (parsed_command[0] == 'logout'):
+        pass
+    elif (parsed_command[0] == 'changepassword'):
+        if (arg_count < 3):
+            raise ValueError('changepassword {old_password} {new_password} {confirmed_new_password}')
+    elif (parsed_command[0] == 'post'):
+        if (arg_count < 1):
+            raise ValueError('post {tweet}')
+    elif (parsed_command[0] == 'follow'):
+        if (arg_count < 1):
+            raise ValueError('follow {followee}')
+    elif (parsed_command[0] == 'unfollow'):
+        if (arg_count < 1):
+            raise ValueError('unfollow {followee}')
+    elif (parsed_command[0] == 'followers'):
+        pass
+    elif (parsed_command[0] == 'followings'):
+        pass
+    elif (parsed_command[0] == 'timeline'):
+        if (arg_count > 2):
+            raise ValueError('timeline {tweet count} or timeline')
+    elif (parsed_command[0] == 'exit') or (parsed_command[0] == 'quit'):
+        pass
+    else:
+        raise ValueError('Invalid pytwis command')
+
+
 def pytwis_command_parser(raw_command):
     # Separate the command from its arguments.
     splited_raw_command = raw_command.split(' ', 1)
@@ -15,37 +56,31 @@ def pytwis_command_parser(raw_command):
 
     # Some command (e.g., logout) may not have arguments.
     arg_dict = {}
-    
+
+    arg_count = 0
+    validate_command(raw_command)
+
     if command_with_args[0] == 'register':
         # register must have two arguments: username and password.
-        if len(splited_raw_command) < 2:
-            raise ValueError('register has NO arguments')
-            
         args = splited_raw_command[1]
         arg_dict = parse.parse('{username} {password}', args)
         if arg_dict is None:
             raise ValueError('register has incorrect arguments')
-        
+
         print('register: username = {}, password = {}'.format(arg_dict['username'], arg_dict['password']))
     elif command_with_args[0] == 'login':
         # login must have two arguments: username and password.
-        if len(splited_raw_command) < 2:
-            raise ValueError('login has NO arguments')
-            
         args = splited_raw_command[1]
         arg_dict = parse.parse('{username} {password}', args)
         if arg_dict is None:
             raise ValueError('login has incorrect arguments')
-        
+
         print('login: username = {}, password = {}'.format(arg_dict['username'], arg_dict['password']))
     elif command_with_args[0] == 'logout':
         # logout doesn't have any arguments.
         pass
     elif command_with_args[0] == 'changepassword':
         # changepassword must have three arguments: old_password, new_password, and confirmed_new_password.
-        if len(splited_raw_command) < 2:
-            raise ValueError('changepassword has NO arguments')
-            
         args = splited_raw_command[1]
         arg_dict = parse.parse('{old_password} {new_password} {confirmed_new_password}', args)
         if arg_dict is None:
@@ -54,25 +89,16 @@ def pytwis_command_parser(raw_command):
             raise ValueError('The confirmed new password is different from the new password')
         elif arg_dict['new_password'] == arg_dict['old_password']:
             raise ValueError('The new password is the same as the old password')
-        
+
         print('changepassword: old = {}, new = {}'.format(arg_dict['old_password'], arg_dict['new_password']))
     elif command_with_args[0] == 'post':
         # post must have one argument: tweet
-        if len(splited_raw_command) < 2:
-            raise ValueError('post has NO arguments')
-        
         arg_dict = {'tweet': splited_raw_command[1]}
     elif command_with_args[0] == 'follow':
         # follow must have one argument: followee.
-        if len(splited_raw_command) < 2:
-            raise ValueError('follow has NO arguments')
-        
         arg_dict = {'followee': splited_raw_command[1]}
     elif command_with_args[0] == 'unfollow':
         # unfollow must have one argument: followee.
-        if len(splited_raw_command) < 2:
-            raise ValueError('unfollow has NO arguments')
-        
         arg_dict = {'followee': splited_raw_command[1]}
     elif command_with_args[0] == 'followers':
         # followers doesn't have any arguments.
@@ -85,17 +111,18 @@ def pytwis_command_parser(raw_command):
         max_cnt_tweets = -1
         if len(splited_raw_command) >= 2:
             max_cnt_tweets = int(splited_raw_command[1])
-            
+
         arg_dict = {'max_cnt_tweets': max_cnt_tweets}
     elif command_with_args[0] == 'exit' or command_with_args[0] == 'quit':
         # exit or quit doesn't have any arguments.
         pass
     else:
-        raise ValueError('Invalid pytwis command')
-    
+        pass
+
     command_with_args.append(arg_dict)
-    
+
     return command_with_args
+
 
 def print_tweets(tweets):
     print('=' * 60)
@@ -108,10 +135,11 @@ def print_tweets(tweets):
         print('-' * 60)
     print('=' * 60)
 
+
 def pytwis_command_processor(twis, auth_secret, command_with_args):
     command = command_with_args[0]
     args = command_with_args[1]
-    
+
     if command == 'register':
         succeeded, result = twis.register(args['username'], args['password'])
         if succeeded:
@@ -193,41 +221,42 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
     else:
         pass
 
+
 def pytwis_cli():
     # TODO: Add epilog for the help information about online commands after connecting to the Twitter clone.
-    parser = argparse.ArgumentParser(description=\
-                                     'Connect to the Redis database of a Twitter clone and '
-                                     'then run commands to access and update the database.')
-    parser.add_argument('-d', '--hostname', dest='redis_hostname', default = '127.0.0.1', 
+    parser = argparse.ArgumentParser(description= \
+                                         'Connect to the Redis database of a Twitter clone and '
+                                         'then run commands to access and update the database.')
+    parser.add_argument('-d', '--hostname', dest='redis_hostname', default='127.0.0.1',
                         help='the Redis server hostname. If not specified, will be defaulted to 127.0.0.1.')
-    parser.add_argument('-t', '--port', dest='redis_port', default = 6379,
+    parser.add_argument('-t', '--port', dest='redis_port', default=6379,
                         help='the Redis server port. If not specified, will be defaulted to 6379.')
-    parser.add_argument('-p', '--password', dest='redis_password', default = '',
+    parser.add_argument('-p', '--password', dest='redis_password', default='',
                         help='the Redis server password. If not specified, will be defaulted to an empty string.')
-    
+
     args = parser.parse_args()
-    
+
     print('The input Redis server hostname is {}.'.format(args.redis_hostname))
     print('The input Redis server port is {}.'.format(args.redis_port))
     if args.redis_password != '':
         print('The input Redis server password is "{}".'.format(args.redis_password))
     else:
         print('The input Redis server password is empty.')
-    
+
     try:
         twis = pytwis.Pytwis(args.redis_hostname, args.redis_port, args.redis_password)
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)
         return -1
-    
+
     auth_secret = ['']
     while True:
         try:
             command_with_args = pytwis_command_parser(
                 input('Please enter a command '
                       '(register, login, logout, changepassword, post, '
-                      'follow, unfollow, followers, followings, timeline):\n{}:{}> '\
+                      'follow, unfollow, followers, followings, timeline):\n{}:{}> ' \
                       .format(args.redis_hostname, args.redis_port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':
                 # Log out of the current user before exiting.
@@ -235,13 +264,14 @@ def pytwis_cli():
                     pytwis_command_processor(twis, auth_secret, ['logout', {}])
                 print('pytwis is exiting.')
                 return 0;
-            
+
         except ValueError as e:
             print('Invalid pytwis command: {}'.format(str(e)),
-              file=sys.stderr)
+                  file=sys.stderr)
             continue
-        
+
         pytwis_command_processor(twis, auth_secret, command_with_args)
+
 
 if __name__ == "__main__":
     pytwis_cli()
