@@ -195,6 +195,7 @@ class Pytwis:
             pipe.execute()
             
         result[self.USER_ID_PROFILE_USERNAME_KEY] = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+        result[self.USER_ID_PROFILE_AUTH_KEY] = ''
         return (True, result)
     
     def post_tweet(self, auth_secret, tweet):

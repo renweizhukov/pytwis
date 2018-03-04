@@ -36,7 +36,6 @@ from flask import request
 # http://127.0.0.1:5000/pytwis?cmd=timeline
 
 app = Flask(__name__)
-auth_secret = ['']
 twis = None
 # twis =  pytwis.Pytwis(server, port, password)
 
@@ -70,14 +69,22 @@ def init():
     except ValueError as e:
         return "error"
 
+g_auth_secret = ''
 @app.route('/pytwis', methods=['GET'])
 def pytwis_get_request():
-    global auth_secret
+    global g_auth_secret
     command = request.args['cmd']
     print(command)
     command_with_args = [request.args['cmd'], request.args]
-    response = pytwis_get_request_processor(twis, auth_secret, command_with_args)
-    print(response)
+
+    response = pytwis_get_request_processor(twis, g_auth_secret, command_with_args)
+
+    # temp solution until the front end handles auth
+    jsonResponse = json.loads(response)
+    if('auth' in jsonResponse):
+        g_auth_secret = jsonResponse['auth']
+    print(json.dumps(jsonResponse, sort_keys=True, indent=4))  # Beautified Json for debugging with logs
+
     return response
 
 def pytwis_get_request_processor(twis, auth_secret, command_with_args):
@@ -88,35 +95,28 @@ def pytwis_get_request_processor(twis, auth_secret, command_with_args):
         succeeded, result = twis.register(args['username'], args['password'])
     elif command == 'login':
         succeeded, result = twis.login(args['username'], args['password'])
-        if succeeded:
-            auth_secret[0] = result['auth'] # Need to move this to front end service
     elif command == 'logout':
-        succeeded, result = twis.logout(auth_secret[0])
-        if succeeded:
-            auth_secret[0] = ''
+        succeeded, result = twis.logout(auth_secret)
     elif command == 'changepassword':
-        succeeded, result = twis.change_password(auth_secret[0], args['old_password'], args['new_password'])
-        if succeeded:
-            auth_secret[0] = result['auth']
+        succeeded, result = twis.change_password(auth_secret, args['old_password'], args['new_password'])
     elif command == 'post':
-        succeeded, result = twis.post_tweet(auth_secret[0], args['tweet'])
+        succeeded, result = twis.post_tweet(auth_secret, args['tweet'])
     elif command == 'follow':
-        succeeded, result = twis.follow(auth_secret[0], args['followee'])
+        succeeded, result = twis.follow(auth_secret, args['followee'])
     elif command == 'unfollow':
-        succeeded, result = twis.unfollow(auth_secret[0], args['followee'])
+        succeeded, result = twis.unfollow(auth_secret, args['followee'])
     elif command == 'followers':
-        succeeded, result = twis.get_followers(auth_secret[0])
+        succeeded, result = twis.get_followers(auth_secret)
     elif command == 'followings':
-        succeeded, result = twis.get_following(auth_secret[0])
+        succeeded, result = twis.get_following(auth_secret)
     elif command == 'timeline':
         if('max_cnt_tweets' in args):
-            succeeded, result = twis.get_timeline(auth_secret[0], int(args['max_cnt_tweets']))
+            succeeded, result = twis.get_timeline(auth_secret, int(args['max_cnt_tweets']))
         else:
-            succeeded, result = twis.get_timeline(auth_secret[0], twis.GENERAL_TIMELINE_MAX_POST_CNT)
+            succeeded, result = twis.get_timeline(auth_secret, twis.GENERAL_TIMELINE_MAX_POST_CNT)
     else:
         pass
 
-    print(json.dumps(result, sort_keys=True, indent=4)) # Beautified Json for debugging with logs
     return json.dumps(result)
 
 if __name__ ==  "__main__":
