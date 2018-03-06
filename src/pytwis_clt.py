@@ -57,7 +57,6 @@ def pytwis_command_parser(raw_command):
     # Some command (e.g., logout) may not have arguments.
     arg_dict = {}
 
-    arg_count = 0
     validate_command(raw_command)
 
     if command_with_args[0] == 'register':
@@ -156,7 +155,7 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
     elif command == 'logout':
         succeeded, result = twis.logout(auth_secret[0])
         if succeeded:
-            auth_secret[0] = ''
+            auth_secret[0] = result['auth']
             print('Logged out of username {}'.format(result['username']))
         else:
             print("Couldn't log out with error = {}".format(result['error']))
@@ -227,10 +226,12 @@ def pytwis_cli():
     parser = argparse.ArgumentParser(description= \
                                          'Connect to the Redis database of a Twitter clone and '
                                          'then run commands to access and update the database.')
-    parser.add_argument('-d', '--hostname', dest='redis_hostname', default='127.0.0.1',
+    parser.add_argument('-n', '--hostname', dest='redis_hostname', default='127.0.0.1',
                         help='the Redis server hostname. If not specified, will be defaulted to 127.0.0.1.')
     parser.add_argument('-t', '--port', dest='redis_port', default=6379,
                         help='the Redis server port. If not specified, will be defaulted to 6379.')
+    parser.add_argument('-d', '--database', dest='redis_database', default=0,
+                        help='the Redis server database. If not specified, will be defaulted to 0.')
     parser.add_argument('-p', '--password', dest='redis_password', default='',
                         help='the Redis server password. If not specified, will be defaulted to an empty string.')
 
@@ -238,13 +239,14 @@ def pytwis_cli():
 
     print('The input Redis server hostname is {}.'.format(args.redis_hostname))
     print('The input Redis server port is {}.'.format(args.redis_port))
+    print('The input Redis server database is {}.'.format(args.redis_database))
     if args.redis_password != '':
         print('The input Redis server password is "{}".'.format(args.redis_password))
     else:
         print('The input Redis server password is empty.')
 
     try:
-        twis = pytwis.Pytwis(args.redis_hostname, args.redis_port, args.redis_password)
+        twis = pytwis.Pytwis(args.redis_hostname, args.redis_port, args.redis_database, args.redis_password)
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)

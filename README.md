@@ -1,6 +1,8 @@
 # pytwis
 
-A twitter clone using Python and Redis
+A twitter-clone backend using Python and Redis.
+
+Note that **this package requires Python 3.6 and later** since it depends on Python 3.6 built-in module [`secrets`](https://docs.python.org/3/library/secrets.html).
 
 To get the help information,
 
