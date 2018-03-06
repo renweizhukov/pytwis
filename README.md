@@ -109,3 +109,17 @@ or
 ```bash
 > quit
 ```
+
+## 3. Unit test.
+
+To run the unit test,
+
+```bash
+$ python3 pytwis_test.py
+```
+
+or 
+
+```bash
+$ ./pytwis_test.py
+```
