@@ -403,6 +403,9 @@ class Pytwis:
         # Get the post IDs of the tweets.
         post_ids = self._rc.lrange(timeline_key, 0, last_tweet_index)
         
+        if len(post_ids) == 0:
+            return (True, result)
+        
         with self._rc.pipeline() as pipe:
             # Get the tweets with their user IDs and UNIX timestamps.
             pipe.multi()

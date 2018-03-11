@@ -65,6 +65,8 @@ def pytwis_command_parser(raw_command):
         arg_dict = parse.parse('{username} {password}', args)
         if arg_dict is None:
             raise ValueError('register has incorrect arguments')
+        elif ' ' in arg_dict['password']:
+            raise ValueError("password can't contain spaces")
 
         print('register: username = {}, password = {}'.format(arg_dict['username'], arg_dict['password']))
     elif command_with_args[0] == 'login':
