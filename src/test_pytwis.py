@@ -251,70 +251,91 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         self._change_password_after_login_then_logout_login()
 
 
-class PytwisGeneralTimelineTests(PytwisTestsWithRegisteredUsers):
+class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
     '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions 
-    for the general timeline.
+    for the timeline.
     '''
     
-    def _get_empty_general_timeline(self):
-        '''Get an empty general timeline.'''
-        
-        succeeded, result = self._pytwis.get_timeline('', -1)
-        self.assertTrue(succeeded, 'Failed to get the empty general timeline')
-        self.assertEqual(0, len(result['tweets']), 'Get a non-empty general timeline')
-        
-    def _get_nonempty_general_timeline_all(self):
-        '''Get all the tweets of a nonempty general timeline.'''
+    def setUp(self):
+        PytwisTestsWithRegisteredUsers.setUp(self)
         
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
                         format(self._usernames[0], self._passwords[0]))
-        auth_secret = result['auth']
+        self._post_auth_secret = result['auth']
+        self._get_auth_secret = ''
+    
+    def _get_empty_timeline(self):
+        '''Get an empty timeline.'''
+        
+        succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, -1)
+        self.assertTrue(succeeded, 'Failed to get the empty timeline')
+        self.assertEqual(0, len(result['tweets']), 'Get a non-empty timeline')
+        
+    def _get_nonempty_timeline_all(self):
+        '''Get all the tweets of a nonempty timeline.'''
         
         self._cnt_tweets = 10
         for tweet_index in range(0, self._cnt_tweets):
-            succeeded, _ = self._pytwis.post_tweet(auth_secret, 'Test tweet {}'.format(tweet_index))
+            succeeded, _ = self._pytwis.post_tweet(self._post_auth_secret, 'Test tweet {}'.format(tweet_index))
             self.assertTrue(succeeded, 'Failed to post the tweet {}'.format(tweet_index))
         
         # Get all the general timeline.
-        succeeded, result = self._pytwis.get_timeline('', -1)
-        self.assertTrue(succeeded, 'Failed to get the non-empty general timeline')
+        succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, -1)
+        self.assertTrue(succeeded, 'Failed to get the non-empty timeline')
         self.assertEqual(self._cnt_tweets, len(result['tweets']), 'Get an incorrect number of tweets')
         
-    def _get_nonempty_general_timeline_fewer(self):
+    def _get_nonempty_timeline_fewer(self):
         '''Get fewer than available tweets.'''
         
-        succeeded, result = self._pytwis.get_timeline('', self._cnt_tweets//2)
+        succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets//2)
         self.assertTrue(succeeded, 'Failed to get fewer than available tweets')
         self.assertEqual(self._cnt_tweets//2, len(result['tweets']), 'Get an incorrect number of tweets')
         
-    def _get_nonempty_general_timeline_more(self):
+    def _get_nonempty_timeline_more(self):
         '''Get more than available tweets.'''
         
-        succeeded, result = self._pytwis.get_timeline('', self._cnt_tweets*2)
+        succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets*2)
         self.assertTrue(succeeded, 'Failed to get more than available tweets')
         self.assertEqual(self._cnt_tweets, len(result['tweets']), 'Get an incorrect number of tweets')
 
+
+class PytwisGeneralTimelineTests(PytwisTimelineTests):
     def test_general_timeline(self):
         '''get_timeline test routines for the general timeline:
-        (1) _get_empty_general_timeline
-        (2) _get_nonempty_general_timeline_all
-        (3) _get_nonempty_general_timeline_fewer
-        (4) _get_nonempty_general_timeline_more
+        (1) _get_empty_timeline
+        (2) _get_nonempty_timeline_all
+        (3) _get_nonempty_timeline_fewer
+        (4) _get_nonempty_timeline_more
         '''
         
-        self._get_empty_general_timeline()
-        self._get_nonempty_general_timeline_all()
-        self._get_nonempty_general_timeline_fewer()
-        self._get_nonempty_general_timeline_more()
+        self._get_empty_timeline()
+        self._get_nonempty_timeline_all()
+        self._get_nonempty_timeline_fewer()
+        self._get_nonempty_timeline_more()
 
 
-class PytwisUserTimelineTestsWithoutFollow(PytwisTestsWithRegisteredUsers):
+class PytwisUserTimelineTestsWithoutFollow(PytwisTimelineTests):
     '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions 
     for the user timeline without followers.
     '''
-    pass
+    def setUp(self):
+        PytwisTimelineTests.setUp(self)
+        self._get_auth_secret = self._post_auth_secret
+    
+    def test_user_timeline(self):
+        '''get_timeline test routines for the user timeline:
+        (1) _get_empty_timeline
+        (2) _get_nonempty_timeline_all
+        (3) _get_nonempty_timeline_fewer
+        (4) _get_nonempty_timeline_more
+        '''
+        
+        self._get_empty_timeline()
+        self._get_nonempty_timeline_all()
+        self._get_nonempty_timeline_fewer()
+        self._get_nonempty_timeline_more()
 
 
 class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
