@@ -191,5 +191,85 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         self._login_logout_login_new_auth_secret()
     
     
+class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
+    '''Test for the ``Pytwis.change_password()`` function.'''
+    
+    def _change_password_before_login(self):
+        '''Change the password before logging in.'''
+        
+        succeeded, result = self._pytwis.change_password('', 'old_password', 'new_password')
+        self.assertFalse(succeeded, 'Succeeded in changing the password before logging in')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+    
+    def _change_password_with_wrong_old_password(self):
+        '''Change the password with the wrong old password.'''
+        
+        succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
+        self.assertTrue(succeeded, 'Succeeded in logging in.')
+        auth_secret = result['auth']
+        
+        succeeded, result = self._pytwis.change_password(auth_secret, self._passwords[0] + '_wrong', '')
+        self.assertFalse(succeeded, 'Succeeded in changing the password into the same one')
+        self.assertEqual('Incorrect old password', result['error'], 'Incorrect error message')
+    
+    def _change_password_after_login_then_logout_login(self):
+        '''Change the password after logging in, 
+        then log out and log in with the new password 
+        '''
+        
+        old_password = self._passwords[0]
+        succeeded, result = self._pytwis.login(self._usernames[0], old_password)
+        self.assertTrue(succeeded, 'Succeeded in logging in with the old password.')
+        old_auth_secret = result['auth']
+        
+        new_password = self._passwords[0] + '_new'
+        succeeded, result = self._pytwis.change_password(old_auth_secret, old_password, new_password)
+        self.assertTrue(succeeded, 'Succeeded in changing the password.')
+        new_auth_secret = result['auth']
+        self.assertNotEqual(old_auth_secret, new_auth_secret, 
+                            'The new authentication secret is the same as the old one')
+        
+        succeeded, _ = self._pytwis.logout(new_auth_secret)
+        self.assertTrue(succeeded, 'Failed to log out')
+        
+        succeeded, result = self._pytwis.login(self._usernames[0], old_password)
+        self.assertFalse(succeeded, 'Succeeded in logging in with the old password')
+        self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
+        
+        succeeded, _ = self._pytwis.login(self._usernames[0], new_password)
+        self.assertTrue(succeeded, 'Failed to log in with the new password')
+        
+    def test_change_password(self):
+        '''change_password test routines:
+        (1) _change_password_before_login
+        (2) _change_password_with_wrong_old_password
+        (3) _change_password_after_login_then_logout_login
+        '''
+        
+        self._change_password_before_login()
+        self._change_password_with_wrong_old_password()
+        self._change_password_after_login_then_logout_login()
+
+
+class PytwisTimelineTestsWithoutFollow(PytwisTestsWithRegisteredUsers):
+    '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions with no followers.'''
+    pass
+
+
+class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
+    '''Test for the follow-related ``Pytwis`` functions:
+    (1) ``follow()`` 
+    (2) ``unfollow()`` 
+    (3) ``get_followers``, 
+    (4) ``get_following()``
+    '''
+    pass
+
+
+class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
+    '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions with followers.'''
+    pass
+
+
 if __name__ == '__main__':
     unittest.main()

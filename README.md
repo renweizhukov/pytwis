@@ -8,6 +8,7 @@ To get the help information,
 
 ```bash
 $ ./pytwis_clt.py -h
+$ ./pytwis_clt.py --help
 ```
 
 ## 1. Connect to the twitter clone.
@@ -21,7 +22,7 @@ $ ./pytwis_clt.py
 (2) Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.
 
 ```bash
-$ ./pytwis_clt.py -d xxx.xxx.xxx.xxx -t yyyy -p zzzzzz
+$ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
 ```
 
 ## 2. Online commands after successfully connecting to the twitter clone.
