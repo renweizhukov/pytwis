@@ -112,7 +112,13 @@ or
 
 ## 3. Unit test.
 
-To run the unit test,
+Since this unit test requires a running local Redis server, it is in fact a small integration test. To run the test,
+
+```bash
+$ python3 -m unittest -v
+```
+
+or
 
 ```bash
 $ python3 pytwis_test.py
