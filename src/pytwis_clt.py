@@ -224,31 +224,41 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
 
 
 def pytwis_cli():
-    # TODO: Add epilog for the help information about online commands after connecting to the Twitter clone.
-    parser = argparse.ArgumentParser(description= \
+    # Note that we set the conflict handler of ArgumentParser to 'resolve' because we reuse the short help 
+    # option '-h' for the host name.
+    parser = argparse.ArgumentParser(conflict_handler="resolve", description=\
                                          'Connect to the Redis database of a Twitter clone and '
                                          'then run commands to access and update the database.')
-    parser.add_argument('-n', '--hostname', dest='redis_hostname', default='127.0.0.1',
-                        help='the Redis server hostname. If not specified, will be defaulted to 127.0.0.1.')
-    parser.add_argument('-t', '--port', dest='redis_port', default=6379,
-                        help='the Redis server port. If not specified, will be defaulted to 6379.')
-    parser.add_argument('-d', '--database', dest='redis_database', default=0,
-                        help='the Redis server database. If not specified, will be defaulted to 0.')
-    parser.add_argument('-p', '--password', dest='redis_password', default='',
-                        help='the Redis server password. If not specified, will be defaulted to an empty string.')
+    # TODO: Add epilog for the help information about online commands after connecting to the Twitter clone.
+    parser.add_argument('-h', '--hostname', nargs='?', default='127.0.0.1',
+                        help='''the Redis server hostname. If the option is not specified, will be defaulted to 127.0.0.1. 
+                             If the option is specified but no value is given after the option, then the help information 
+                             is displayed instead.
+                             ''')
+    parser.add_argument('-p', '--port', default=6379,
+                        help='the Redis server port. If the option is not specified, will be defaulted to 6379.')
+    parser.add_argument('-n', '--db', default=0,
+                        help='the Redis server database. If the option is not specified, will be defaulted to 0.')
+    parser.add_argument('-a', '--password', default='',
+                        help='the Redis server password. If the option not specified, will be defaulted to an empty string.')
 
     args = parser.parse_args()
 
-    print('The input Redis server hostname is {}.'.format(args.redis_hostname))
-    print('The input Redis server port is {}.'.format(args.redis_port))
-    print('The input Redis server database is {}.'.format(args.redis_database))
-    if args.redis_password != '':
-        print('The input Redis server password is "{}".'.format(args.redis_password))
+    # If no value is given after the option '-h', then the help information is displayed.
+    if args.hostname is None:
+        parser.print_help()
+        return 0
+
+    print('The input Redis server hostname is {}.'.format(args.hostname))
+    print('The input Redis server port is {}.'.format(args.port))
+    print('The input Redis server database is {}.'.format(args.db))
+    if args.password != '':
+        print('The input Redis server password is "{}".'.format(args.password))
     else:
         print('The input Redis server password is empty.')
 
     try:
-        twis = pytwis.Pytwis(args.redis_hostname, args.redis_port, args.redis_database, args.redis_password)
+        twis = pytwis.Pytwis(args.hostname, args.port, args.db, args.password)
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)
@@ -261,7 +271,7 @@ def pytwis_cli():
                 input('Please enter a command '
                       '(register, login, logout, changepassword, post, '
                       'follow, unfollow, followers, followings, timeline):\n{}:{}> ' \
-                      .format(args.redis_hostname, args.redis_port)))
+                      .format(args.hostname, args.port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':
                 # Log out of the current user before exiting.
                 if len(auth_secret[0]) > 0:
