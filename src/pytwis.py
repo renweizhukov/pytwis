@@ -264,6 +264,9 @@ class Pytwis:
                     if followee_user_id is None:
                         result['error'] = "Followee {} doesn't exist".format(followee_username)
                         return (False, result);
+                    elif followee_user_id == user_id:
+                        result['error'] = "Can't follow yourself {}".format(followee_username)
+                        return (False, result)
                     
                     break
                 except WatchError:

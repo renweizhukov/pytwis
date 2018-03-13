@@ -35,22 +35,6 @@ class PytwisTests(unittest.TestCase):
         self._pytwis._rc.flushdb()
 
 
-class PytwisTestsWithRegisteredUsers(PytwisTests):
-    '''Pytwis test class which inherits from PytwisTests and register some users in setUp().'''
-    
-    CNT_REGISTERED_USERS = 2
-    
-    def setUp(self):
-        PytwisTests.setUp(self)
-        
-        self._usernames = ['username_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
-        self._passwords = ['password_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
-
-        for username, password in zip(self._usernames, self._passwords):
-            succeeded, _ = self._pytwis.register(username, password)
-            self.assertTrue(succeeded, 'Failed to register user {}'.format(username))
-
-
 class PytwisRegisterTests(PytwisTests):
     '''Test for the ``Pytwis.register()`` function.'''
     
@@ -90,6 +74,22 @@ class PytwisRegisterTests(PytwisTests):
         '''
         self._register_new_and_existing_users()
         self._register_same_user_at_same_time()
+
+
+class PytwisTestsWithRegisteredUsers(PytwisTests):
+    '''Pytwis test class which inherits from PytwisTests and register some users in setUp().'''
+    
+    CNT_REGISTERED_USERS = 2
+    
+    def setUp(self):
+        PytwisTests.setUp(self)
+        
+        self._usernames = ['username_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
+        self._passwords = ['password_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
+
+        for username, password in zip(self._usernames, self._passwords):
+            succeeded, _ = self._pytwis.register(username, password)
+            self.assertTrue(succeeded, 'Failed to register user {}'.format(username))
 
 
 class PytwisLogTests(PytwisTestsWithRegisteredUsers):
@@ -189,8 +189,8 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         self._logout_before_login()
         self._logout_after_login()
         self._login_logout_login_new_auth_secret()
-    
-    
+
+
 class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
     '''Test for the ``Pytwis.change_password()`` function.'''
     
@@ -252,8 +252,8 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
 
 
 class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
-    '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions 
-    for the timeline.
+    '''Pytwis test class which inherits from PytwisTestsWithRegisteredUsers and log into some users in setUp().
+    It also provides a couple of test routines shared by the general-timeline tests and the user-timeline tests.
     '''
     
     def setUp(self):
@@ -302,6 +302,10 @@ class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
 
 
 class PytwisGeneralTimelineTests(PytwisTimelineTests):
+    '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions 
+    for the general timeline.
+    '''
+    
     def test_general_timeline(self):
         '''get_timeline test routines for the general timeline:
         (1) _get_empty_timeline
@@ -320,6 +324,7 @@ class PytwisUserTimelineTestsWithoutFollow(PytwisTimelineTests):
     '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions 
     for the user timeline without followers.
     '''
+    
     def setUp(self):
         PytwisTimelineTests.setUp(self)
         self._get_auth_secret = self._post_auth_secret
@@ -345,12 +350,257 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
     (3) ``get_followers``, 
     (4) ``get_following()``
     '''
-    pass
+    
+    CNT_REGISTERED_USERS = 11
+    
+    def setUp(self):
+        PytwisTestsWithRegisteredUsers.setUp(self)
+        
+        self._auth_secrets = []
+        for user_index in range(0, self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.login(self._usernames[user_index], self._passwords[user_index])
+            self.assertTrue(succeeded, 
+                            'Failed to log into user {} with the correct password {}'.\
+                            format(self._usernames[user_index], self._passwords[user_index]))
+            self._auth_secrets.append(result['auth'])
+    
+    def _follow_unfollow_before_login(self):
+        '''Test for the follow-related functions before logged in.'''
+        
+        succeeded, result = self._pytwis.follow('', self._usernames[0])
+        self.assertFalse(succeeded, 'Succeeded in following another user before logged in')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        
+        succeeded, result = self._pytwis.unfollow('', self._usernames[0])
+        self.assertFalse(succeeded, 'Succeeded in unfollowing another user before logged in')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        
+        succeeded, result = self._pytwis.get_followers('')
+        self.assertFalse(succeeded, 'Succeeded in getting the follower list before logged in')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        
+        succeeded, result = self._pytwis.get_following('')
+        self.assertFalse(succeeded, 'Succeeded in getting the following list before logged in')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+    
+    def _follow_unfollow_correct_username_after_login(self):
+        '''Test for the follow-related functions after logged in 
+        with a correct username.
+        '''
+        
+        succeeded, _ = self._pytwis.follow(self._auth_secrets[0], self._usernames[1])
+        self.assertTrue(succeeded, 'Failed to follow another user after logged in')
+        
+        succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the following list after a follow')
+        self.assertEqual(1, len(result['following_list']), 
+                         'Incorrect number of followings after a follow')
+        
+        succeeded, result = self._pytwis.get_followers(self._auth_secrets[1])
+        self.assertTrue(succeeded, 'Failed to get the follower list after a follow')
+        self.assertEqual(1, len(result['follower_list']), 
+                         'Incorrect number of followers after a follow')
+        
+        succeeded, _ = self._pytwis.unfollow(self._auth_secrets[0], self._usernames[1])
+        self.assertTrue(succeeded, 'Failed to unfollow another user after logged in')
+        
+        succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the following list after an unfollow')
+        self.assertEqual(0, len(result['following_list']), 
+                         'Incorrect number of followings after an unfollow')
+        
+        succeeded, result = self._pytwis.get_followers(self._auth_secrets[1])
+        self.assertTrue(succeeded, 'Failed to get the follower list after an unfollow')
+        self.assertEqual(0, len(result['follower_list']), 
+                         'Incorrect number of followers after an unfollow')
+
+    def _follow_unfollow_wrong_username_after_login(self):
+        '''Test ``follow()`` and ``unfollow()`` with the wrong usernames.'''
+        
+        wrong_followee = self._usernames[1] + '_wrong'
+        succeeded, result = self._pytwis.follow(self._auth_secrets[0], wrong_followee)
+        self.assertFalse(succeeded, 'Succeeded in following a wrong username {}'.format(wrong_followee))
+        self.assertEqual("Followee {} doesn't exist".format(wrong_followee), result['error'], 
+                         'Incorrect error message')
+        
+        succeeded, result = self._pytwis.unfollow(self._auth_secrets[0], wrong_followee)
+        self.assertFalse(succeeded, 'Succeeded in unfollowing a wrong username {}'.format(wrong_followee))
+        self.assertEqual("Followee {} doesn't exist".format(wrong_followee), result['error'], 
+                         'Incorrect error message')
+    
+    def _follow_yourself_after_login(self):
+        '''Test ``follow()`` with the logged-in username.'''
+        
+        succeeded, result = self._pytwis.follow(self._auth_secrets[0], self._usernames[0])
+        self.assertFalse(succeeded, 'Succeeded in following yourself {}'.format(self._usernames[0]))
+        self.assertEqual("Can't follow yourself {}".format(self._usernames[0]), result['error'], 
+                         'Incorrect error message')
+
+    def _one_follow_multiple(self):
+        '''Test the scenario where one user follows multiple users.'''
+        
+        for followee_index in range(1, self.CNT_REGISTERED_USERS):
+            succeeded, _ = self._pytwis.follow(self._auth_secrets[0], self._usernames[followee_index])
+            self.assertTrue(succeeded, '{} failed to follow {}'.\
+                            format(self._usernames[0], self._usernames[followee_index]))
+            
+            succeeded, result = self._pytwis.get_followers(self._auth_secrets[followee_index])
+            self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[followee_index]))
+            self.assertEqual(1, len(result['follower_list']), 
+                            'Incorrect number of followers for {}'.format(self._usernames[followee_index]))
+            
+        succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[0]))
+        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result['following_list']), 
+                        'Incorrect number of followings for {}'.format(self._usernames[0]))
+        
+        for followee_index in range(1, self.CNT_REGISTERED_USERS):
+            succeeded, _ = self._pytwis.unfollow(self._auth_secrets[0], self._usernames[followee_index])
+            self.assertTrue(succeeded, '{} failed to unfollow {}'.\
+                            format(self._usernames[0], self._usernames[followee_index]))
+            
+            succeeded, result = self._pytwis.get_followers(self._auth_secrets[followee_index])
+            self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[followee_index]))
+            self.assertEqual(0, len(result['follower_list']), 
+                            'Incorrect number of followers for {}'.format(self._usernames[followee_index]))
+            
+        succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[0]))
+        self.assertEqual(0, len(result['following_list']), 
+                        'Incorrect number of followings for {}'.format(self._usernames[0]))
+        
+    def _multiple_follow_one(self):
+        '''Test the scenario where multiple users follow one user.'''
+        
+        for follower_index in range(1, self.CNT_REGISTERED_USERS):
+            succeeded, _ = self._pytwis.follow(self._auth_secrets[follower_index], self._usernames[0])
+            self.assertTrue(succeeded, '{} failed to follow {}'.\
+                            format(self._usernames[follower_index], self._usernames[0]))
+            
+            succeeded, result = self._pytwis.get_following(self._auth_secrets[follower_index])
+            self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[follower_index]))
+            self.assertEqual(1, len(result['following_list']), 
+                            'Incorrect number of followings for {}'.format(self._usernames[follower_index]))
+            
+        succeeded, result = self._pytwis.get_followers(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[0]))
+        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result['follower_list']), 
+                        'Incorrect number of followers for {}'.format(self._usernames[0]))
+        
+        for follower_index in range(1, self.CNT_REGISTERED_USERS):
+            succeeded, _ = self._pytwis.unfollow(self._auth_secrets[follower_index], self._usernames[0])
+            self.assertTrue(succeeded, '{} failed to unfollow {}'.\
+                            format(self._usernames[follower_index], self._usernames[0]))
+            
+            succeeded, result = self._pytwis.get_following(self._auth_secrets[follower_index])
+            self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[follower_index]))
+            self.assertEqual(0, len(result['following_list']), 
+                            'Incorrect number of followings for {}'.format(self._usernames[follower_index]))
+            
+        succeeded, result = self._pytwis.get_followers(self._auth_secrets[0])
+        self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[0]))
+        self.assertEqual(0, len(result['follower_list']), 
+                        'Incorrect number of followings for {}'.format(self._usernames[0]))
+        
+    def test_follow(self):
+        '''Follow-related test routines:
+        (1) _follow_unfollow_before_login
+        (2) _follow_unfollow_correct_username_after_login
+        (3) _follow_unfollow_wrong_username_after_login
+        (4) _follow_yourself_after_login
+        (5) _one_follow_multiple
+        (6) _multiple_follow_one
+        '''
+        
+        self._follow_unfollow_before_login()
+        self._follow_unfollow_correct_username_after_login()
+        self._follow_unfollow_wrong_username_after_login()
+        self._follow_yourself_after_login()
+        self._one_follow_multiple()
+        self._multiple_follow_one()
 
 
 class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
     '''Test for the ``Pytwis.get_timeline()`` and ``Pytwis.post_tweet()`` functions with followers.'''
-    pass
+    
+    CNT_REGISTERED_USERS = 3
+    
+    def setUp(self):
+        PytwisTestsWithRegisteredUsers.setUp(self)
+        
+        self._auth_secrets = []
+        for user_index in range(0, self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.login(self._usernames[user_index], self._passwords[user_index])
+            self.assertTrue(succeeded, 
+                            'Failed to log into user {} with the correct password {}'.\
+                            format(self._usernames[user_index], self._passwords[user_index]))
+            self._auth_secrets.append(result['auth'])
+            
+        self._expected_cnt_tweets = []
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            self._expected_cnt_tweets.append(0)
+    
+    def _post_after_two_follows(self):
+        '''Test the scenario where one user posts a tweet with two followers.'''
+        
+        for follower_index in range(1, self.CNT_REGISTERED_USERS):
+            succeeded, _ = self._pytwis.follow(self._auth_secrets[follower_index], self._usernames[0])
+            self.assertTrue(succeeded, '{} failed to follow {}'.\
+                            format(self._usernames[follower_index], self._usernames[0]))
+            
+        succeeded, _ = self._pytwis.post_tweet(self._auth_secrets[0], 'Tweet after two follows.')
+        self.assertTrue(succeeded, '{} failed to post a tweet'.format(self._usernames[0]))
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            self._expected_cnt_tweets[user_index] += 1
+            succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
+            self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+                             'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
+    
+    def _post_after_one_follow_and_one_unfollow(self):
+        '''Test the scenario where one user posts another tweet after one unfollow.'''
+        
+        succeeded, _ = self._pytwis.unfollow(self._auth_secrets[-1], self._usernames[0])
+        self.assertTrue(succeeded, '{} failed to unfollow {}'.\
+                        format(self._usernames[-1], self._usernames[0]))
+        
+        succeeded, _ = self._pytwis.post_tweet(self._auth_secrets[0], 'Tweet after one follow and one unfollow.')
+        self.assertTrue(succeeded, '{} failed to post a tweet'.format(self._usernames[0]))
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            if user_index != self.CNT_REGISTERED_USERS - 1:
+                self._expected_cnt_tweets[user_index] += 1
+            succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
+            self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+                             'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
+        
+    def _post_after_two_unfollows(self):
+        '''Test the scenario where one user posts another tweet after two unfollows.'''
+        
+        succeeded, _ = self._pytwis.unfollow(self._auth_secrets[1], self._usernames[0])
+        self.assertTrue(succeeded, '{} failed to unfollow {}'.\
+                        format(self._usernames[1], self._usernames[0]))
+        
+        succeeded, _ = self._pytwis.post_tweet(self._auth_secrets[0], 'Tweet after two unfollows.')
+        self.assertTrue(succeeded, '{} failed to post a tweet'.format(self._usernames[0]))
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            if user_index == 0:
+                self._expected_cnt_tweets[user_index] += 1
+            succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
+            self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+                             'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
+            
+    def test_post_follow(self):
+        '''Post-follow-coupled test routines:
+        (1) _post_after_two_follows
+        (2) _post_after_one_follow_and_one_unfollow
+        (3) _post_after_two_unfollows
+        '''
+        
+        self._post_after_two_follows()
+        self._post_after_one_follow_and_one_unfollow()
+        self._post_after_two_unfollows()
 
 
 if __name__ == '__main__':
