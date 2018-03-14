@@ -130,3 +130,11 @@ or
 ```bash
 $ ./pytwis_test.py
 ```
+
+## 4. README.rst
+
+README.rst is generated from README.md via `pandoc`.
+
+```bash
+$ pandoc --from=markdown --to=rst --output=README.rst README.md
+```

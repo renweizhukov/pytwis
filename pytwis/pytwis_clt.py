@@ -6,7 +6,7 @@ import datetime
 import parse
 import sys
 
-import pytwis
+from pytwis import Pytwis
 
 
 def validate_command(raw_command):
@@ -258,7 +258,7 @@ def pytwis_cli():
         print('The input Redis server password is empty.')
 
     try:
-        twis = pytwis.Pytwis(args.hostname, args.port, args.db, args.password)
+        twis = Pytwis(args.hostname, args.port, args.db, args.password)
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)

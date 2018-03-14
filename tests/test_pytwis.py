@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from pytwis import Pytwis
+from .context import pytwis
 
 
 class PytwisTests(unittest.TestCase):
@@ -21,7 +21,7 @@ class PytwisTests(unittest.TestCase):
         keys of all the existing databases. 
         '''
         try:
-            self._pytwis = Pytwis(db=self.TEST_DATABASE_ID)
+            self._pytwis = pytwis.Pytwis(db=self.TEST_DATABASE_ID)
         except ValueError as e:
             self.fail('Failed to connect to the Redis server: {}'.format(str(e)))
             
