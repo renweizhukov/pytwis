@@ -5,7 +5,7 @@ A twitter-clone backend using Python and Redis.
 
 Note that **this package requires Python 3.6 and later** since it
 depends on Python 3.6 built-in module
-```secrets`` <https://docs.python.org/3/library/secrets.html>`__.
+`secrets <https://docs.python.org/3/library/secrets.html>`__.
 
 To get the help information,
 
@@ -17,19 +17,19 @@ To get the help information,
 1. Connect to the twitter clone.
 --------------------------------
 
-(1) Connect to the local Redis server at the default port 6379 with no
-    password.
+::
 
-.. code:: bash
+    (1) Connect to the local Redis server at the default port 6379 with no password.
 
+    ```bash
     $ ./pytwis_clt.py 
+    ```
 
-(2) Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port
-    yyyy with password zzzzzz.
+    (2) Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.
 
-.. code:: bash
-
+    ```bash
     $ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
+    ```
 
 2. Online commands after successfully connecting to the twitter clone.
 ----------------------------------------------------------------------
@@ -37,90 +37,89 @@ To get the help information,
 Note that the following commands have to be executed after a successful
 log-in.
 
--  logout
--  changepassword
--  follow
--  unfollow
--  followers
--  followings
--  post
+::
 
-(1) Register a new user xxxxxx with password yyyyyy.
+    * logout
+    * changepassword
+    * follow
+    * unfollow
+    * followers
+    * followings
+    * post
 
-.. code:: bash
+    (1) Register a new user xxxxxx with password yyyyyy.
 
+    ```bash
     > register xxxxxx yyyyyy
+    ```
 
-(2) Log into a user xxxxxxx with password yyyyyy.
+    (2) Log into a user xxxxxxx with password yyyyyy.
 
-.. code:: bash
-
+    ```bash
     > login xxxxxx yyyyyy
+    ```
 
-(3) Log out.
+    (3) Log out.
 
-.. code:: bash
-
+    ```bash
     > logout
+    ```
 
-(4) Change the password. Assume that the old password is yyyyyy and the
-    new password is zzzzzz.
+    (4) Change the password. Assume that the old password is yyyyyy and the new password is zzzzzz.
 
-.. code:: bash
-
+    ```bash
     > changepassword yyyyyy zzzzzz zzzzzz
+    ```
 
-(5) Follow a user xxxxxx.
+    (5) Follow a user xxxxxx.
 
-.. code:: bash
-
+    ```bash
     > follow xxxxxx
+    ```
 
-(6) Unfollow a user.
+    (6) Unfollow a user.
 
-.. code:: bash
-
+    ```bash
     > unfollow xxxxxx
+    ```
 
-(7) Get the follower list of a user.
+    (7) Get the follower list of a user.
 
-.. code:: bash
-
+    ```bash
     > followers
+    ```
 
-(8) Get the following list of a user.
+    (8) Get the following list of a user.
 
-.. code:: bash
-
+    ```bash
     > followings
+    ```
 
-(9) Post a tweet
+    (9) Post a tweet
 
-.. code:: bash
-
+    ```bash
     > post tweet
+    ```
 
-(10) Get the general/user timeline.
+    (10) Get the general/user timeline.
 
-.. code:: bash
-
+    ```bash
     > timeline [max-tweet-count]
+    ```
 
-It will return the user timeline if a user is logged in and will return
-the general timeline otherwise. Also, it will return all the tweets in
-the timeline if max-tweet-count is not specified.
+    It will return the user timeline if a user is logged in and will return the general timeline otherwise. Also, it will return all the tweets in the timeline if max-tweet-count is not specified.
 
-(11) Exit the console program.
+    (11) Exit the console program.
 
-.. code:: bash
-
+    ```bash
     > exit
+    ```
 
-or
+    or 
 
-.. code:: bash
-
+    ```bash
     > quit
+    ```
 
 3. Unit test.
 -------------
@@ -143,3 +142,12 @@ or
 .. code:: bash
 
     $ ./pytwis_test.py
+
+4. README.rst
+-------------
+
+README.rst is generated from README.md via ``pandoc``.
+
+.. code:: bash
+
+    $ pandoc --from=markdown --to=rst --output=README.rst README.md

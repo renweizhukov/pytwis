@@ -35,6 +35,9 @@ setup(
     keywords='redis twitter python3.6',
     packages=find_packages(exclude=('tests')),
     install_requires=['parse', 'redis'],
+    # This project depends on a built-in module `secrets` only available 
+    # in Python 3.6 and later,
+    python_requires='>=3.6',
     extras_require={
         'test': ['coverage']
         },
