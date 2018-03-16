@@ -1,5 +1,88 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""A command-line tool which uses `pytwis` to interact with the Redis database of a Twitter toy clone.
+
+To see the help information,
+
+.. code:: bash
+
+    $ ./pytwis_clt.py -h
+    $ ./pytwis_clt.py --help
+
+After launching `pytwis_clt.py`, you will be able to use the following commands:
+
+* Register a new user:
+
+.. code:: bash
+
+    127.0.0.1:6379> register {username} {password} 
+
+* Log into a user:
+
+.. code:: bash
+
+    127.0.0.1:6379> login {username} {password} 
+
+* Log out of a user:
+
+.. code:: bash
+
+    127.0.0.1:6379> logout
+
+* Change the password:
+
+.. code:: bash
+
+    127.0.0.1:6379> changepassword {old_password} {new_password} {confirmed_new_password}
+
+* Post a tweet:
+
+.. code:: bash
+
+    127.0.0.1:6379> post {tweet}
+
+* Follow a user:
+
+.. code:: bash
+
+    127.0.0.1:6379> follow {followee_username}
+
+* Unfollow a user:
+
+.. code:: bash
+
+    127.0.0.1:6379> unfollow {followee_username}
+
+* Get the follower list:
+
+.. code:: bash
+
+    127.0.0.1:6379> followers
+
+* Get the following list:
+
+.. code:: bash
+
+    127.0.0.1:6379> followings
+
+* Get the timeline:
+
+.. code:: bash
+
+    127.0.0.1:6379> timeline
+    127.0.0.1:6379> timeline {max_tweet_count}
+    
+Note that if a user is logged in, `timeline` will return the user timeline; 
+otherwise `timeline` will return the general timeline.
+
+* Exit the program:
+
+.. code:: bash
+
+    127.0.0.1:6379> exit
+    127.0.0.1:6379> quit
+
+"""
 
 import argparse
 import datetime
@@ -10,6 +93,20 @@ from pytwis import Pytwis
 
 
 def validate_command(raw_command):
+    """Validate the command input.
+    
+    Currently we only check the number of arguments according to the command type.
+    
+    Parameters
+    ----------
+    raw_command: str
+        The raw command input, e.g., `register xxxxxx yyyyyy`.
+        
+    Raises
+    ------
+    ValueError
+        If the raw command input doesn't have the correct number of arguments.
+    """
     parsed_command = raw_command.split()
     arg_count = len(parsed_command) - 1
 
@@ -18,10 +115,10 @@ def validate_command(raw_command):
 
     if (parsed_command[0] == 'register'):
         if (arg_count < 2):
-            raise ValueError('register {user_name} {password}')
+            raise ValueError('register {username} {password}')
     elif (parsed_command[0] == 'login'):
         if (arg_count < 2):
-            raise ValueError('login {user_name} {password}')
+            raise ValueError('login {username} {password}')
     elif (parsed_command[0] == 'logout'):
         pass
     elif (parsed_command[0] == 'changepassword'):
@@ -32,17 +129,17 @@ def validate_command(raw_command):
             raise ValueError('post {tweet}')
     elif (parsed_command[0] == 'follow'):
         if (arg_count < 1):
-            raise ValueError('follow {followee}')
+            raise ValueError('follow {followee_username}')
     elif (parsed_command[0] == 'unfollow'):
         if (arg_count < 1):
-            raise ValueError('unfollow {followee}')
+            raise ValueError('unfollow {followee_username}')
     elif (parsed_command[0] == 'followers'):
         pass
     elif (parsed_command[0] == 'followings'):
         pass
     elif (parsed_command[0] == 'timeline'):
         if (arg_count > 2):
-            raise ValueError('timeline {tweet count} or timeline')
+            raise ValueError('timeline {max_tweet count} or timeline')
     elif (parsed_command[0] == 'exit') or (parsed_command[0] == 'quit'):
         pass
     else:
@@ -50,6 +147,26 @@ def validate_command(raw_command):
 
 
 def pytwis_command_parser(raw_command):
+    """Parse the command input.
+    
+    Parameters
+    ----------
+    raw_command: str
+        The raw command input, e.g., `register xxxxxx yyyyyy`.
+        
+    Returns
+    -------
+    command_with_args: list(str, dict(str, str or int))
+        The parsed command output. The first element of the list is the command type, e.g., 'register', 
+        and the second element is the command arguments, e.g., {'username': <username>, 'password': <password>} 
+        for `register`.
+    
+    Raises
+    ------
+    ValueError
+        If the raw command can't be parsed correctly, e.g., it has an incorrect number of arguments or 
+        incorrect arguments.
+    """
     # Separate the command from its arguments.
     splited_raw_command = raw_command.split(' ', 1)
     command_with_args = [splited_raw_command[0]]
@@ -126,6 +243,14 @@ def pytwis_command_parser(raw_command):
 
 
 def print_tweets(tweets):
+    """Print a list of tweets one by one separated by "="s.
+    
+    Parameters
+    ----------
+    tweets: list(dict)
+        A list of tweets. Each tweet is a dict containing the username of the tweet's author, the post time, 
+        and the tweet body.
+    """
     print('=' * 60)
     for index, tweet in enumerate(tweets):
         print('-' * 60)
@@ -138,6 +263,17 @@ def print_tweets(tweets):
 
 
 def pytwis_command_processor(twis, auth_secret, command_with_args):
+    """Process the parsed command.
+    
+    Parameters
+    ----------
+    twis: Pytwis
+        A Pytwis instance which interacts with the Redis database of the Twitter toy clone.
+    auth_secret: str
+        The authentication secret of a logged-in user.
+    command_with_args:
+        The parsed command output by pytwis_command_parser().
+    """
     command = command_with_args[0]
     args = command_with_args[1]
 
@@ -224,6 +360,7 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
 
 
 def pytwis_cli():
+    """The main routine of this command-line tool."""
     # Note that we set the conflict handler of ArgumentParser to 'resolve' because we reuse the short help 
     # option '-h' for the host name.
     parser = argparse.ArgumentParser(conflict_handler="resolve", description=\

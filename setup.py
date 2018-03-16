@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-'''A setuptools-based setup module.
+"""A setuptools-based setup module.
 
 See:
 https://github.com/renweizhukov/pytwis
-'''
+"""
 
 from setuptools import setup, find_packages
 from codecs import open
@@ -19,8 +19,8 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pytwis',
-    version='0.1.0',
-    description='A twitter-clone backend using Python and Redis',
+    version='0.1.3',
+    description='A twitter-toy-clone backend using Python and Redis',
     long_description=long_description,
     url='https://github.com/renweizhukov/pytwis',
     author='Wei Ren',
@@ -33,7 +33,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         ],
     keywords='redis twitter python3.6',
-    packages=find_packages(exclude=('tests')),
+    packages=find_packages(exclude=['docs', 'tests']),
     install_requires=['parse', 'redis'],
     # This project depends on a built-in module `secrets` only available 
     # in Python 3.6 and later,

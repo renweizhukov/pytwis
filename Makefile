@@ -14,4 +14,10 @@ test_coverage_html:
 	python3.6 -m coverage run -m unittest
 	python3.6 -m coverage html
 	
-.PHONY: init test test_coverage test_coverage_html
+docs:
+	pip install sphinx
+	rm -rf ./docs/source/
+	sphinx-apidoc -o ./docs/source/ ./pytwis
+	cd ./docs/ && $(MAKE) html
+	
+.PHONY: init test test_coverage test_coverage_html docs

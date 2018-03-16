@@ -1,4 +1,31 @@
 # -*- coding: utf-8 -*-
+"""pytwis -- A Twitter-toy-clone backend using Python and Redis.
+
+This module implements the backend for a simplified Twitter clone based on Redis. 
+We follow the Redis tutorial (https://redis.io/topics/twitter-clone) to design 
+the data layout of the Redis database.  
+
+It supports the following features:
+
+-  Register new users
+-  Log in/out
+-  Change user password
+-  Post tweets
+-  Follower/Following
+-  General timeline for anonymous user
+-  User timeline
+
+TODOs:
+
+-  #hashtags
+-  @mentions
+-  Retweets
+-  Replies
+-  Conversations
+-  Edit/Delete tweets
+-  And more
+
+"""
 
 import redis
 from redis.exceptions import (ResponseError, TimeoutError, WatchError)
@@ -6,6 +33,7 @@ import secrets
 import time
 
 class Pytwis:
+    """This class implements all the interfaces to the Redis database of the Twitter-toy-clone."""
     
     REDIS_SOCKET_CONNECT_TIMEOUT = 60
     
@@ -35,7 +63,25 @@ class Pytwis:
     
     POST_ID_USER_KEY_FORMAT = 'posts:{}'
     
-    def __init__(self, hostname='127.0.0.1', port=6379, db=0, password = ''):
+    def __init__(self, hostname='127.0.0.1', port=6379, db=0, password =''):
+        """Initialize the class Pytiws.
+        
+        Parameters
+        ----------
+        hostname : str, optional
+            The Redis server hostname which is usually an IP address (default: 127.0.0.1).
+        port : int, opti
+            The Redis server port number (default: 6379).
+        db : int 
+            The selected Redis database index (default: 0).
+        password : str)
+            The Redis server password (default: '').
+                
+        Raises
+        ------
+        ValueError
+            If failed to connect to the Redis server with either ResponseError or TimeoutError.
+        """
         # TODO: Set unix_socket_path='/tmp/redis.sock' to use Unix domain socket 
         # if the host name is 'localhost'. Note that need to uncomment the following 
         # line in /etc/redis/redis.conf:
@@ -58,6 +104,21 @@ class Pytwis:
             raise ValueError(str(e)) from e
         
     def _is_loggedin(self, auth_secret):
+        """Check if a user is logged-in by verifying the input authentication secret.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of a logged-in user.
+            
+        Returns
+        -------
+        bool 
+            True if the authentication secret is valid, False otherwise.
+        user_id: str
+            The user ID associated with the authentication secret if the authentication secret 
+            valid, None otherwise. 
+        """
         # Get the user_id from the authentication secret.
         user_id = self._rc.hget(self.AUTHS_HASH_KEY, auth_secret)
         if user_id is None:
@@ -73,6 +134,29 @@ class Pytwis:
             return (False, None)
 
     def register(self, username, password):
+        """Register a new user.
+        
+        Parameters
+        ----------
+        username: str
+            The username.
+        password: str
+            The password.
+            
+        Returns
+        -------
+        bool
+            True if the new user is successfully registered, False otherwise.
+        result
+            An empty dict if the new user is successfully registered, a dict 
+            containing the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'username {} already exists'.format(username)
+        """
         result = {'error': None}
         
         # TODO: add the username check.
@@ -122,6 +206,33 @@ class Pytwis:
         return (True, result)
             
     def change_password(self, auth_secret, old_password, new_password):
+        """Change the user password.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret which will be used for user authentication.
+        old_password: str
+            The old password before the change.
+        new_password: str
+            The new password after the change.
+        
+        Returns
+        -------
+        bool
+            True if the password is successfully changed, False otherwise.
+        result
+            A dict containing the new authentication secret with the key 'auth' 
+            if the password is successfully changed, a dict containing the error 
+            string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        -  'Incorrect old password'
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -155,6 +266,31 @@ class Pytwis:
         return (True, result)
     
     def login(self, username, password):
+        """Log into a user.
+        
+        Parameters
+        ----------
+        username: str
+            The username.
+        password: str
+            The password.
+        
+        Returns
+        -------
+        bool
+            True if the login is successful, False otherwise.
+        result
+            A dict containing the authentication secret with the key 'auth' 
+            if the login is successful, a dict containing the error string 
+            with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  "username {} doesn't exist".format(username)
+        -  'Incorrect password'
+        """
         result = {'error': None}
         
         # Get the user-id based on the username.
@@ -175,6 +311,28 @@ class Pytwis:
             return (False, result)
     
     def logout(self, auth_secret):
+        """Log out of a user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        
+        Returns
+        -------
+        bool
+            True if the logout is successful, False otherwise.
+        result
+            None if the logout is successful, a dict containing the error string 
+            with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
+        
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -200,6 +358,29 @@ class Pytwis:
         return (True, result)
     
     def post_tweet(self, auth_secret, tweet):
+        """Post a tweet.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        tweet: str
+            The tweet that will be posted.
+        
+        Returns
+        -------
+        bool
+            True if the tweet is successfully posted, False otherwise.
+        result
+            None if the tweet is successfully posted, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -245,6 +426,31 @@ class Pytwis:
         return (True, result)
     
     def follow(self, auth_secret, followee_username):
+        """Follow a user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        followee_username: str
+            The username of the followee.
+        
+        Returns
+        -------
+        bool
+            True if the follow is successful, False otherwise.
+        result
+            None if the follow is successful, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        -  "Followee {} doesn't exist".format(followee_username)
+        -  "Can't follow yourself {}".format(followee_username)
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -284,6 +490,30 @@ class Pytwis:
         return (True, result)
     
     def unfollow(self, auth_secret, followee_username):
+        """Unfollow a user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        followee_username: str
+            The username of the followee.
+        
+        Returns
+        -------
+        bool
+            True if the unfollow is successful, False otherwise.
+        result
+            None if the unfollow is successful, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        -  "Followee {} doesn't exist".format(followee_username)
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -320,6 +550,28 @@ class Pytwis:
         return (True, result)
     
     def get_followers(self, auth_secret):
+        """Get the follower list of a logged-in user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        
+        Returns
+        -------
+        bool
+            True if the follower list is successfully obtained, False otherwise.
+        result
+            A dict containing the follower list with the key 'follower_list' 
+            if the follower list is successfully obtained, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -349,6 +601,28 @@ class Pytwis:
         return (True, result)
         
     def get_following(self, auth_secret):
+        """Get the following list of a logged-in user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        
+        Returns
+        -------
+        bool
+            True if the following list is successfully obtained, False otherwise.
+        result
+            A dict containing the following list with the key 'following_list' 
+            if the follower list is successfully obtained, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
         result = {'error': None}
         
         # Check if the user is logged in.
@@ -378,6 +652,35 @@ class Pytwis:
         return (True, result)
     
     def get_timeline(self, auth_secret, max_cnt_tweets):
+        """Get the general or user timeline. 
+        
+        If an empty authentication secret is given, this method will return the general timeline. 
+        If an authentication secret is given and it is valid, this method will return the user timeline.
+        If an authentication secret is given but it is invalid, this method will return an error. 
+        
+        Parameters
+        ----------
+        auth_secret: str
+            Either the authentication secret of the logged-in user or an empty string.
+        max_cnt_tweets: int
+            The maximum number of tweets included in the timeline. If it is set to -1, 
+            then all the available tweets will be included.
+        
+        Returns
+        -------
+        bool
+            True if the timeline is successfully retrieved, False otherwise.
+        result
+            A dict containing a list of tweets with the key 'tweets' if 
+            the timeline is successfully retrieved, a dict containing 
+            the error string with the key 'error' otherwise.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
         result = {'error': None}
         
         if auth_secret == '':
