@@ -1,0 +1,722 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pytwis package &#8212; pytwis 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="pytwis" href="modules.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pytwis-package">
+<h1>pytwis package<a class="headerlink" href="#pytwis-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pytwis.pytwis">
+<span id="pytwis-pytwis-module"></span><h2>pytwis.pytwis module<a class="headerlink" href="#module-pytwis.pytwis" title="Permalink to this headline">¶</a></h2>
+<p>pytwis – A Twitter-toy-clone backend using Python and Redis.</p>
+<p>This module implements the backend for a simplified Twitter clone based on Redis.
+We follow the Redis tutorial (<a class="reference external" href="https://redis.io/topics/twitter-clone">https://redis.io/topics/twitter-clone</a>) to design
+the data layout of the Redis database.</p>
+<p>It supports the following features:</p>
+<ul class="simple">
+<li>Register new users</li>
+<li>Log in/out</li>
+<li>Change user password</li>
+<li>Post tweets</li>
+<li>Follower/Following</li>
+<li>General timeline for anonymous user</li>
+<li>User timeline</li>
+</ul>
+<p>TODOs:</p>
+<ul class="simple">
+<li>#hashtags</li>
+<li>&#64;mentions</li>
+<li>Retweets</li>
+<li>Replies</li>
+<li>Conversations</li>
+<li>Edit/Delete tweets</li>
+<li>And more</li>
+</ul>
+<dl class="class">
+<dt id="pytwis.pytwis.Pytwis">
+<em class="property">class </em><code class="descclassname">pytwis.pytwis.</code><code class="descname">Pytwis</code><span class="sig-paren">(</span><em>hostname='127.0.0.1'</em>, <em>port=6379</em>, <em>db=0</em>, <em>password=''</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class implements all the interfaces to the Redis database of the Twitter-toy-clone.</p>
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.AUTHS_HASH_KEY">
+<code class="descname">AUTHS_HASH_KEY</code><em class="property"> = 'auths'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.AUTHS_HASH_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.FOLLOWER_ZSET_KEY_FORMAT">
+<code class="descname">FOLLOWER_ZSET_KEY_FORMAT</code><em class="property"> = 'follower:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.FOLLOWER_ZSET_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.FOLLOWING_ZSET_KEY_FORMAT">
+<code class="descname">FOLLOWING_ZSET_KEY_FORMAT</code><em class="property"> = 'following:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.FOLLOWING_ZSET_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_KEY">
+<code class="descname">GENERAL_TIMELINE_KEY</code><em class="property"> = 'timeline'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_MAX_POST_CNT">
+<code class="descname">GENERAL_TIMELINE_MAX_POST_CNT</code><em class="property"> = 1000</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_MAX_POST_CNT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.NEXT_POST_ID_KEY">
+<code class="descname">NEXT_POST_ID_KEY</code><em class="property"> = 'next_post_id'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.NEXT_POST_ID_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.NEXT_USER_ID_KEY">
+<code class="descname">NEXT_USER_ID_KEY</code><em class="property"> = 'next_user_id'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.NEXT_USER_ID_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.POST_ID_BODY_KEY">
+<code class="descname">POST_ID_BODY_KEY</code><em class="property"> = 'body'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_BODY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.POST_ID_KEY_FORMAT">
+<code class="descname">POST_ID_KEY_FORMAT</code><em class="property"> = 'post:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.POST_ID_UNIXTIME_KEY">
+<code class="descname">POST_ID_UNIXTIME_KEY</code><em class="property"> = 'unix_time'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_UNIXTIME_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.POST_ID_USERID_KEY">
+<code class="descname">POST_ID_USERID_KEY</code><em class="property"> = 'userid'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_USERID_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.POST_ID_USER_KEY_FORMAT">
+<code class="descname">POST_ID_USER_KEY_FORMAT</code><em class="property"> = 'posts:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_USER_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.REDIS_SOCKET_CONNECT_TIMEOUT">
+<code class="descname">REDIS_SOCKET_CONNECT_TIMEOUT</code><em class="property"> = 60</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.REDIS_SOCKET_CONNECT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USERS_HASH_KEY">
+<code class="descname">USERS_HASH_KEY</code><em class="property"> = 'users'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USERS_HASH_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_AUTH_KEY">
+<code class="descname">USER_ID_PROFILE_AUTH_KEY</code><em class="property"> = 'auth'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_AUTH_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_KEY_FORMAT">
+<code class="descname">USER_ID_PROFILE_KEY_FORMAT</code><em class="property"> = 'user:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_PASSWORD_KEY">
+<code class="descname">USER_ID_PROFILE_PASSWORD_KEY</code><em class="property"> = 'password'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_PASSWORD_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_USERNAME_KEY">
+<code class="descname">USER_ID_PROFILE_USERNAME_KEY</code><em class="property"> = 'username'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_USERNAME_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.change_password">
+<code class="descname">change_password</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>old_password</em>, <em>new_password</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.change_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the user password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret which will be used for user authentication.</li>
+<li><strong>old_password</strong> (<em>str</em>) – The old password before the change.</li>
+<li><strong>new_password</strong> (<em>str</em>) – The new password after the change.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the password is successfully changed, False otherwise.</li>
+<li><em>result</em> – A dict containing the new authentication secret with the key ‘auth’
+if the password is successfully changed, a dict containing the error
+string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+<li>‘Incorrect old password’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.follow">
+<code class="descname">follow</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>followee_username</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.follow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Follow a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</li>
+<li><strong>followee_username</strong> (<em>str</em>) – The username of the followee.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the follow is successful, False otherwise.</li>
+<li><em>result</em> – None if the follow is successful, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+<li>“Followee {} doesn’t exist”.format(followee_username)</li>
+<li>“Can’t follow yourself {}”.format(followee_username)</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.get_followers">
+<code class="descname">get_followers</code><span class="sig-paren">(</span><em>auth_secret</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_followers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the follower list of a logged-in user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>bool</em> – True if the follower list is successfully obtained, False otherwise.</li>
+<li><em>result</em> – A dict containing the follower list with the key ‘follower_list’
+if the follower list is successfully obtained, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.get_following">
+<code class="descname">get_following</code><span class="sig-paren">(</span><em>auth_secret</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_following" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the following list of a logged-in user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>bool</em> – True if the following list is successfully obtained, False otherwise.</li>
+<li><em>result</em> – A dict containing the following list with the key ‘following_list’
+if the follower list is successfully obtained, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.get_timeline">
+<code class="descname">get_timeline</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>max_cnt_tweets</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_timeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the general or user timeline.</p>
+<p>If an empty authentication secret is given, this method will return the general timeline.
+If an authentication secret is given and it is valid, this method will return the user timeline.
+If an authentication secret is given but it is invalid, this method will return an error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – Either the authentication secret of the logged-in user or an empty string.</li>
+<li><strong>max_cnt_tweets</strong> (<em>int</em>) – The maximum number of tweets included in the timeline. If it is set to -1,
+then all the available tweets will be included.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the timeline is successfully retrieved, False otherwise.</li>
+<li><em>result</em> – A dict containing a list of tweets with the key ‘tweets’ if
+the timeline is successfully retrieved, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.login">
+<code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log into a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username.</li>
+<li><strong>password</strong> (<em>str</em>) – The password.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the login is successful, False otherwise.</li>
+<li><em>result</em> – A dict containing the authentication secret with the key ‘auth’
+if the login is successful, a dict containing the error string
+with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>“username {} doesn’t exist”.format(username)</li>
+<li>‘Incorrect password’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.logout">
+<code class="descname">logout</code><span class="sig-paren">(</span><em>auth_secret</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log out of a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>bool</em> – True if the logout is successful, False otherwise.</li>
+<li><em>result</em> – None if the logout is successful, a dict containing the error string
+with the key ‘error’ otherwise.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.post_tweet">
+<code class="descname">post_tweet</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>tweet</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.post_tweet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post a tweet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</li>
+<li><strong>tweet</strong> (<em>str</em>) – The tweet that will be posted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the tweet is successfully posted, False otherwise.</li>
+<li><em>result</em> – None if the tweet is successfully posted, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a new user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>str</em>) – The username.</li>
+<li><strong>password</strong> (<em>str</em>) – The password.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the new user is successfully registered, False otherwise.</li>
+<li><em>result</em> – An empty dict if the new user is successfully registered, a dict
+containing the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘username {} already exists’.format(username)</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.unfollow">
+<code class="descname">unfollow</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>followee_username</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.unfollow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unfollow a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</li>
+<li><strong>followee_username</strong> (<em>str</em>) – The username of the followee.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the unfollow is successful, False otherwise.</li>
+<li><em>result</em> – None if the unfollow is successful, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+<li>“Followee {} doesn’t exist”.format(followee_username)</li>
+</ul>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pytwis.pytwis_clt">
+<span id="pytwis-pytwis-clt-module"></span><h2>pytwis.pytwis_clt module<a class="headerlink" href="#module-pytwis.pytwis_clt" title="Permalink to this headline">¶</a></h2>
+<p>A command-line tool which uses <cite>pytwis</cite> to interact with the Redis database of a Twitter toy clone.</p>
+<p>To see the help information,</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py -h
+$ ./pytwis_clt.py --help
+</pre></div>
+</div>
+<p>After launching <cite>pytwis_clt.py</cite>, you will be able to use the following commands:</p>
+<ul class="simple">
+<li>Register a new user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">register</span> <span class="p">{</span><span class="n">username</span><span class="p">}</span> <span class="p">{</span><span class="n">password</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Log into a user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">login</span> <span class="p">{</span><span class="n">username</span><span class="p">}</span> <span class="p">{</span><span class="n">password</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Log out of a user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">logout</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Change the password:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepassword</span> <span class="p">{</span><span class="n">old_password</span><span class="p">}</span> <span class="p">{</span><span class="n">new_password</span><span class="p">}</span> <span class="p">{</span><span class="n">confirmed_new_password</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Post a tweet:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">post</span> <span class="p">{</span><span class="n">tweet</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Follow a user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">follow</span> <span class="p">{</span><span class="n">followee_username</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Unfollow a user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">unfollow</span> <span class="p">{</span><span class="n">followee_username</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Get the follower list:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followers</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Get the following list:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followings</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Get the timeline:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span>
+<span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span> <span class="p">{</span><span class="n">max_tweet_count</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that if a user is logged in, <cite>timeline</cite> will return the user timeline;
+otherwise <cite>timeline</cite> will return the general timeline.</p>
+<ul class="simple">
+<li>Exit the program:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">exit</span>
+<span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
+</pre></div>
+</div>
+<dl class="function">
+<dt id="pytwis.pytwis_clt.print_tweets">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">print_tweets</code><span class="sig-paren">(</span><em>tweets</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.print_tweets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a list of tweets one by one separated by “=”s.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tweets</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – A list of tweets. Each tweet is a dict containing the username of the tweet’s author, the post time,
+and the tweet body.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pytwis.pytwis_clt.pytwis_cli">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_cli</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_cli" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main routine of this command-line tool.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pytwis.pytwis_clt.pytwis_command_parser">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_command_parser</code><span class="sig-paren">(</span><em>raw_command</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_command_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the command input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_command</strong> (<em>str</em>) – The raw command input, e.g., <cite>register xxxxxx yyyyyy</cite>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>command_with_args</strong> – The parsed command output. The first element of the list is the command type, e.g., ‘register’,
+and the second element is the command arguments, e.g., {‘username’: &lt;username&gt;, ‘password’: &lt;password&gt;}
+for <cite>register</cite>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list(str, dict(str, str or int))</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If the raw command can’t be parsed correctly, e.g., it has an incorrect number of arguments or
+incorrect arguments.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pytwis.pytwis_clt.pytwis_command_processor">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_command_processor</code><span class="sig-paren">(</span><em>twis</em>, <em>auth_secret</em>, <em>command_with_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_command_processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the parsed command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>twis</strong> (<a class="reference internal" href="#pytwis.pytwis.Pytwis" title="pytwis.pytwis.Pytwis"><em>Pytwis</em></a>) – A Pytwis instance which interacts with the Redis database of the Twitter toy clone.</li>
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of a logged-in user.</li>
+<li><strong>command_with_args</strong> – The parsed command output by pytwis_command_parser().</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pytwis.pytwis_clt.validate_command">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">validate_command</code><span class="sig-paren">(</span><em>raw_command</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.validate_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the command input.</p>
+<p>Currently we only check the number of arguments according to the command type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_command</strong> (<em>str</em>) – The raw command input, e.g., <cite>register xxxxxx yyyyyy</cite>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If the raw command input doesn’t have the correct number of arguments.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pytwis">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pytwis" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pytwis package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis">pytwis.pytwis module</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis_clt">pytwis.pytwis_clt module</a></li>
+<li><a class="reference internal" href="#module-pytwis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">pytwis</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">pytwis</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/source/pytwis.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Wei Ren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/source/pytwis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

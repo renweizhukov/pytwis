@@ -115,8 +115,8 @@ as a console command. To get the help information,
     $ pytwis_clt -h
     $ pytwis_clt --help
 
-2.1. Connect to the twitter clone.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.1. Connect to Redis
+~~~~~~~~~~~~~~~~~~~~~
 
 2.1.1. Connect to the local Redis server at the default port 6379 with
 no password.
@@ -132,8 +132,8 @@ port yyyy with password zzzzzz.
 
     $ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
 
-2.2. Available ``pytwis_clt`` commands
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2.2. Available commands
+~~~~~~~~~~~~~~~~~~~~~~~
 
 After successfully connecting to the twitter clone, you can try the
 following commands in ``pytwis_clt``.
@@ -242,8 +242,8 @@ successful log-in.
 -  followings
 -  post
 
-3. Unit test.
--------------
+3. Unit test
+------------
 
 Since this unit test requires a running local Redis server, it is in
 fact a small integration test. To run the test,
