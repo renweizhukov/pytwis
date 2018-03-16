@@ -1,15 +1,19 @@
 language: python
-
-python: 
-  - "3.6"
-
+python:
+- '3.6'
 services:
-  - redis-server
-
-install: 
-  - pip install -r requirements.txt
-  - pip install sphinx
-
-script: 
-  - make test
-  - make docs
+- redis-server
+install:
+- pip install -r requirements.txt
+- pip install sphinx
+script:
+- make test
+- make docs
+deploy:
+  provider: pypi
+  user: renwei2
+  password:
+    secure: gG2KQionyBgNlZTKJRMCgG2O5+k+5CKVDuiM44/O0u7rjXLMeM6I47J0EGaojbYzLN2EUlVBJos0zJn+hz3+5p8MzMy9k2RygCyMAu9ZgiUBjhc2jNaj2/itw22XGBTc36//Q5NyetToGYncLrko4iHhaUzhUr35ntUo/YkSrkQ1z/4wkV9Zske8+Y4i2ywATXshmhw2S7JjxbceGorkC62KuDJW7jwCglJaC80/qf4ULGZaLFXz0gaC8agYloG/jvs8N2IkiaJcqLdD1F+elG9TDamTTvWo/OvW30tmeBvJAjYF7RLrnQsfFvTrPx4BRJuvSaBf3LNWyRtkqdNEZhSSydG8zaOGpsHlI5obXZ2wZmYp3xBpPu9iQCSP9T1TxUBLVaO4NMxbJcK0fKNSqiFPvaPrC1EGyt2aa9ZrvDCz6r7joEYtMl5+OXDpfdppLJseSLEMg9iU3vO5BzWPfmsGCGiApDdq75UsI0heOI87Kjt5A4mQFkEv3DyF6tNkGmuV+Yw7WZ31/IXD9dCiSwKIvtBl/xEhFq2DxsCp/z/nO0D9Xe1SYiMKCsxWZ2te5C6uhVIWRoNpd8w9/kC0NmihBWkAzQhp/w9H9/2h7ba8V/wFl2Eo6VRxJ5KkLT21ZOvJ/rs2EcXF+R/mfT3u5jJJJG3GlQSl9iNQ+EhsYzA=
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"

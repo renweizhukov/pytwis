@@ -19,10 +19,10 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pytwis',
-    version='0.1.3',
+    version='0.2.0',
     description='A twitter-toy-clone backend using Python and Redis',
     long_description=long_description,
-    url='https://github.com/renweizhukov/pytwis',
+    url='https://renweizhukov.github.io/pytwis',
     author='Wei Ren',
     author_email='renwei2004@gmail.com',
     classifiers=[
@@ -48,6 +48,7 @@ setup(
         },
     project_urls={
         'Bug Reports': 'https://github.com/renweizhukov/pytwis/issues',
+        'Documentation': 'https://renweizhukov.github.io/pytwis',
         'Source': 'https://github.com/renweizhukov/pytwis',
         },
     )
