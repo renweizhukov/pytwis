@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pytwis &#8212; pytwis 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pytwis" href="source/modules.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          pytwis</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/modules.html">pytwis</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">pytwis</a><ul>
+<li><a class="reference internal" href="#pytwis-1">1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code></a><ul>
+<li><a class="reference internal" href="#introduction">1.1 Introduction</a></li>
+<li><a class="reference internal" href="#sample-usage">1.2 Sample usage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pytwis-clt">2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code></a><ul>
+<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a></li>
+<li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#unit-test">3. Unit test</a></li>
+<li><a class="reference internal" href="#documentation">4. Documentation</a><ul>
+<li><a class="reference internal" href="#sphinx">4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
+<li><a class="reference internal" href="#readme-rst">4.2. README.rst</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="source/modules.html" title="Next Chapter: pytwis"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">pytwis &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/index.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">pytwis</a><ul>
+<li><a class="reference internal" href="#pytwis-1">1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code></a><ul>
+<li><a class="reference internal" href="#introduction">1.1 Introduction</a></li>
+<li><a class="reference internal" href="#sample-usage">1.2 Sample usage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pytwis-clt">2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code></a><ul>
+<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a></li>
+<li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#unit-test">3. Unit test</a></li>
+<li><a class="reference internal" href="#documentation">4. Documentation</a><ul>
+<li><a class="reference internal" href="#sphinx">4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
+<li><a class="reference internal" href="#readme-rst">4.2. README.rst</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <li>
+    <a href="source/modules.html" title="Next Chapter: pytwis"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">pytwis &raquo;</span>
+    </a>
+  </li>
+<div id="sourcelink">
+  <a href="_sources/index.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <div class="section" id="pytwis">
+<h1>pytwis<a class="headerlink" href="#pytwis" title="Permalink to this headline">¶</a></h1>
+<p>This package contains two modules <code class="docutils literal notranslate"><span class="pre">pytwis</span></code> and <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code> where</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">pytwis</span></code> is a Twitter-toy-clone backend using Redis;</li>
+<li><code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code> is a command-line tool which uses <code class="docutils literal notranslate"><span class="pre">pytwis</span></code> to
+interact with the Redis database of the Twitter-toy clone.</li>
+</ul>
+<p>To install this package,</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install pytwis
+</pre></div>
+</div>
+<p>Note that <strong>this package requires Python 3.6 and later</strong> since it
+depends on Python 3.6 built-in module
+<a class="reference external" href="https://docs.python.org/3/library/secrets.html">secrets</a>.</p>
+<div class="section" id="pytwis-1">
+<span id="id1"></span><h2>1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code><a class="headerlink" href="#pytwis-1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="introduction">
+<h3>1.1 Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h3>
+<p>This module implements the backend for a simplified Twitter clone based
+on Redis. We follow the Redis tutorial
+(<a class="reference external" href="https://redis.io/topics/twitter-clone">https://redis.io/topics/twitter-clone</a>) to design the data layout of the
+Redis database.</p>
+<p>It supports the following features:</p>
+<ul class="simple">
+<li>Register new users</li>
+<li>Log in/out</li>
+<li>Change user password</li>
+<li>Post tweets</li>
+<li>Follower/Following</li>
+<li>General timeline for anonymous user</li>
+<li>User timeline</li>
+</ul>
+<p>TODOs:</p>
+<ul class="simple">
+<li>#hashtags</li>
+<li>&#64;mentions</li>
+<li>Retweets</li>
+<li>Replies</li>
+<li>Conversations</li>
+<li>Edit/Delete tweets</li>
+<li>And more</li>
+</ul>
+</div>
+<div class="section" id="sample-usage">
+<h3>1.2 Sample usage<a class="headerlink" href="#sample-usage" title="Permalink to this headline">¶</a></h3>
+<p>Below is a sample usage of this module. You can find a more detailed
+example in the module <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytwis</span>
+
+<span class="c1"># Connect to the Redis server by creating a Pytwis instance.</span>
+<span class="n">twis</span> <span class="o">=</span> <span class="n">pytwis</span><span class="o">.</span><span class="n">Pytwis</span><span class="p">()</span>
+
+<span class="c1"># You may specify the hostname, the port, the database index, and the password of the Redis server as keyword arguments.</span>
+<span class="n">twis</span> <span class="o">=</span> <span class="n">pytwis</span><span class="o">.</span><span class="n">Pytwis</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">)</span>
+
+<span class="c1"># For all the following operations, if succeeded is False, check result[&#39;error&#39;] for the error string.</span>
+
+<span class="c1"># Register a new user.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)</span>
+
+<span class="c1"># Log into the user. If succeeded is True, result[&#39;auth&#39;] will contain the authentication secret.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">succeeded</span><span class="p">:</span>
+    <span class="n">auth_secret</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;auth&#39;</span><span class="p">]</span>
+
+<span class="c1"># Post a tweet.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">post_tweet</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;A tweet&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get the general timeline. Note that we are passing an empty authentication secret.</span>
+<span class="c1"># If succeeded is True, result[&#39;tweets&#39;] will contain a list of tweets.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get the user timeline. Note that the second input parameter 100 indicates</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Follow a user.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">follow</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;followee_username&#39;</span><span class="p">)</span>
+
+<span class="c1"># Unfollow a user.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">unfollow</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;followee_username&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get the follower list. If succeeded is True, result[&#39;follower_list&#39;] will contain the follower list.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_followers</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">)</span>
+
+<span class="c1"># Get the following list. If succeeded is True, result[&#39;following_list&#39;] will contain the following list.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_followings</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">)</span>
+
+<span class="c1"># Change the user password. If succeeded is True, result[&#39;auth&#39;] will contain the new authentication secret.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">change_password</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;new_password&#39;</span><span class="p">)</span>
+
+<span class="c1"># Log out of the user.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">logout</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pytwis-clt">
+<h2>2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code><a class="headerlink" href="#pytwis-clt" title="Permalink to this headline">¶</a></h2>
+<p>After you install the package, you will be able to launch <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>
+as a console command. To get the help information,</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytwis_clt -h
+$ pytwis_clt --help
+</pre></div>
+</div>
+<div class="section" id="connect-to-redis">
+<h3>2.1. Connect to Redis<a class="headerlink" href="#connect-to-redis" title="Permalink to this headline">¶</a></h3>
+<p>2.1.1. Connect to the local Redis server at the default port 6379 with
+no password.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py
+</pre></div>
+</div>
+<p>2.1.2. Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at
+port yyyy with password zzzzzz.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
+</pre></div>
+</div>
+</div>
+<div class="section" id="available-commands">
+<h3>2.2. Available commands<a class="headerlink" href="#available-commands" title="Permalink to this headline">¶</a></h3>
+<p>After successfully connecting to the twitter clone, you can try the
+following commands in <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>.</p>
+<p>2.2.1. <code class="docutils literal notranslate"><span class="pre">register</span></code></p>
+<p>Register a new user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code> with password <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">register</span> <span class="n">xxxxxx</span> <span class="n">yyyyyy</span>
+</pre></div>
+</div>
+<p>2.2.2. <code class="docutils literal notranslate"><span class="pre">login</span></code></p>
+<p>Log into a user <code class="docutils literal notranslate"><span class="pre">xxxxxxx</span></code> with password <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">login</span> <span class="n">xxxxxx</span> <span class="n">yyyyyy</span>
+</pre></div>
+</div>
+<p>2.2.3. <code class="docutils literal notranslate"><span class="pre">logout</span></code></p>
+<p>Log out of the current user.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">logout</span>
+</pre></div>
+</div>
+<p>2.2.4. <code class="docutils literal notranslate"><span class="pre">changepassword</span></code></p>
+<p>Change the password. Assume that the old password is <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code> and the
+new password is <code class="docutils literal notranslate"><span class="pre">zzzzzz</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepassword</span> <span class="n">yyyyyy</span> <span class="n">zzzzzz</span> <span class="n">zzzzzz</span>
+</pre></div>
+</div>
+<p>2.2.5. <code class="docutils literal notranslate"><span class="pre">follow</span></code></p>
+<p>Follow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">follow</span> <span class="n">xxxxxx</span>
+</pre></div>
+</div>
+<p>2.2.6. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></p>
+<p>Unfollow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">unfollow</span> <span class="n">xxxxxx</span>
+</pre></div>
+</div>
+<p>2.2.7. <code class="docutils literal notranslate"><span class="pre">followers</span></code></p>
+<p>Get the follower list of the current user.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followers</span>
+</pre></div>
+</div>
+<p>2.2.8. <code class="docutils literal notranslate"><span class="pre">followings</span></code></p>
+<p>Get the following list of the current user.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followings</span>
+</pre></div>
+</div>
+<p>2.2.9. <code class="docutils literal notranslate"><span class="pre">post</span></code></p>
+<p>Post a tweet.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">post</span> <span class="o">&lt;</span><span class="n">tweet</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>2.2.10. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></p>
+<p>Get the general/user timeline. It will return the user timeline if a
+user is logged in and will return the general timeline otherwise. Also,
+it will return all the tweets in the timeline if max-tweet-count is not
+specified.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>2.2.11. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
+<p>Exit the console program.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">exit</span>
+<span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
+</pre></div>
+</div>
+<p>Note that some of the above commands have to be executed after a
+successful log-in.</p>
+<ul class="simple">
+<li>logout</li>
+<li>changepassword</li>
+<li>follow</li>
+<li>unfollow</li>
+<li>followers</li>
+<li>followings</li>
+<li>post</li>
+</ul>
+</div>
+</div>
+<div class="section" id="unit-test">
+<h2>3. Unit test<a class="headerlink" href="#unit-test" title="Permalink to this headline">¶</a></h2>
+<p>Since this unit test requires a running local Redis server, it is in
+fact a small integration test. To run the test,</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make test
+</pre></div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>4. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sphinx">
+<h3>4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code><a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h3>
+<p>To generate the <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code> HTML documentation,</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make docs
+</pre></div>
+</div>
+</div>
+<div class="section" id="readme-rst">
+<h3>4.2. README.rst<a class="headerlink" href="#readme-rst" title="Permalink to this headline">¶</a></h3>
+<p>README.rst is generated from README.md via <code class="docutils literal notranslate"><span class="pre">pandoc</span></code>.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pandoc --from=markdown --to=rst --output=README.rst README.md
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/modules.html">pytwis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/pytwis.html">pytwis package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2018, Wei Ren.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
