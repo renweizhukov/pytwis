@@ -15,7 +15,7 @@ test_coverage_html:
 	python3.6 -m coverage html
 	
 docs:
-	pip install sphinx
+	pip install sphinx sphinx_bootstrap_theme
 	rm -rf ./docs/source/
 	sphinx-apidoc -o ./docs/source/ ./pytwis
 	cd ./docs/ && $(MAKE) html
