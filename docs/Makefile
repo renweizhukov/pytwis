@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = pytwis
 SOURCEDIR     = .
-BUILDDIR      = _build
+BUILDDIR      = build_github
 
 # Put it first so that "make" without argument is like "make help".
 help:

@@ -67,9 +67,11 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/*
+# BUGBUG: to make Github pages happy, have to change the Sphinx BUILDDIR 
+# from _build to build.
+docs/build_github/*
 # Make an exception for Github pages.
-!docs/_build/html
+!docs/build_github/html
 
 # PyBuilder
 target/
