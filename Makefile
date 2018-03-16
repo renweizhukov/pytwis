@@ -20,4 +20,7 @@ docs:
 	sphinx-apidoc -o ./docs/source/ ./pytwis
 	cd ./docs/ && $(MAKE) html
 	
-.PHONY: init test test_coverage test_coverage_html docs
+docs_clean:
+	cd ./docs/ && $(MAKE) clean
+
+.PHONY: init test test_coverage test_coverage_html docs docs_clean

@@ -67,11 +67,9 @@ instance/
 .scrapy
 
 # Sphinx documentation
-# BUGBUG: to make Github pages happy, have to change the Sphinx BUILDDIR 
-# from _build to build.
-docs/build_github/*
-# Make an exception for Github pages.
-!docs/build_github/html
+docs/_build/
+# Set the source of GitHub pages to the orphan branch "gh-pages".
+gh-pages/
 
 # PyBuilder
 target/
