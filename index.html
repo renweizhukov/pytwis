@@ -199,6 +199,7 @@ Redis database.</p>
 <li>Register new users</li>
 <li>Log in/out</li>
 <li>Change user password</li>
+<li>Get user profile</li>
 <li>Post tweets</li>
 <li>Follower/Following</li>
 <li>General timeline for anonymous user</li>
@@ -262,6 +263,10 @@ example in the module <code class="docutils literal notranslate"><span class="pr
 <span class="c1"># Change the user password. If succeeded is True, result[&#39;auth&#39;] will contain the new authentication secret.</span>
 <span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">change_password</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;new_password&#39;</span><span class="p">)</span>
 
+<span class="c1"># Get the user profile. If succeeded is True, result[&#39;username&#39;] will contain the username, result[&#39;password&#39;]</span>
+<span class="c1"># will contain the password, and result[&#39;auth&#39;] will contain the authentication secret.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_user_profile</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">)</span>
+
 <span class="c1"># Log out of the user.</span>
 <span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">logout</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">)</span>
 </pre></div>
@@ -308,38 +313,43 @@ following commands in <code class="docutils literal notranslate"><span class="pr
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">logout</span>
 </pre></div>
 </div>
-<p>2.2.4. <code class="docutils literal notranslate"><span class="pre">changepassword</span></code></p>
+<p>2.2.4. <code class="docutils literal notranslate"><span class="pre">changepwd</span></code></p>
 <p>Change the password. Assume that the old password is <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code> and the
 new password is <code class="docutils literal notranslate"><span class="pre">zzzzzz</span></code>.</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepassword</span> <span class="n">yyyyyy</span> <span class="n">zzzzzz</span> <span class="n">zzzzzz</span>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepwd</span> <span class="n">yyyyyy</span> <span class="n">zzzzzz</span> <span class="n">zzzzzz</span>
 </pre></div>
 </div>
-<p>2.2.5. <code class="docutils literal notranslate"><span class="pre">follow</span></code></p>
+<p>2.2.5. <code class="docutils literal notranslate"><span class="pre">userprofile</span></code></p>
+<p>Get the profile of the currently logged-in user.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">userprofile</span>
+</pre></div>
+</div>
+<p>2.2.6. <code class="docutils literal notranslate"><span class="pre">follow</span></code></p>
 <p>Follow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">follow</span> <span class="n">xxxxxx</span>
 </pre></div>
 </div>
-<p>2.2.6. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></p>
+<p>2.2.7. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></p>
 <p>Unfollow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">unfollow</span> <span class="n">xxxxxx</span>
 </pre></div>
 </div>
-<p>2.2.7. <code class="docutils literal notranslate"><span class="pre">followers</span></code></p>
+<p>2.2.8. <code class="docutils literal notranslate"><span class="pre">followers</span></code></p>
 <p>Get the follower list of the current user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followers</span>
 </pre></div>
 </div>
-<p>2.2.8. <code class="docutils literal notranslate"><span class="pre">followings</span></code></p>
+<p>2.2.9. <code class="docutils literal notranslate"><span class="pre">followings</span></code></p>
 <p>Get the following list of the current user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followings</span>
 </pre></div>
 </div>
-<p>2.2.9. <code class="docutils literal notranslate"><span class="pre">post</span></code></p>
+<p>2.2.10. <code class="docutils literal notranslate"><span class="pre">post</span></code></p>
 <p>Post a tweet.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">post</span> <span class="o">&lt;</span><span class="n">tweet</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>2.2.10. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></p>
+<p>2.2.11. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></p>
 <p>Get the general/user timeline. It will return the user timeline if a
 user is logged in and will return the general timeline otherwise. Also,
 it will return all the tweets in the timeline if max-tweet-count is not
@@ -347,7 +357,7 @@ specified.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>2.2.11. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
+<p>2.2.12. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
 <p>Exit the console program.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">exit</span>
 <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
@@ -358,6 +368,7 @@ successful log-in.</p>
 <ul class="simple">
 <li>logout</li>
 <li>changepassword</li>
+<li>userprofile</li>
 <li>follow</li>
 <li>unfollow</li>
 <li>followers</li>

@@ -439,6 +439,40 @@ the error string with the key ‘error’ otherwise.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pytwis.pytwis.Pytwis.get_user_profile">
+<code class="descname">get_user_profile</code><span class="sig-paren">(</span><em>auth_secret</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_user_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the profile (i.e., username, password, etc.) of a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul>
+<li><em>bool</em> – True if the logout is successful, False otherwise.</li>
+<li><em>result</em> – A dict containing the following keys:<ul class="simple">
+<li>USER_ID_PROFILE_USERNAME_KEY</li>
+<li>USER_ID_PROFILE_PASSWORD_KEY</li>
+<li>USER_ID_PROFILE_AUTH_KEY = ‘auth’</li>
+</ul>
+<p>if the user profile is obtained successfully; otherwise a dict containing the error string
+with the key ‘error’.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="pytwis.pytwis.Pytwis.login">
 <code class="descname">login</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.login" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log into a user.</p>
@@ -634,7 +668,13 @@ $ ./pytwis_clt.py --help
 <ul class="simple">
 <li>Change the password:</li>
 </ul>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepassword</span> <span class="p">{</span><span class="n">old_password</span><span class="p">}</span> <span class="p">{</span><span class="n">new_password</span><span class="p">}</span> <span class="p">{</span><span class="n">confirmed_new_password</span><span class="p">}</span>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepwd</span> <span class="p">{</span><span class="n">old_password</span><span class="p">}</span> <span class="p">{</span><span class="n">new_password</span><span class="p">}</span> <span class="p">{</span><span class="n">confirmed_new_password</span><span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Get the profile of the current user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">userprofile</span>
 </pre></div>
 </div>
 <ul class="simple">
