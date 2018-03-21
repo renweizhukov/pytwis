@@ -35,6 +35,7 @@ It supports the following features:
 -  Register new users
 -  Log in/out
 -  Change user password
+-  Get user profile
 -  Post tweets
 -  Follower/Following
 -  General timeline for anonymous user
@@ -101,6 +102,10 @@ example in the module ``pytwis_clt``.
     # Change the user password. If succeeded is True, result['auth'] will contain the new authentication secret.
     succeeded, result = twis.change_password(auth_secret, 'password', 'new_password')
 
+    # Get the user profile. If succeeded is True, result['username'] will contain the username, result['password'] 
+    # will contain the password, and result['auth'] will contain the authentication secret.
+    succeeded, result = twis.get_user_profile(auth_secret)
+
     # Log out of the user.
     succeeded, result = twis.logout(auth_secret)
 
@@ -162,16 +167,24 @@ Log out of the current user.
 
     127.0.0.1:6379> logout
 
-2.2.4. ``changepassword``
+2.2.4. ``changepwd``
 
 Change the password. Assume that the old password is ``yyyyyy`` and the
 new password is ``zzzzzz``.
 
 .. code:: bash
 
-    127.0.0.1:6379> changepassword yyyyyy zzzzzz zzzzzz
+    127.0.0.1:6379> changepwd yyyyyy zzzzzz zzzzzz
 
-2.2.5. ``follow``
+2.2.5. ``userprofile``
+
+Get the profile of the currently logged-in user.
+
+.. code:: bash
+
+    127.0.0.1:6379> userprofile
+
+2.2.6. ``follow``
 
 Follow a user ``xxxxxx``.
 
@@ -179,7 +192,7 @@ Follow a user ``xxxxxx``.
 
     127.0.0.1:6379> follow xxxxxx
 
-2.2.6. ``unfollow``
+2.2.7. ``unfollow``
 
 Unfollow a user ``xxxxxx``.
 
@@ -187,7 +200,7 @@ Unfollow a user ``xxxxxx``.
 
     127.0.0.1:6379> unfollow xxxxxx
 
-2.2.7. ``followers``
+2.2.8. ``followers``
 
 Get the follower list of the current user.
 
@@ -195,7 +208,7 @@ Get the follower list of the current user.
 
     127.0.0.1:6379> followers
 
-2.2.8. ``followings``
+2.2.9. ``followings``
 
 Get the following list of the current user.
 
@@ -203,7 +216,7 @@ Get the following list of the current user.
 
     127.0.0.1:6379> followings
 
-2.2.9. ``post``
+2.2.10. ``post``
 
 Post a tweet.
 
@@ -211,7 +224,7 @@ Post a tweet.
 
     127.0.0.1:6379> post <tweet>
 
-2.2.10. ``timeline``
+2.2.11. ``timeline``
 
 Get the general/user timeline. It will return the user timeline if a
 user is logged in and will return the general timeline otherwise. Also,
@@ -222,7 +235,7 @@ specified.
 
     127.0.0.1:6379> timeline [max-tweet-count]
 
-2.2.11. ``exit`` or ``quit``
+2.2.12. ``exit`` or ``quit``
 
 Exit the console program.
 
@@ -236,6 +249,7 @@ successful log-in.
 
 -  logout
 -  changepassword
+-  userprofile
 -  follow
 -  unfollow
 -  followers

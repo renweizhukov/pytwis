@@ -33,7 +33,13 @@ After launching `pytwis_clt.py`, you will be able to use the following commands:
 
 .. code:: bash
 
-    127.0.0.1:6379> changepassword {old_password} {new_password} {confirmed_new_password}
+    127.0.0.1:6379> changepwd {old_password} {new_password} {confirmed_new_password}
+    
+* Get the profile of the current user:
+
+.. code:: bash
+
+    127.0.0.1:6379> userprofile
 
 * Post a tweet:
 
@@ -121,9 +127,11 @@ def validate_command(raw_command):
             raise ValueError('login {username} {password}')
     elif (parsed_command[0] == 'logout'):
         pass
-    elif (parsed_command[0] == 'changepassword'):
+    elif (parsed_command[0] == 'changepwd'):
         if (arg_count < 3):
-            raise ValueError('changepassword {old_password} {new_password} {confirmed_new_password}')
+            raise ValueError('changepwd {old_password} {new_password} {confirmed_new_password}')
+    elif (parsed_command[0] == 'userprofile'):
+        pass
     elif (parsed_command[0] == 'post'):
         if (arg_count < 1):
             raise ValueError('post {tweet}')
@@ -197,18 +205,21 @@ def pytwis_command_parser(raw_command):
     elif command_with_args[0] == 'logout':
         # logout doesn't have any arguments.
         pass
-    elif command_with_args[0] == 'changepassword':
-        # changepassword must have three arguments: old_password, new_password, and confirmed_new_password.
+    elif command_with_args[0] == 'changepwd':
+        # changepwd must have three arguments: old_password, new_password, and confirmed_new_password.
         args = splited_raw_command[1]
         arg_dict = parse.parse('{old_password} {new_password} {confirmed_new_password}', args)
         if arg_dict is None:
-            raise ValueError('changepassword has incorrect arguments')
+            raise ValueError('changepwd has incorrect arguments')
         elif arg_dict['new_password'] != arg_dict['confirmed_new_password']:
             raise ValueError('The confirmed new password is different from the new password')
         elif arg_dict['new_password'] == arg_dict['old_password']:
             raise ValueError('The new password is the same as the old password')
 
-        print('changepassword: old = {}, new = {}'.format(arg_dict['old_password'], arg_dict['new_password']))
+        print('changepwd: old = {}, new = {}'.format(arg_dict['old_password'], arg_dict['new_password']))
+    elif command_with_args[0] == 'userprofile':
+        # userprofile doesn't have any arguments.
+        pass
     elif command_with_args[0] == 'post':
         # post must have one argument: tweet
         arg_dict = {'tweet': splited_raw_command[1]}
@@ -280,14 +291,14 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
     if command == 'register':
         succeeded, result = twis.register(args['username'], args['password'])
         if succeeded:
-            print('Succeeded in registering {}'.format(args['username']))
+            print('Registered {}'.format(args['username']))
         else:
-            print('Failed to register {} with error = {}'.format(args['username'], result['error']))
+            print("Couldn't register {} with error = {}".format(args['username'], result['error']))
     elif command == 'login':
         succeeded, result = twis.login(args['username'], args['password'])
         if succeeded:
             auth_secret[0] = result['auth']
-            print('Succeeded in logging into username {}'.format(args['username']))
+            print('Logged into username {}'.format(args['username']))
         else:
             print("Couldn't log into username {} with error = {}".format(args['username'], result['error']))
     elif command == 'logout':
@@ -297,35 +308,45 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
             print('Logged out of username {}'.format(result['username']))
         else:
             print("Couldn't log out with error = {}".format(result['error']))
-    elif command == 'changepassword':
+    elif command == 'changepwd':
         succeeded, result = twis.change_password(auth_secret[0], args['old_password'], args['new_password'])
         if succeeded:
             auth_secret[0] = result['auth']
-            print('Succeeded in changing the password')
+            print('Changed the password')
         else:
             print("Couldn't change the password with error = {}".format(result['error']))
+    elif command == 'userprofile':
+        succeeded, result = twis.get_user_profile(auth_secret[0])
+        if succeeded:
+            print('Got the user profile')
+            print('=' * 20)
+            for key, value in result.items():
+                print('{}: {}'.format(key, value))
+            print('=' * 20)
+        else:
+            print("Couldn't get the user profile with error = {}".format(result['error']))
     elif command == 'post':
         succeeded, result = twis.post_tweet(auth_secret[0], args['tweet'])
         if succeeded:
-            print('Succeeded in posting the tweet')
+            print('Posted the tweet')
         else:
             print("Couldn't post the tweet with error = {}".format(result['error']))
     elif command == 'follow':
         succeeded, result = twis.follow(auth_secret[0], args['followee'])
         if succeeded:
-            print('Succeeded in following username {}'.format(args['followee']))
+            print('Followed username {}'.format(args['followee']))
         else:
             print("Couldn't follow the username {} with error = {}".format(args['followee'], result['error']))
     elif command == 'unfollow':
         succeeded, result = twis.unfollow(auth_secret[0], args['followee'])
         if succeeded:
-            print('Succeeded in unfollowing username {}'.format(args['followee']))
+            print('Unfollowed username {}'.format(args['followee']))
         else:
             print("Couldn't unfollow the username {} with error = {}".format(args['followee'], result['error']))
     elif command == 'followers':
         succeeded, result = twis.get_followers(auth_secret[0])
         if succeeded:
-            print('Succeeded in get the list of {} followers'.format(len(result['follower_list'])))
+            print('Got the list of {} followers'.format(len(result['follower_list'])))
             print('=' * 20)
             for follower in result['follower_list']:
                 print('\t' + follower)
@@ -335,7 +356,7 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
     elif command == 'followings':
         succeeded, result = twis.get_following(auth_secret[0])
         if succeeded:
-            print('Succeeded in get the list of {} followings'.format(len(result['following_list'])))
+            print('Got the list of {} followings'.format(len(result['following_list'])))
             print('=' * 60)
             for following in result['following_list']:
                 print('\t' + following)
@@ -346,9 +367,9 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
         succeeded, result = twis.get_timeline(auth_secret[0], args['max_cnt_tweets'])
         if succeeded:
             if auth_secret[0] != '':
-                print('Succeeded in get {} tweets in the user timeline'.format(len(result['tweets'])))
+                print('Got {} tweets in the user timeline'.format(len(result['tweets'])))
             else:
-                print('Succeeded in get {} tweets in the general timeline'.format(len(result['tweets'])))
+                print('Got {} tweets in the general timeline'.format(len(result['tweets'])))
             print_tweets(result['tweets'])
         else:
             if auth_secret[0] != '':
@@ -406,7 +427,7 @@ def pytwis_cli():
         try:
             command_with_args = pytwis_command_parser(
                 input('Please enter a command '
-                      '(register, login, logout, changepassword, post, '
+                      '(register, login, logout, changepwd, userprofile, post, '
                       'follow, unfollow, followers, followings, timeline):\n{}:{}> ' \
                       .format(args.hostname, args.port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':

@@ -115,20 +115,20 @@ class Pytwis:
         -------
         bool 
             True if the authentication secret is valid, False otherwise.
-        user_id: str
+        userid: str
             The user ID associated with the authentication secret if the authentication secret 
             valid, None otherwise. 
         """
-        # Get the user_id from the authentication secret.
-        user_id = self._rc.hget(self.AUTHS_HASH_KEY, auth_secret)
-        if user_id is None:
+        # Get the userid from the authentication secret.
+        userid = self._rc.hget(self.AUTHS_HASH_KEY, auth_secret)
+        if userid is None:
             return (False, None)
         
         # Compare the input authentication secret with the stored one.
-        user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
-        stored_auth_secret = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
+        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        stored_auth_secret = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
         if auth_secret == stored_auth_secret:
-            return (True, user_id)
+            return (True, userid)
         else:
             # TODO: Resolve the inconsistency of the two authentication secrets. 
             return (False, None)
@@ -163,7 +163,7 @@ class Pytwis:
         # TODO: add the password check.
         # https://stackoverflow.com/questions/16709638/checking-the-strength-of-a-password-how-to-check-conditions
         
-        # Update the username-to-user_id mapping.
+        # Update the username-to-userid mapping.
         with self._rc.pipeline() as pipe:
             while True:
                 try:
@@ -177,11 +177,11 @@ class Pytwis:
                     
                     # Get the next user-id. If the key "next_user_id" doesn't exist,
                     # it will be created and initialized as 0, and then incremented by 1.
-                    user_id = pipe.incr(self.NEXT_USER_ID_KEY)
+                    userid = pipe.incr(self.NEXT_USER_ID_KEY)
                     
-                    # Set the username-to-user_id pair in USERS_HASH_KEY.
+                    # Set the username-to-userid pair in USERS_HASH_KEY.
                     pipe.multi()
-                    pipe.hset(self.USERS_HASH_KEY, username, user_id)
+                    pipe.hset(self.USERS_HASH_KEY, username, userid)
                     pipe.execute()
                     
                     break
@@ -190,14 +190,14 @@ class Pytwis:
                 
             # Generate the authentication secret.
             auth_secret = secrets.token_hex()
-            user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
+            userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
             
             pipe.multi()
-            # Update the authentication_secret-to-user_id mapping.
-            pipe.hset(self.AUTHS_HASH_KEY, auth_secret, user_id)
+            # Update the authentication_secret-to-userid mapping.
+            pipe.hset(self.AUTHS_HASH_KEY, auth_secret, userid)
             # Create the user profile.
             # TODO: Store the hashed password instead of the raw password.
-            pipe.hmset(user_id_profile_key, 
+            pipe.hmset(userid_profile_key, 
                        {self.USER_ID_PROFILE_USERNAME_KEY: username, 
                         self.USER_ID_PROFILE_PASSWORD_KEY: password,
                         self.USER_ID_PROFILE_AUTH_KEY: auth_secret})
@@ -236,14 +236,14 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
         
         # Check if the old password matches.
-        user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
-        stored_password = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
+        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
         if stored_password != old_password:
             result['error'] = 'Incorrect old password'
             return (False, result)
@@ -256,9 +256,9 @@ class Pytwis:
         # Replace the old password by the new one and the old authentication secret by the new one.
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(user_id_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY, new_password)
-            pipe.hset(user_id_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
-            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, user_id)
+            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY, new_password)
+            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
+            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
             pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
             pipe.execute()
         
@@ -294,17 +294,17 @@ class Pytwis:
         result = {'error': None}
         
         # Get the user-id based on the username.
-        user_id = self._rc.hget(self.USERS_HASH_KEY, username)
-        if user_id is None:
+        userid = self._rc.hget(self.USERS_HASH_KEY, username)
+        if userid is None:
             result['error'] = "username {} doesn't exist".format(username)
             return (False, result)
         
         # Compare the input password with the stored one. If it matches, 
         # return the authentication secret.
-        user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
-        stored_password = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
+        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
         if password == stored_password:
-            result[self.USER_ID_PROFILE_AUTH_KEY] = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
+            result[self.USER_ID_PROFILE_AUTH_KEY] = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
             return (True, result)
         else:
             result['error'] = 'Incorrect password'
@@ -332,11 +332,10 @@ class Pytwis:
         
         -  'Not logged in'
         """
-        
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
@@ -345,16 +344,57 @@ class Pytwis:
         new_auth_secret = secrets.token_hex()
         
         # Replace the old authentication secret by the new one.
-        user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
+        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(user_id_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
-            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, user_id)
+            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
+            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
             pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
             pipe.execute()
             
-        result[self.USER_ID_PROFILE_USERNAME_KEY] = self._rc.hget(user_id_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+        result[self.USER_ID_PROFILE_USERNAME_KEY] = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
         result[self.USER_ID_PROFILE_AUTH_KEY] = ''
+        return (True, result)
+    
+    def get_user_profile(self, auth_secret):
+        """Get the profile (i.e., username, password, etc.) of a user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        
+        Returns
+        -------
+        bool
+            True if the logout is successful, False otherwise.
+        result
+            A dict containing the following keys:
+            
+            -  USER_ID_PROFILE_USERNAME_KEY
+            -  USER_ID_PROFILE_PASSWORD_KEY
+            -  USER_ID_PROFILE_AUTH_KEY = 'auth'
+            
+            if the user profile is obtained successfully; otherwise a dict containing the error string 
+            with the key 'error'.
+            
+        Note
+        ----
+        Possible error strings are listed as below: 
+        
+        -  'Not logged in'
+        """
+        result = {'error': None}
+        
+        # Check if the user is logged in.
+        loggedin, userid = self._is_loggedin(auth_secret)
+        if not loggedin:
+            result['error'] = 'Not logged in'
+            return (False, result)
+        
+        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        result = self._rc.hgetall(userid_profile_key)
+        
         return (True, result)
     
     def post_tweet(self, auth_secret, tweet):
@@ -384,7 +424,7 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
@@ -394,9 +434,9 @@ class Pytwis:
         post_id = self._rc.incr(self.NEXT_POST_ID_KEY)
         post_id_key = self.POST_ID_KEY_FORMAT.format(post_id)
         
-        post_id_user_key = self.POST_ID_USER_KEY_FORMAT.format(user_id)
+        post_id_user_key = self.POST_ID_USER_KEY_FORMAT.format(userid)
         
-        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(user_id)
+        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(userid)
         followers = self._rc.zrange(follower_zset_key, 0, -1)
         
         unix_time = int(time.time())
@@ -404,7 +444,7 @@ class Pytwis:
             pipe.multi()
             # Store the tweet with its user ID and UNIX timestamp.
             pipe.hmset(post_id_key,
-                       {self.POST_ID_USERID_KEY: user_id,
+                       {self.POST_ID_USERID_KEY: userid,
                         self.POST_ID_UNIXTIME_KEY: unix_time,
                         self.POST_ID_BODY_KEY: tweet})
             
@@ -454,7 +494,7 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
@@ -466,11 +506,11 @@ class Pytwis:
                     # Put a watch on the Hash 'users': username -> user-id, in case that 
                     # other clients are modifying the Hash 'users'.
                     pipe.watch(self.USERS_HASH_KEY)
-                    followee_user_id = pipe.hget(self.USERS_HASH_KEY, followee_username)
-                    if followee_user_id is None:
+                    followee_userid = pipe.hget(self.USERS_HASH_KEY, followee_username)
+                    if followee_userid is None:
                         result['error'] = "Followee {} doesn't exist".format(followee_username)
                         return (False, result);
-                    elif followee_user_id == user_id:
+                    elif followee_userid == userid:
                         result['error'] = "Can't follow yourself {}".format(followee_username)
                         return (False, result)
                     
@@ -479,12 +519,12 @@ class Pytwis:
                     continue
             
             # Update the two zset 'followers:[followee_username]' and 'following:[username]'.
-            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_user_id)
-            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(user_id)
+            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_userid)
+            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
             unix_time = int(time.time())
             pipe.multi()
-            pipe.zadd(follower_zset_key, unix_time, user_id)
-            pipe.zadd(following_zset_key, unix_time, followee_user_id)
+            pipe.zadd(follower_zset_key, unix_time, userid)
+            pipe.zadd(following_zset_key, unix_time, followee_userid)
             pipe.execute()
             
         return (True, result)
@@ -517,7 +557,7 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
@@ -529,8 +569,8 @@ class Pytwis:
                     # Put a watch on the Hash 'users': username -> user-id, in case that 
                     # other clients are modifying the Hash 'users'.
                     pipe.watch(self.USERS_HASH_KEY)
-                    followee_user_id = pipe.hget(self.USERS_HASH_KEY, followee_username)
-                    if followee_user_id is None:
+                    followee_userid = pipe.hget(self.USERS_HASH_KEY, followee_username)
+                    if followee_userid is None:
                         result['error'] = "Followee {} doesn't exist".format(followee_username)
                         return (False, result);
                     
@@ -538,13 +578,13 @@ class Pytwis:
                 except WatchError:
                     continue
             
-            # Remove followee_user_id from the zset 'following:[username]' and remove user_id 
+            # Remove followee_userid from the zset 'following:[username]' and remove userid 
             # from the zset 'followers:[followee_username]'.
-            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_user_id)
-            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(user_id)
+            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_userid)
+            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
             pipe.multi()
-            pipe.zrem(follower_zset_key, user_id)
-            pipe.zrem(following_zset_key, followee_user_id)
+            pipe.zrem(follower_zset_key, userid)
+            pipe.zrem(following_zset_key, followee_userid)
             pipe.execute()
             
         return (True, result)
@@ -575,26 +615,26 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
         
-        # Get the list of followers' user_ids.
-        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(user_id)
-        follower_user_ids = self._rc.zrange(follower_zset_key, 0, -1)
+        # Get the list of followers' userids.
+        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(userid)
+        follower_userids = self._rc.zrange(follower_zset_key, 0, -1)
         
-        if follower_user_ids is None or len(follower_user_ids) == 0:
+        if follower_userids is None or len(follower_userids) == 0:
             result['follower_list'] = []
             return (True, result)
         
-        # Get the list of followers' usernames from their user_ids.
+        # Get the list of followers' usernames from their userids.
         with self._rc.pipeline() as pipe:
             pipe.multi()
             
-            for follower_user_id in follower_user_ids:
-                follower_user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(follower_user_id)
-                pipe.hget(follower_user_id_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+            for follower_userid in follower_userids:
+                follower_userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(follower_userid)
+                pipe.hget(follower_userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
             
             result['follower_list'] = pipe.execute()
             
@@ -626,26 +666,26 @@ class Pytwis:
         result = {'error': None}
         
         # Check if the user is logged in.
-        loggedin, user_id = self._is_loggedin(auth_secret)
+        loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
             result['error'] = 'Not logged in'
             return (False, result)
         
-        # Get the list of followers' user_ids.
-        following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(user_id)
-        following_user_ids = self._rc.zrange(following_zset_key, 0, -1)
+        # Get the list of followers' userids.
+        following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
+        following_userids = self._rc.zrange(following_zset_key, 0, -1)
         
-        if following_user_ids is None or len(following_user_ids) == 0:
+        if following_userids is None or len(following_userids) == 0:
             result['following_list'] = []
             return (True, result)
         
-        # Get the list of followings' usernames from their user_ids.
+        # Get the list of followings' usernames from their userids.
         with self._rc.pipeline() as pipe:
             pipe.multi()
             
-            for following_user_id in following_user_ids:
-                following_user_id_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(following_user_id)
-                pipe.hget(following_user_id_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+            for following_userid in following_userids:
+                following_userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(following_userid)
+                pipe.hget(following_userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
             
             result['following_list'] = pipe.execute()
             
@@ -688,13 +728,13 @@ class Pytwis:
             timeline_key = self.GENERAL_TIMELINE_KEY
         else:
             # Check if the user is logged in.
-            loggedin, user_id = self._is_loggedin(auth_secret)
+            loggedin, userid = self._is_loggedin(auth_secret)
             if not loggedin:
                 result['error'] = 'Not logged in'
                 return (False, result)
             
             # Get the user timeline.
-            timeline_key = self.POST_ID_USER_KEY_FORMAT.format(user_id)
+            timeline_key = self.POST_ID_USER_KEY_FORMAT.format(userid)
         
         result['tweets'] = []
         if max_cnt_tweets == 0:
@@ -720,20 +760,20 @@ class Pytwis:
                 pipe.hgetall(post_id_key)
             result['tweets'] = pipe.execute()
         
-            # Get the user_id-to-username mappings for all the user IDs associated with the tweets.
-            user_id_set = { tweet[self.POST_ID_USERID_KEY] for tweet in result['tweets'] }
-            user_id_list = []
+            # Get the userid-to-username mappings for all the user IDs associated with the tweets.
+            userid_set = { tweet[self.POST_ID_USERID_KEY] for tweet in result['tweets'] }
+            userid_list = []
             pipe.multi()
-            for user_id in user_id_set:
-                user_id_list.append(user_id)
-                user_id_key = self.USER_ID_PROFILE_KEY_FORMAT.format(user_id)
-                pipe.hget(user_id_key, self.USER_ID_PROFILE_USERNAME_KEY)
+            for userid in userid_set:
+                userid_list.append(userid)
+                userid_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+                pipe.hget(userid_key, self.USER_ID_PROFILE_USERNAME_KEY)
             username_list = pipe.execute()
         
-        user_id_to_username = { user_id: username for user_id, username in zip(user_id_list, username_list) }
+        userid_to_username = { userid: username for userid, username in zip(userid_list, username_list) }
         
         # Add the username for the user ID of each tweet.
         for tweet in result['tweets']:
-            tweet[self.USER_ID_PROFILE_USERNAME_KEY] = user_id_to_username[tweet[self.POST_ID_USERID_KEY]]
+            tweet[self.USER_ID_PROFILE_USERNAME_KEY] = userid_to_username[tweet[self.POST_ID_USERID_KEY]]
         
         return (True, result)

@@ -104,7 +104,6 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
     
     def _login_with_empty_username(self):
         """Log in with an empty username."""
-        
         succeeded, result = self._pytwis.login('', self._passwords[0])
         self.assertFalse(succeeded, 'Succeeded in logging in with an empty username')
         self.assertEqual("username {} doesn't exist".format(''), result['error'], 
@@ -112,7 +111,6 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         
     def _login_with_wrong_username(self):
         """Log in with a wrong username."""
-        
         wrong_username = self._usernames[0] + '_wrong'
         succeeded, result = self._pytwis.login(wrong_username, self._passwords[0])
         self.assertFalse(succeeded, 'Succeeded in logging in with a wrong username {}'.format(wrong_username))
@@ -121,7 +119,6 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
     
     def _login_with_correct_password(self):
         """Log into the user with correct password."""
-        
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
@@ -130,28 +127,24 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
 
     def _login_with_empty_password(self):
         """Log into the user with an empty password."""
-        
         succeeded, result = self._pytwis.login(self._usernames[0], '')
         self.assertFalse(succeeded, 'Succeeded in logging into {} with an empty password'.format(self._usernames[0]))
         self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
         
     def _login_with_wrong_password(self):
         """Log into the user with wrong password."""
-        
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0] + '_wrong')
         self.assertFalse(succeeded, 'Succeeded in logging into {} with wrong password'.format(self._usernames[0]))
         self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
 
     def _logout_before_login(self):
         """Log out before log in."""
-        
         succeeded, result = self._pytwis.logout('')
         self.assertFalse(succeeded, 'Succeeded in logging out before logging in')
         self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
         
     def _logout_after_login(self):
         """Log out after log in."""
-        
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
@@ -165,7 +158,6 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         """Log in, log out, and log in again. 
         Two logins should return different authentication secrets. 
         """
-        
         _, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         auth_secret1 = result['auth']
         
@@ -187,7 +179,6 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         (7) _logout_after_login
         (8) _login_logout_login_new_auth_secret
         """
-        
         self._login_with_empty_username()
         self._login_with_wrong_username()
         self._login_with_correct_password()
@@ -203,14 +194,12 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
     
     def _change_password_before_login(self):
         """Change the password before logging in."""
-        
         succeeded, result = self._pytwis.change_password('', 'old_password', 'new_password')
         self.assertFalse(succeeded, 'Succeeded in changing the password before logging in')
         self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
     
     def _change_password_with_wrong_old_password(self):
         """Change the password with the wrong old password."""
-        
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         self.assertTrue(succeeded, 'Succeeded in logging in.')
         auth_secret = result['auth']
@@ -223,7 +212,6 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         """Change the password after logging in, 
         then log out and log in with the new password 
         """
-        
         old_password = self._passwords[0]
         succeeded, result = self._pytwis.login(self._usernames[0], old_password)
         self.assertTrue(succeeded, 'Succeeded in logging in with the old password.')
@@ -252,10 +240,55 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         (2) _change_password_with_wrong_old_password
         (3) _change_password_after_login_then_logout_login
         """
-        
         self._change_password_before_login()
         self._change_password_with_wrong_old_password()
         self._change_password_after_login_then_logout_login()
+
+
+class PytwisUserProfileTests(PytwisTestsWithRegisteredUsers):
+    """Test for the `Pytwis.get_user_profile()` function."""
+    
+    def setUp(self):
+        """Besides PytwisTestsWithRegisteredUsers.setUp(), we log into one user 
+        and store his/her authentication secret for the subsequent tests.
+        """
+        PytwisTestsWithRegisteredUsers.setUp(self)
+        
+        succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
+        self.assertTrue(succeeded, 
+                        'Failed to log into user {} with the correct password {}'.\
+                        format(self._usernames[0], self._passwords[0]))
+        self._auth_secret = result['auth']
+    
+    def _get_user_profile_with_empty_auth_secret(self):
+        """Try getting the user profile with an empty authentication secret."""
+        succeeded, result = self._pytwis.get_user_profile('')
+        self.assertFalse(succeeded, 'Succeeded in getting the user profile with an empty authentication secret')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        
+    def _get_user_profile_with_incorrect_auth_secret(self):
+        """Try getting the user profile with an incorrect authentication secret."""
+        succeeded, result = self._pytwis.get_user_profile(self._auth_secret + '_wrong')
+        self.assertFalse(succeeded, 'Succeeded in getting the user profile with an incorrect authentication secret')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        
+    def _get_user_profile_with_correct_auth_secret(self):
+        """Get the user profile with the correct authentication secret."""
+        succeeded, result = self._pytwis.get_user_profile(self._auth_secret)
+        self.assertTrue(succeeded, 'Failed to get the user profile with the correct authentication secret')
+        self.assertEqual(self._usernames[0], result['username'], 'Mismatched username')
+        self.assertEqual(self._passwords[0], result['password'], 'Mismatched password')
+        self.assertEqual(self._auth_secret, result['auth'], 'Mismatched authentication secret')
+        
+    def test_get_user_profile(self):
+        """get_user_profile test routines:
+        (1) _get_user_profile_with_empty_auth_secret
+        (2) _get_user_profile_with_incorrect_auth_secret
+        (3) _get_user_profile_with_correct_auth_secret
+        """
+        self._get_user_profile_with_empty_auth_secret()
+        self._get_user_profile_with_incorrect_auth_secret()
+        self._get_user_profile_with_correct_auth_secret()
 
 
 class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
@@ -279,14 +312,12 @@ class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
     
     def _get_empty_timeline(self):
         """Get an empty timeline."""
-        
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, -1)
         self.assertTrue(succeeded, 'Failed to get the empty timeline')
         self.assertEqual(0, len(result['tweets']), 'Get a non-empty timeline')
         
     def _get_nonempty_timeline_all(self):
         """Get all the tweets of a nonempty timeline."""
-        
         self._cnt_tweets = 10
         for tweet_index in range(0, self._cnt_tweets):
             succeeded, _ = self._pytwis.post_tweet(self._post_auth_secret, 'Test tweet {}'.format(tweet_index))
@@ -299,14 +330,12 @@ class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
         
     def _get_nonempty_timeline_fewer(self):
         """Get fewer than available tweets."""
-        
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets//2)
         self.assertTrue(succeeded, 'Failed to get fewer than available tweets')
         self.assertEqual(self._cnt_tweets//2, len(result['tweets']), 'Get an incorrect number of tweets')
         
     def _get_nonempty_timeline_more(self):
         """Get more than available tweets."""
-        
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets*2)
         self.assertTrue(succeeded, 'Failed to get more than available tweets')
         self.assertEqual(self._cnt_tweets, len(result['tweets']), 'Get an incorrect number of tweets')
@@ -324,7 +353,6 @@ class PytwisGeneralTimelineTests(PytwisTimelineTests):
         (3) _get_nonempty_timeline_fewer
         (4) _get_nonempty_timeline_more
         """
-        
         self._get_empty_timeline()
         self._get_nonempty_timeline_all()
         self._get_nonempty_timeline_fewer()
@@ -348,7 +376,6 @@ class PytwisUserTimelineTestsWithoutFollow(PytwisTimelineTests):
         (3) _get_nonempty_timeline_fewer
         (4) _get_nonempty_timeline_more
         """
-        
         self._get_empty_timeline()
         self._get_nonempty_timeline_all()
         self._get_nonempty_timeline_fewer()
@@ -381,7 +408,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
     
     def _follow_unfollow_before_login(self):
         """Test for the follow-related functions before logged in."""
-        
         succeeded, result = self._pytwis.follow('', self._usernames[0])
         self.assertFalse(succeeded, 'Succeeded in following another user before logged in')
         self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
@@ -402,7 +428,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         """Test for the follow-related functions after logged in 
         with a correct username.
         """
-        
         succeeded, _ = self._pytwis.follow(self._auth_secrets[0], self._usernames[1])
         self.assertTrue(succeeded, 'Failed to follow another user after logged in')
         
@@ -431,7 +456,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
 
     def _follow_unfollow_wrong_username_after_login(self):
         """Test `follow()` and `unfollow()` with the wrong usernames."""
-        
         wrong_followee = self._usernames[1] + '_wrong'
         succeeded, result = self._pytwis.follow(self._auth_secrets[0], wrong_followee)
         self.assertFalse(succeeded, 'Succeeded in following a wrong username {}'.format(wrong_followee))
@@ -445,7 +469,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
     
     def _follow_yourself_after_login(self):
         """Test `follow()` with the logged-in username."""
-        
         succeeded, result = self._pytwis.follow(self._auth_secrets[0], self._usernames[0])
         self.assertFalse(succeeded, 'Succeeded in following yourself {}'.format(self._usernames[0]))
         self.assertEqual("Can't follow yourself {}".format(self._usernames[0]), result['error'], 
@@ -453,7 +476,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
 
     def _one_follow_multiple(self):
         """Test the scenario where one user follows multiple users."""
-        
         for followee_index in range(1, self.CNT_REGISTERED_USERS):
             succeeded, _ = self._pytwis.follow(self._auth_secrets[0], self._usernames[followee_index])
             self.assertTrue(succeeded, '{} failed to follow {}'.\
@@ -486,7 +508,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         
     def _multiple_follow_one(self):
         """Test the scenario where multiple users follow one user."""
-        
         for follower_index in range(1, self.CNT_REGISTERED_USERS):
             succeeded, _ = self._pytwis.follow(self._auth_secrets[follower_index], self._usernames[0])
             self.assertTrue(succeeded, '{} failed to follow {}'.\
@@ -526,7 +547,6 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         (5) _one_follow_multiple
         (6) _multiple_follow_one
         """
-        
         self._follow_unfollow_before_login()
         self._follow_unfollow_correct_username_after_login()
         self._follow_unfollow_wrong_username_after_login()
@@ -561,7 +581,6 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
     
     def _post_after_two_follows(self):
         """Test the scenario where one user posts a tweet with two followers."""
-        
         for follower_index in range(1, self.CNT_REGISTERED_USERS):
             succeeded, _ = self._pytwis.follow(self._auth_secrets[follower_index], self._usernames[0])
             self.assertTrue(succeeded, '{} failed to follow {}'.\
@@ -578,7 +597,6 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
     
     def _post_after_one_follow_and_one_unfollow(self):
         """Test the scenario where one user posts another tweet after one unfollow."""
-        
         succeeded, _ = self._pytwis.unfollow(self._auth_secrets[-1], self._usernames[0])
         self.assertTrue(succeeded, '{} failed to unfollow {}'.\
                         format(self._usernames[-1], self._usernames[0]))
@@ -595,7 +613,6 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
         
     def _post_after_two_unfollows(self):
         """Test the scenario where one user posts another tweet after two unfollows."""
-        
         succeeded, _ = self._pytwis.unfollow(self._auth_secrets[1], self._usernames[0])
         self.assertTrue(succeeded, '{} failed to unfollow {}'.\
                         format(self._usernames[1], self._usernames[0]))
@@ -616,7 +633,6 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
         (2) _post_after_one_follow_and_one_unfollow
         (3) _post_after_two_unfollows
         """
-        
         self._post_after_two_follows()
         self._post_after_one_follow_and_one_unfollow()
         self._post_after_two_unfollows()
