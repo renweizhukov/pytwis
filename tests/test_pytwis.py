@@ -637,6 +637,133 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
         self._post_after_one_follow_and_one_unfollow()
         self._post_after_two_unfollows()
 
+class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
+    """Test for the `Pytwis.get_user_tweets()` function."""
+    
+    CNT_REGISTERED_USERS = 2
+    
+    def setUp(self):
+        """Besides PytwisTestsWithRegisteredUsers.setUp(), we log into the users 
+        and store their authentication secrets for the subsequent tests. We also 
+        initialize the expected number of tweets posted by them.
+        """
+        PytwisTestsWithRegisteredUsers.setUp(self)
+        
+        self._auth_secrets = []
+        for user_index in range(0, self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.login(self._usernames[user_index], self._passwords[user_index])
+            self.assertTrue(succeeded, 
+                            'Failed to log into user {} with the correct password {}'.\
+                            format(self._usernames[user_index], self._passwords[user_index]))
+            self._auth_secrets.append(result['auth'])
+            
+        self._expected_cnt_tweets = []
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            self._expected_cnt_tweets.append(0)
+
+    def _get_user_tweets_without_login(self):
+        """Test getting the user tweets without logged-in."""
+        succeeded, result = self._pytwis.get_user_tweets('', self._usernames[0], -1)
+        self.assertFalse(succeeded, 'Succeeded in getting the user tweets with an empty authentication secret.')
+        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+    
+    def _get_user_tweets_with_wrong_username(self):
+        """Test getting the tweets of a user with a wrong username."""
+        wrong_username = self._usernames[0] + '_wrong'
+        succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], wrong_username, -1)
+        self.assertFalse(succeeded, 'Succeeded in getting the user tweets with a wrong username.')
+        self.assertEqual("username {} doesn't exist".format(wrong_username), result['error'], 'Incorrect error message')
+    
+    def _verify_user_tweets(self, cnt_tweets, username, tweets):
+        """Verify if the input list `tweets` has the correct number of tweets 
+        and if each tweet is posted by the expected user. 
+        """
+        self.assertEqual(cnt_tweets, len(tweets), 'Incorrect number of tweets posted by {}'.format(username))
+        for tweet in tweets:
+            self.assertEqual(username, tweet['username'], 'Mismatched username')
+
+    def _get_user_tweets_without_follow(self):
+        """Test getting the tweets of two users where they don't follow each other."""
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            self._expected_cnt_tweets[user_index] += 10
+            for tweet_index in range(0, self._expected_cnt_tweets[user_index]):
+                succeeded, _ = self._pytwis.post_tweet(self._auth_secrets[user_index], 
+                                                       'Tweet {} without follow'.format(tweet_index))
+                self.assertTrue(succeeded, '{} failed to post a tweet'.format(self._usernames[user_index]))
+                
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], -1)
+            self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
+                            format(self._usernames[0], self._usernames[user_index]))
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result['tweets'])
+    
+    def _get_user_tweets_with_follow(self):
+        """Test getting the tweets of two users where one user follows the other."""
+        succeeded, _ = self._pytwis.follow(self._auth_secrets[0], self._usernames[1])
+        self.assertTrue(succeeded, '{} failed to follow {}'.format(self._usernames[0], self._usernames[1]))
+        
+        self._expected_cnt_tweets[1] += 10
+        for tweet_index in range(0, 10):
+            succeeded, _ = self._pytwis.post_tweet(self._auth_secrets[1], 
+                                                   'Tweet {} with follow'.format(tweet_index))
+            self.assertTrue(succeeded, '{} failed to post a tweet'.format(self._usernames[1]))
+        
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], -1)
+            self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
+                            format(self._usernames[0], self._usernames[user_index]))
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result['tweets'])
+    
+    def _get_zero_user_tweet(self):
+        """Test getting zero user tweet."""
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], 0)
+            self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
+                            format(self._usernames[0], self._usernames[user_index]))
+            self._verify_user_tweets(0, self._usernames[user_index], result['tweets'])
+    
+    def _get_fewer_user_tweets(self):
+        """Test getting user tweets fewer than available ones."""
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], 
+                                                             self._usernames[user_index], 
+                                                             self._expected_cnt_tweets[user_index]//2)
+            self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
+                            format(self._usernames[0], self._usernames[user_index]))
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index]//2, 
+                                     self._usernames[user_index], 
+                                     result['tweets'])
+
+    def _get_more_user_tweets(self):
+        """Test getting user tweets more than available ones."""
+        for user_index in range(self.CNT_REGISTERED_USERS):
+            succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], 
+                                                             self._usernames[user_index], 
+                                                             self._expected_cnt_tweets[user_index]*2)
+            self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
+                            format(self._usernames[0], self._usernames[user_index]))
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index], 
+                                     self._usernames[user_index], 
+                                     result['tweets'])
+
+    def test_get_user_tweets(self):
+        """Get-user-tweets test routines:
+        (1) _get_user_tweets_without_login
+        (2) _get_user_tweets_with_wrong_username
+        (3) _get_user_tweets_without_follow
+        (4) _get_user_tweets_with_follow
+        (5) _get_zero_user_tweet
+        (6) _get_fewer_user_tweets
+        (7) _get_more_user_tweets
+        """
+        self._get_user_tweets_without_login()
+        self._get_user_tweets_with_wrong_username()
+        self._get_user_tweets_without_follow()
+        self._get_user_tweets_with_follow()
+        self._get_zero_user_tweet()
+        self._get_fewer_user_tweets()
+        self._get_more_user_tweets()
+
 
 if __name__ == '__main__':
     unittest.main()

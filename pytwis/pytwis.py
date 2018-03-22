@@ -14,9 +14,11 @@ It supports the following features:
 -  Follower/Following
 -  General timeline for anonymous user
 -  User timeline
+-  Get tweets posted by a user
 
 TODOs:
 
+-  Search users
 -  #hashtags
 -  @mentions
 -  Retweets
@@ -41,27 +43,29 @@ class Pytwis:
     
     USERS_HASH_KEY = 'users'
     
-    USER_ID_PROFILE_KEY_FORMAT = 'user:{}'
-    USER_ID_PROFILE_USERNAME_KEY = 'username'
-    USER_ID_PROFILE_PASSWORD_KEY = 'password'
-    USER_ID_PROFILE_AUTH_KEY = 'auth'
+    USER_PROFILE_HASH_KEY_FORMAT = 'user:{}'
+    USER_PROFILE_HASH_USERNAME_KEY = 'username'
+    USER_PROFILE_HASH_PASSWORD_KEY = 'password'
+    USER_PROFILE_HASH_AUTH_KEY = 'auth'
     
     AUTHS_HASH_KEY = 'auths'
     
     FOLLOWER_ZSET_KEY_FORMAT = 'follower:{}'
     FOLLOWING_ZSET_KEY_FORMAT = 'following:{}'
     
-    NEXT_POST_ID_KEY = 'next_post_id'
+    NEXT_TWEET_ID_KEY = 'next_tweet_id'
     
-    POST_ID_KEY_FORMAT = 'post:{}'
-    POST_ID_USERID_KEY = 'userid'
-    POST_ID_UNIXTIME_KEY = 'unix_time'
-    POST_ID_BODY_KEY = 'body'
+    TWEET_HASH_KEY_FORMAT = 'tweet:{}'
+    TWEET_HASH_USERID_KEY = 'userid'
+    TWEET_HASH_UNIXTIME_KEY = 'unix_time'
+    TWEET_HASH_BODY_KEY = 'body'
     
-    GENERAL_TIMELINE_KEY = 'timeline'
-    GENERAL_TIMELINE_MAX_POST_CNT = 1000
+    GENERAL_TIMELINE_LIST_KEY = 'timeline'
+    GENERAL_TIMELINE_LIST_MAX_TWEET_CNT = 1000
     
-    POST_ID_USER_KEY_FORMAT = 'posts:{}'
+    USER_TIMELINE_LIST_KEY_FORMAT = 'timeline:{}'
+    
+    USER_TWEETS_LIST_KEY_FORMAT = 'tweets_by:{}'
     
     def __init__(self, hostname='127.0.0.1', port=6379, db=0, password =''):
         """Initialize the class Pytiws.
@@ -125,8 +129,8 @@ class Pytwis:
             return (False, None)
         
         # Compare the input authentication secret with the stored one.
-        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
-        stored_auth_secret = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
+        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+        stored_auth_secret = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY)
         if auth_secret == stored_auth_secret:
             return (True, userid)
         else:
@@ -190,7 +194,7 @@ class Pytwis:
                 
             # Generate the authentication secret.
             auth_secret = secrets.token_hex()
-            userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+            userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
             
             pipe.multi()
             # Update the authentication_secret-to-userid mapping.
@@ -198,9 +202,9 @@ class Pytwis:
             # Create the user profile.
             # TODO: Store the hashed password instead of the raw password.
             pipe.hmset(userid_profile_key, 
-                       {self.USER_ID_PROFILE_USERNAME_KEY: username, 
-                        self.USER_ID_PROFILE_PASSWORD_KEY: password,
-                        self.USER_ID_PROFILE_AUTH_KEY: auth_secret})
+                       {self.USER_PROFILE_HASH_USERNAME_KEY: username, 
+                        self.USER_PROFILE_HASH_PASSWORD_KEY: password,
+                        self.USER_PROFILE_HASH_AUTH_KEY: auth_secret})
             pipe.execute()
         
         return (True, result)
@@ -242,8 +246,8 @@ class Pytwis:
             return (False, result)
         
         # Check if the old password matches.
-        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
+        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY)
         if stored_password != old_password:
             result['error'] = 'Incorrect old password'
             return (False, result)
@@ -256,13 +260,13 @@ class Pytwis:
         # Replace the old password by the new one and the old authentication secret by the new one.
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY, new_password)
-            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
+            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY, new_password)
+            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY, new_auth_secret)
             pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
             pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
             pipe.execute()
         
-        result[self.USER_ID_PROFILE_AUTH_KEY] = new_auth_secret
+        result[self.USER_PROFILE_HASH_AUTH_KEY] = new_auth_secret
         return (True, result)
     
     def login(self, username, password):
@@ -301,10 +305,10 @@ class Pytwis:
         
         # Compare the input password with the stored one. If it matches, 
         # return the authentication secret.
-        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_PASSWORD_KEY)
+        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY)
         if password == stored_password:
-            result[self.USER_ID_PROFILE_AUTH_KEY] = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY)
+            result[self.USER_PROFILE_HASH_AUTH_KEY] = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY)
             return (True, result)
         else:
             result['error'] = 'Incorrect password'
@@ -344,16 +348,16 @@ class Pytwis:
         new_auth_secret = secrets.token_hex()
         
         # Replace the old authentication secret by the new one.
-        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(userid_profile_key, self.USER_ID_PROFILE_AUTH_KEY, new_auth_secret)
+            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY, new_auth_secret)
             pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
             pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
             pipe.execute()
             
-        result[self.USER_ID_PROFILE_USERNAME_KEY] = self._rc.hget(userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
-        result[self.USER_ID_PROFILE_AUTH_KEY] = ''
+        result[self.USER_PROFILE_HASH_USERNAME_KEY] = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
+        result[self.USER_PROFILE_HASH_AUTH_KEY] = ''
         return (True, result)
     
     def get_user_profile(self, auth_secret):
@@ -371,9 +375,9 @@ class Pytwis:
         result
             A dict containing the following keys:
             
-            -  USER_ID_PROFILE_USERNAME_KEY
-            -  USER_ID_PROFILE_PASSWORD_KEY
-            -  USER_ID_PROFILE_AUTH_KEY = 'auth'
+            -  USER_PROFILE_HASH_USERNAME_KEY 
+            -  USER_PROFILE_HASH_PASSWORD_KEY 
+            -  USER_PROFILE_HASH_AUTH_KEY 
             
             if the user profile is obtained successfully; otherwise a dict containing the error string 
             with the key 'error'.
@@ -392,7 +396,7 @@ class Pytwis:
             result['error'] = 'Not logged in'
             return (False, result)
         
-        userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
+        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
         result = self._rc.hgetall(userid_profile_key)
         
         return (True, result)
@@ -431,10 +435,11 @@ class Pytwis:
         
         # Get the next user-id. If the key "next_user_id" doesn't exist,
         # it will be created and initialized as 0, and then incremented by 1.
-        post_id = self._rc.incr(self.NEXT_POST_ID_KEY)
-        post_id_key = self.POST_ID_KEY_FORMAT.format(post_id)
+        post_id = self._rc.incr(self.NEXT_TWEET_ID_KEY)
+        post_id_key = self.TWEET_HASH_KEY_FORMAT.format(post_id)
         
-        post_id_user_key = self.POST_ID_USER_KEY_FORMAT.format(userid)
+        post_id_timeline_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(userid)
+        post_id_user_key = self.USER_TWEETS_LIST_KEY_FORMAT.format(userid)
         
         follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(userid)
         followers = self._rc.zrange(follower_zset_key, 0, -1)
@@ -444,22 +449,25 @@ class Pytwis:
             pipe.multi()
             # Store the tweet with its user ID and UNIX timestamp.
             pipe.hmset(post_id_key,
-                       {self.POST_ID_USERID_KEY: userid,
-                        self.POST_ID_UNIXTIME_KEY: unix_time,
-                        self.POST_ID_BODY_KEY: tweet})
+                       {self.TWEET_HASH_USERID_KEY: userid,
+                        self.TWEET_HASH_UNIXTIME_KEY: unix_time,
+                        self.TWEET_HASH_BODY_KEY: tweet})
             
             # Add the tweet to the user timeline.
+            pipe.lpush(post_id_timeline_key, post_id)
+            
+            # Add the tweet to the tweet list posted by the user.
             pipe.lpush(post_id_user_key, post_id)
             
             # Write fanout the tweet to all the followers' timelines.
             for follower in followers:
-                post_id_follower_key = self.POST_ID_USER_KEY_FORMAT.format(follower)
+                post_id_follower_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(follower)
                 pipe.lpush(post_id_follower_key, post_id)
             
             # Add the tweet to the general timeline and left trim the general timeline to only retain 
-            # the latest GENERAL_TIMELINE_MAX_POST_CNT tweets.
-            pipe.lpush(self.GENERAL_TIMELINE_KEY, post_id)
-            pipe.ltrim(self.GENERAL_TIMELINE_KEY, 0, self.GENERAL_TIMELINE_MAX_POST_CNT - 1)
+            # the latest GENERAL_TIMELINE_LIST_MAX_TWEET_CNT tweets.
+            pipe.lpush(self.GENERAL_TIMELINE_LIST_KEY, post_id)
+            pipe.ltrim(self.GENERAL_TIMELINE_LIST_KEY, 0, self.GENERAL_TIMELINE_LIST_MAX_TWEET_CNT - 1)
             
             pipe.execute()
         
@@ -633,8 +641,8 @@ class Pytwis:
             pipe.multi()
             
             for follower_userid in follower_userids:
-                follower_userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(follower_userid)
-                pipe.hget(follower_userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+                follower_userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(follower_userid)
+                pipe.hget(follower_userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
             
             result['follower_list'] = pipe.execute()
             
@@ -684,12 +692,70 @@ class Pytwis:
             pipe.multi()
             
             for following_userid in following_userids:
-                following_userid_profile_key = self.USER_ID_PROFILE_KEY_FORMAT.format(following_userid)
-                pipe.hget(following_userid_profile_key, self.USER_ID_PROFILE_USERNAME_KEY)
+                following_userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(following_userid)
+                pipe.hget(following_userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
             
             result['following_list'] = pipe.execute()
             
         return (True, result)
+    
+    def _get_tweets(self, tweets_key, max_cnt_tweets):
+        """Get at most `max_cnt_tweets` tweets from the Redis list `tweets_key`.
+        
+        Parameters
+        ----------
+        tweets_key: str
+            The key of the Redis list which stores the tweets.
+        max_cnt_tweets: int
+            The maximum number of tweets included in the returned list. If it is set to -1, 
+            then all the available tweets will be included.
+        
+        Returns
+        -------
+        tweets
+            A list of tweets
+        """
+        tweets = []
+        if max_cnt_tweets == 0:
+            return tweets
+        elif max_cnt_tweets == -1:
+            # Return all the tweets in the timeline.
+            last_tweet_index = -1
+        else:
+            # Return at most max_cnt_tweets tweets.
+            last_tweet_index = max_cnt_tweets - 1
+            
+        # Get the post IDs of the tweets.
+        post_ids = self._rc.lrange(tweets_key, 0, last_tweet_index)
+        
+        if len(post_ids) == 0:
+            return tweets
+        
+        with self._rc.pipeline() as pipe:
+            # Get the tweets with their user IDs and UNIX timestamps.
+            pipe.multi()
+            for post_id in post_ids:
+                post_id_key = self.TWEET_HASH_KEY_FORMAT.format(post_id)
+                pipe.hgetall(post_id_key)
+            tweets = pipe.execute()
+        
+            # Get the userid-to-username mappings for all the user IDs associated with the tweets.
+            userid_set = { tweet[self.TWEET_HASH_USERID_KEY] for tweet in tweets }
+            userid_list = []
+            pipe.multi()
+            for userid in userid_set:
+                userid_list.append(userid)
+                userid_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+                pipe.hget(userid_key, self.USER_PROFILE_HASH_USERNAME_KEY)
+            username_list = pipe.execute()
+        
+        userid_to_username = { userid: username for userid, username in zip(userid_list, username_list) }
+        
+        # Add the username for the user ID of each tweet.
+        for tweet in tweets:
+            tweet[self.USER_PROFILE_HASH_USERNAME_KEY] = userid_to_username[tweet[self.TWEET_HASH_USERID_KEY]]
+    
+        return tweets
     
     def get_timeline(self, auth_secret, max_cnt_tweets):
         """Get the general or user timeline. 
@@ -725,7 +791,7 @@ class Pytwis:
         
         if auth_secret == '':
             # An empty authentication secret implies getting the general timeline.
-            timeline_key = self.GENERAL_TIMELINE_KEY
+            timeline_key = self.GENERAL_TIMELINE_LIST_KEY
         else:
             # Check if the user is logged in.
             loggedin, userid = self._is_loggedin(auth_secret)
@@ -734,46 +800,56 @@ class Pytwis:
                 return (False, result)
             
             # Get the user timeline.
-            timeline_key = self.POST_ID_USER_KEY_FORMAT.format(userid)
+            timeline_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(userid)
         
-        result['tweets'] = []
-        if max_cnt_tweets == 0:
-            return (True, result)
-        elif max_cnt_tweets == -1:
-            # Return all the tweets in the timeline.
-            last_tweet_index = -1
-        else:
-            # Return at most max_cnt_tweets tweets.
-            last_tweet_index = max_cnt_tweets - 1
+        result['tweets'] = self._get_tweets(timeline_key, max_cnt_tweets)
+        return (True, result)
+    
+    def get_user_tweets(self, auth_secret, username, max_cnt_tweets):
+        """Get the tweets posted by one user.
+        
+        Parameters
+        ----------
+        auth_secret: str
+            The authentication secret of the logged-in user.
+        username:
+            The name of the user who post the tweets and may not be the logged-in user.
+        max_cnt_tweets: int
+            The maximum number of tweets included in the return. If it is set to -1, 
+            then all the tweets posted by the user will be included.
+        
+        Returns
+        -------
+        bool
+            True if the tweets are successfully retrieved, False otherwise.
+        result
+            A dict containing a list of tweets with the key 'tweets' if 
+            the tweets are successfully retrieved, a dict containing 
+            the error string with the key 'error' otherwise.
             
-        # Get the post IDs of the tweets.
-        post_ids = self._rc.lrange(timeline_key, 0, last_tweet_index)
+        Note
+        ----
+        Possible error strings are listed as below: 
         
-        if len(post_ids) == 0:
-            return (True, result)
+        -  'Not logged in'
+        -  "username {} doesn't exist".format(username)
+        """
+        result = {'error': None}
         
-        with self._rc.pipeline() as pipe:
-            # Get the tweets with their user IDs and UNIX timestamps.
-            pipe.multi()
-            for post_id in post_ids:
-                post_id_key = self.POST_ID_KEY_FORMAT.format(post_id)
-                pipe.hgetall(post_id_key)
-            result['tweets'] = pipe.execute()
+        # Check if the user is logged in.
+        loggedin, _ = self._is_loggedin(auth_secret)
+        if not loggedin:
+            result['error'] = 'Not logged in'
+            return (False, result)
         
-            # Get the userid-to-username mappings for all the user IDs associated with the tweets.
-            userid_set = { tweet[self.POST_ID_USERID_KEY] for tweet in result['tweets'] }
-            userid_list = []
-            pipe.multi()
-            for userid in userid_set:
-                userid_list.append(userid)
-                userid_key = self.USER_ID_PROFILE_KEY_FORMAT.format(userid)
-                pipe.hget(userid_key, self.USER_ID_PROFILE_USERNAME_KEY)
-            username_list = pipe.execute()
+        # Get the userid from the username.
+        userid = self._rc.hget(self.USERS_HASH_KEY, username)
+        if userid is None:
+            result['error'] = "username {} doesn't exist".format(username)
+            return (False, result)
         
-        userid_to_username = { userid: username for userid, username in zip(userid_list, username_list) }
+        # Get the tweets posted by the user.
+        user_tweets_key = self.USER_TWEETS_LIST_KEY_FORMAT.format(userid)
         
-        # Add the username for the user ID of each tweet.
-        for tweet in result['tweets']:
-            tweet[self.USER_ID_PROFILE_USERNAME_KEY] = userid_to_username[tweet[self.POST_ID_USERID_KEY]]
-        
+        result['tweets'] = self._get_tweets(user_tweets_key, max_cnt_tweets)
         return (True, result)

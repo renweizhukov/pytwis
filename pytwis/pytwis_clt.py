@@ -8,7 +8,7 @@ To see the help information,
 
     $ ./pytwis_clt.py -h
     $ ./pytwis_clt.py --help
-
+    
 After launching `pytwis_clt.py`, you will be able to use the following commands:
 
 * Register a new user:
@@ -81,6 +81,17 @@ After launching `pytwis_clt.py`, you will be able to use the following commands:
 Note that if a user is logged in, `timeline` will return the user timeline; 
 otherwise `timeline` will return the general timeline.
 
+* Get the tweets posted by a user:
+
+.. code:: bash
+
+    127.0.0.1:6379> tweetsby 
+    127.0.0.1:6379> tweetsby {username}
+    127.0.0.1:6379> tweetsby {username} {max_tweet_count}
+    
+Note that if no username is given, `tweetsby` will return the tweets posted 
+by the currently logged-in user.
+
 * Exit the program:
 
 .. code:: bash
@@ -148,6 +159,9 @@ def validate_command(raw_command):
     elif (parsed_command[0] == 'timeline'):
         if (arg_count > 2):
             raise ValueError('timeline {max_tweet count} or timeline')
+    elif (parsed_command[0] == 'tweetsby'):
+        if (arg_count > 3):
+            raise ValueError('tweetsby {username} {max_tweet count} or tweetsby {username} or tweetsby')
     elif (parsed_command[0] == 'exit') or (parsed_command[0] == 'quit'):
         pass
     else:
@@ -242,6 +256,17 @@ def pytwis_command_parser(raw_command):
             max_cnt_tweets = int(splited_raw_command[1])
 
         arg_dict = {'max_cnt_tweets': max_cnt_tweets}
+    elif command_with_args[0] == 'tweetsby':
+        # tweetsby has either zero or one or two arguments.
+        username = None
+        if len(splited_raw_command) >= 2:
+            username = splited_raw_command[1]
+            
+        max_cnt_tweets = -1
+        if len(splited_raw_command) >= 3:
+            max_cnt_tweets = splited_raw_command[2]
+            
+        arg_dict = {'username': username, 'max_cnt_tweets': max_cnt_tweets}
     elif command_with_args[0] == 'exit' or command_with_args[0] == 'quit':
         # exit or quit doesn't have any arguments.
         pass
@@ -376,6 +401,23 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
                 print("Couldn't get the user timeline with error = {}".format(result['error']))
             else:
                 print("Couldn't get the general timeline with error = {}".format(result['error']))
+    elif command == 'tweetsby':
+        # Get the username of the currently logged-in user if no username is given.
+        if args['username'] is None:
+            succeeded, result = twis.get_user_profile(auth_secret[0])
+            if succeeded:
+                args['username'] = result['username']
+                print('No username is given, so use the currently logged-in user {}'.format(args['username']))
+            else:
+                print("Couldn't get the username of the currently logged-in user with error = {}".format(result['error']))
+                return
+                
+        succeeded, result = twis.get_user_tweets(auth_secret[0], args['username'], args['max_cnt_tweets'])
+        if succeeded:
+            print('Got {} tweets posted by {}'.format(len(result['tweets']), args['username']))
+            print_tweets(result['tweets'])
+        else:
+            print("Couldn't get the tweets posted by {} with error = {}".format(args['username'], result['error']))
     else:
         pass
 
@@ -428,7 +470,7 @@ def pytwis_cli():
             command_with_args = pytwis_command_parser(
                 input('Please enter a command '
                       '(register, login, logout, changepwd, userprofile, post, '
-                      'follow, unfollow, followers, followings, timeline):\n{}:{}> ' \
+                      'follow, unfollow, followers, followings, timeline, tweetsby):\n{}:{}> ' \
                       .format(args.hostname, args.port)))
             if command_with_args[0] == "exit" or command_with_args[0] == 'quit':
                 # Log out of the current user before exiting.

@@ -40,9 +40,11 @@ It supports the following features:
 -  Follower/Following
 -  General timeline for anonymous user
 -  User timeline
+-  Get tweets posted by one user
 
 TODOs:
 
+-  Search users
 -  #hashtags
 -  @mentions
 -  Retweets
@@ -80,12 +82,18 @@ example in the module ``pytwis_clt``.
     # Post a tweet. 
     succeeded, result = twis.post_tweet(auth_secret, 'A tweet')
 
-    # Get the general timeline. Note that we are passing an empty authentication secret. 
+    # Get the general timeline. Note that we are passing an empty authentication secret and '-1' as the second 
+    # input parameter to get all the tweets in the general timeline. 
     # If succeeded is True, result['tweets'] will contain a list of tweets.
-    succeeded, result = twis.get_timeline('')
+    succeeded, result = twis.get_timeline('', -1)
 
-    # Get the user timeline. Note that the second input parameter 100 indicates 
+    # Get the user timeline. Note that the second input parameter 100 specifies the maximum number of tweets 
+    # that will be included in the general timeline.
     succeeded, result = twis.get_timeline(auth_secret, 100)
+
+    # Get the tweets posted by a user. Note that this user may be different from the currently logged-in user.
+    # If succeeded is True, result['tweets'] will contain a list of tweets.
+    succeeded, result = twis.get_user_tweets(auth_secret, 'username', -1)
 
     # Follow a user.
     succeeded, result = twis.follow(auth_secret, 'followee_username')
@@ -235,7 +243,17 @@ specified.
 
     127.0.0.1:6379> timeline [max-tweet-count]
 
-2.2.12. ``exit`` or ``quit``
+2.2.12. ``tweetsby``
+
+Get the tweets posted by a user. It will return the tweets posted by the
+current logged-in user if no username is specified. Also, it will return
+all the tweets posted by the user if max-tweet-count is not specified.
+
+.. code:: bash
+
+    127.0.0.1:6379> tweetsby [username] [max-tweet-count]
+
+2.2.13. ``exit`` or ``quit``
 
 Exit the console program.
 
@@ -255,6 +273,7 @@ successful log-in.
 -  followers
 -  followings
 -  post
+-  tweetsby
 
 3. Unit test
 ------------
