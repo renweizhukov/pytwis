@@ -204,9 +204,11 @@ Redis database.</p>
 <li>Follower/Following</li>
 <li>General timeline for anonymous user</li>
 <li>User timeline</li>
+<li>Get tweets posted by one user</li>
 </ul>
 <p>TODOs:</p>
 <ul class="simple">
+<li>Search users</li>
 <li>#hashtags</li>
 <li>&#64;mentions</li>
 <li>Retweets</li>
@@ -241,12 +243,18 @@ example in the module <code class="docutils literal notranslate"><span class="pr
 <span class="c1"># Post a tweet.</span>
 <span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">post_tweet</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;A tweet&#39;</span><span class="p">)</span>
 
-<span class="c1"># Get the general timeline. Note that we are passing an empty authentication secret.</span>
+<span class="c1"># Get the general timeline. Note that we are passing an empty authentication secret and &#39;-1&#39; as the second</span>
+<span class="c1"># input parameter to get all the tweets in the general timeline.</span>
 <span class="c1"># If succeeded is True, result[&#39;tweets&#39;] will contain a list of tweets.</span>
-<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="c1"># Get the user timeline. Note that the second input parameter 100 indicates</span>
+<span class="c1"># Get the user timeline. Note that the second input parameter 100 specifies the maximum number of tweets</span>
+<span class="c1"># that will be included in the general timeline.</span>
 <span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_timeline</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Get the tweets posted by a user. Note that this user may be different from the currently logged-in user.</span>
+<span class="c1"># If succeeded is True, result[&#39;tweets&#39;] will contain a list of tweets.</span>
+<span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">get_user_tweets</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Follow a user.</span>
 <span class="n">succeeded</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">twis</span><span class="o">.</span><span class="n">follow</span><span class="p">(</span><span class="n">auth_secret</span><span class="p">,</span> <span class="s1">&#39;followee_username&#39;</span><span class="p">)</span>
@@ -357,7 +365,14 @@ specified.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>2.2.12. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
+<p>2.2.12. <code class="docutils literal notranslate"><span class="pre">tweetsby</span></code></p>
+<p>Get the tweets posted by a user. It will return the tweets posted by the
+current logged-in user if no username is specified. Also, it will return
+all the tweets posted by the user if max-tweet-count is not specified.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">tweetsby</span> <span class="p">[</span><span class="n">username</span><span class="p">]</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>2.2.13. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
 <p>Exit the console program.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">exit</span>
 <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
@@ -374,6 +389,7 @@ successful log-in.</p>
 <li>followers</li>
 <li>followings</li>
 <li>post</li>
+<li>tweetsby</li>
 </ul>
 </div>
 </div>

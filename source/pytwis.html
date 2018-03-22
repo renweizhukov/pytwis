@@ -165,9 +165,11 @@ the data layout of the Redis database.</p>
 <li>Follower/Following</li>
 <li>General timeline for anonymous user</li>
 <li>User timeline</li>
+<li>Get tweets posted by a user</li>
 </ul>
 <p>TODOs:</p>
 <ul class="simple">
+<li>Search users</li>
 <li>#hashtags</li>
 <li>&#64;mentions</li>
 <li>Retweets</li>
@@ -197,18 +199,18 @@ the data layout of the Redis database.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_KEY">
-<code class="descname">GENERAL_TIMELINE_KEY</code><em class="property"> = 'timeline'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_LIST_KEY">
+<code class="descname">GENERAL_TIMELINE_LIST_KEY</code><em class="property"> = 'timeline'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_LIST_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_MAX_POST_CNT">
-<code class="descname">GENERAL_TIMELINE_MAX_POST_CNT</code><em class="property"> = 1000</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_MAX_POST_CNT" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.GENERAL_TIMELINE_LIST_MAX_TWEET_CNT">
+<code class="descname">GENERAL_TIMELINE_LIST_MAX_TWEET_CNT</code><em class="property"> = 1000</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.GENERAL_TIMELINE_LIST_MAX_TWEET_CNT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.NEXT_POST_ID_KEY">
-<code class="descname">NEXT_POST_ID_KEY</code><em class="property"> = 'next_post_id'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.NEXT_POST_ID_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.NEXT_TWEET_ID_KEY">
+<code class="descname">NEXT_TWEET_ID_KEY</code><em class="property"> = 'next_tweet_id'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.NEXT_TWEET_ID_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -217,33 +219,28 @@ the data layout of the Redis database.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.POST_ID_BODY_KEY">
-<code class="descname">POST_ID_BODY_KEY</code><em class="property"> = 'body'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_BODY_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.POST_ID_KEY_FORMAT">
-<code class="descname">POST_ID_KEY_FORMAT</code><em class="property"> = 'post:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.POST_ID_UNIXTIME_KEY">
-<code class="descname">POST_ID_UNIXTIME_KEY</code><em class="property"> = 'unix_time'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_UNIXTIME_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.POST_ID_USERID_KEY">
-<code class="descname">POST_ID_USERID_KEY</code><em class="property"> = 'userid'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_USERID_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.POST_ID_USER_KEY_FORMAT">
-<code class="descname">POST_ID_USER_KEY_FORMAT</code><em class="property"> = 'posts:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.POST_ID_USER_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="pytwis.pytwis.Pytwis.REDIS_SOCKET_CONNECT_TIMEOUT">
 <code class="descname">REDIS_SOCKET_CONNECT_TIMEOUT</code><em class="property"> = 60</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.REDIS_SOCKET_CONNECT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.TWEET_HASH_BODY_KEY">
+<code class="descname">TWEET_HASH_BODY_KEY</code><em class="property"> = 'body'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.TWEET_HASH_BODY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.TWEET_HASH_KEY_FORMAT">
+<code class="descname">TWEET_HASH_KEY_FORMAT</code><em class="property"> = 'tweet:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.TWEET_HASH_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.TWEET_HASH_UNIXTIME_KEY">
+<code class="descname">TWEET_HASH_UNIXTIME_KEY</code><em class="property"> = 'unix_time'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.TWEET_HASH_UNIXTIME_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.TWEET_HASH_USERID_KEY">
+<code class="descname">TWEET_HASH_USERID_KEY</code><em class="property"> = 'userid'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.TWEET_HASH_USERID_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -252,23 +249,33 @@ the data layout of the Redis database.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_AUTH_KEY">
-<code class="descname">USER_ID_PROFILE_AUTH_KEY</code><em class="property"> = 'auth'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_AUTH_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.USER_PROFILE_HASH_AUTH_KEY">
+<code class="descname">USER_PROFILE_HASH_AUTH_KEY</code><em class="property"> = 'auth'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_PROFILE_HASH_AUTH_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_KEY_FORMAT">
-<code class="descname">USER_ID_PROFILE_KEY_FORMAT</code><em class="property"> = 'user:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.USER_PROFILE_HASH_KEY_FORMAT">
+<code class="descname">USER_PROFILE_HASH_KEY_FORMAT</code><em class="property"> = 'user:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_PROFILE_HASH_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_PASSWORD_KEY">
-<code class="descname">USER_ID_PROFILE_PASSWORD_KEY</code><em class="property"> = 'password'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_PASSWORD_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.USER_PROFILE_HASH_PASSWORD_KEY">
+<code class="descname">USER_PROFILE_HASH_PASSWORD_KEY</code><em class="property"> = 'password'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_PROFILE_HASH_PASSWORD_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pytwis.pytwis.Pytwis.USER_ID_PROFILE_USERNAME_KEY">
-<code class="descname">USER_ID_PROFILE_USERNAME_KEY</code><em class="property"> = 'username'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_ID_PROFILE_USERNAME_KEY" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis.Pytwis.USER_PROFILE_HASH_USERNAME_KEY">
+<code class="descname">USER_PROFILE_HASH_USERNAME_KEY</code><em class="property"> = 'username'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_PROFILE_HASH_USERNAME_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_TIMELINE_LIST_KEY_FORMAT">
+<code class="descname">USER_TIMELINE_LIST_KEY_FORMAT</code><em class="property"> = 'timeline:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_TIMELINE_LIST_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pytwis.pytwis.Pytwis.USER_TWEETS_LIST_KEY_FORMAT">
+<code class="descname">USER_TWEETS_LIST_KEY_FORMAT</code><em class="property"> = 'tweets_by:{}'</em><a class="headerlink" href="#pytwis.pytwis.Pytwis.USER_TWEETS_LIST_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -451,9 +458,9 @@ the error string with the key ‘error’ otherwise.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul>
 <li><em>bool</em> – True if the logout is successful, False otherwise.</li>
 <li><em>result</em> – A dict containing the following keys:<ul class="simple">
-<li>USER_ID_PROFILE_USERNAME_KEY</li>
-<li>USER_ID_PROFILE_PASSWORD_KEY</li>
-<li>USER_ID_PROFILE_AUTH_KEY = ‘auth’</li>
+<li>USER_PROFILE_HASH_USERNAME_KEY</li>
+<li>USER_PROFILE_HASH_PASSWORD_KEY</li>
+<li>USER_PROFILE_HASH_AUTH_KEY</li>
 </ul>
 <p>if the user profile is obtained successfully; otherwise a dict containing the error string
 with the key ‘error’.</p>
@@ -468,6 +475,43 @@ with the key ‘error’.</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
 <li>‘Not logged in’</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pytwis.pytwis.Pytwis.get_user_tweets">
+<code class="descname">get_user_tweets</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>username</em>, <em>max_cnt_tweets</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_user_tweets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the tweets posted by one user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of the logged-in user.</li>
+<li><strong>username</strong> – The name of the user who post the tweets and may not be the logged-in user.</li>
+<li><strong>max_cnt_tweets</strong> (<em>int</em>) – The maximum number of tweets included in the return. If it is set to -1,
+then all the tweets posted by the user will be included.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>bool</em> – True if the tweets are successfully retrieved, False otherwise.</li>
+<li><em>result</em> – A dict containing a list of tweets with the key ‘tweets’ if
+the tweets are successfully retrieved, a dict containing
+the error string with the key ‘error’ otherwise.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Possible error strings are listed as below:</p>
+<ul class="last simple">
+<li>‘Not logged in’</li>
+<li>“username {} doesn’t exist”.format(username)</li>
 </ul>
 </div>
 </dd></dl>
@@ -716,6 +760,16 @@ $ ./pytwis_clt.py --help
 </div>
 <p>Note that if a user is logged in, <cite>timeline</cite> will return the user timeline;
 otherwise <cite>timeline</cite> will return the general timeline.</p>
+<ul class="simple">
+<li>Get the tweets posted by a user:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">tweetsby</span>
+<span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">tweetsby</span> <span class="p">{</span><span class="n">username</span><span class="p">}</span>
+<span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">tweetsby</span> <span class="p">{</span><span class="n">username</span><span class="p">}</span> <span class="p">{</span><span class="n">max_tweet_count</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that if no username is given, <cite>tweetsby</cite> will return the tweets posted
+by the currently logged-in user.</p>
 <ul class="simple">
 <li>Exit the program:</li>
 </ul>
