@@ -10,6 +10,8 @@ strictly speaking, it is a little integration test.
 import unittest
 from .context import pytwis
 
+INCORRECT_ERROR_MSG = 'Incorrect error message'
+
 
 class PytwisTests(unittest.TestCase):
     """Pytwis test base class which has the general setUp() and tearDown() methods."""
@@ -53,8 +55,8 @@ class PytwisRegisterTests(PytwisTests):
         
         succeeded, result = self._pytwis.register(username, password)
         self.assertFalse(succeeded, 'Succeeded in registering an existing username')
-        self.assertEqual('username {} already exists'.format(username), result['error'],
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username), result[pytwis.PytwisConstant.ERROR_KEY],
+                         INCORRECT_ERROR_MSG)
         
     def _register_same_user_at_same_time(self):
         """Register the same user in two threads almost simultaneously."""
@@ -106,16 +108,16 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         """Log in with an empty username."""
         succeeded, result = self._pytwis.login('', self._passwords[0])
         self.assertFalse(succeeded, 'Succeeded in logging in with an empty username')
-        self.assertEqual("username {} doesn't exist".format(''), result['error'], 
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(''), result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
         
     def _login_with_wrong_username(self):
         """Log in with a wrong username."""
         wrong_username = self._usernames[0] + '_wrong'
         succeeded, result = self._pytwis.login(wrong_username, self._passwords[0])
         self.assertFalse(succeeded, 'Succeeded in logging in with a wrong username {}'.format(wrong_username))
-        self.assertEqual("username {} doesn't exist".format(wrong_username), result['error'], 
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(wrong_username), result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
     
     def _login_with_correct_password(self):
         """Log into the user with correct password."""
@@ -123,25 +125,25 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
                         format(self._usernames[0], self._passwords[0]))
-        self.assertGreater(len(result['auth']), 0, 'login returns an empty authentication secret')
+        self.assertGreater(len(result[pytwis.PytwisConstant.AUTH_KEY]), 0, 'login returns an empty authentication secret')
 
     def _login_with_empty_password(self):
         """Log into the user with an empty password."""
         succeeded, result = self._pytwis.login(self._usernames[0], '')
         self.assertFalse(succeeded, 'Succeeded in logging into {} with an empty password'.format(self._usernames[0]))
-        self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_INCORRECT_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
     def _login_with_wrong_password(self):
         """Log into the user with wrong password."""
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0] + '_wrong')
         self.assertFalse(succeeded, 'Succeeded in logging into {} with wrong password'.format(self._usernames[0]))
-        self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_INCORRECT_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
 
     def _logout_before_login(self):
         """Log out before log in."""
         succeeded, result = self._pytwis.logout('')
         self.assertFalse(succeeded, 'Succeeded in logging out before logging in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
     def _logout_after_login(self):
         """Log out after log in."""
@@ -149,7 +151,7 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
                         format(self._usernames[0], self._passwords[0]))
-        auth_secret = result['auth']
+        auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         
         succeeded, _ = self._pytwis.logout(auth_secret)
         self.assertTrue(succeeded, 'Failed to log out user {}'.format(self._usernames[0]))
@@ -159,12 +161,12 @@ class PytwisLogTests(PytwisTestsWithRegisteredUsers):
         Two logins should return different authentication secrets. 
         """
         _, result = self._pytwis.login(self._usernames[0], self._passwords[0])
-        auth_secret1 = result['auth']
+        auth_secret1 = result[pytwis.PytwisConstant.AUTH_KEY]
         
         self._pytwis.logout(auth_secret1)
         
         _, result = self._pytwis.login(self._usernames[0], self._passwords[0])
-        auth_secret2 = result['auth']
+        auth_secret2 = result[pytwis.PytwisConstant.AUTH_KEY]
         self.assertNotEqual(auth_secret1, auth_secret2, 
                             'Two logins return the same authentication secret')
     
@@ -196,17 +198,17 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         """Change the password before logging in."""
         succeeded, result = self._pytwis.change_password('', 'old_password', 'new_password')
         self.assertFalse(succeeded, 'Succeeded in changing the password before logging in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _change_password_with_wrong_old_password(self):
         """Change the password with the wrong old password."""
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
         self.assertTrue(succeeded, 'Succeeded in logging in.')
-        auth_secret = result['auth']
+        auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         
         succeeded, result = self._pytwis.change_password(auth_secret, self._passwords[0] + '_wrong', '')
         self.assertFalse(succeeded, 'Succeeded in changing the password into the same one')
-        self.assertEqual('Incorrect old password', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _change_password_after_login_then_logout_login(self):
         """Change the password after logging in, 
@@ -215,12 +217,12 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         old_password = self._passwords[0]
         succeeded, result = self._pytwis.login(self._usernames[0], old_password)
         self.assertTrue(succeeded, 'Succeeded in logging in with the old password.')
-        old_auth_secret = result['auth']
+        old_auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         
         new_password = self._passwords[0] + '_new'
         succeeded, result = self._pytwis.change_password(old_auth_secret, old_password, new_password)
         self.assertTrue(succeeded, 'Succeeded in changing the password.')
-        new_auth_secret = result['auth']
+        new_auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         self.assertNotEqual(old_auth_secret, new_auth_secret, 
                             'The new authentication secret is the same as the old one')
         
@@ -229,7 +231,7 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         
         succeeded, result = self._pytwis.login(self._usernames[0], old_password)
         self.assertFalse(succeeded, 'Succeeded in logging in with the old password')
-        self.assertEqual('Incorrect password', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_INCORRECT_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
         succeeded, _ = self._pytwis.login(self._usernames[0], new_password)
         self.assertTrue(succeeded, 'Failed to log in with the new password')
@@ -258,27 +260,27 @@ class PytwisUserProfileTests(PytwisTestsWithRegisteredUsers):
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
                         format(self._usernames[0], self._passwords[0]))
-        self._auth_secret = result['auth']
+        self._auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
     
     def _get_user_profile_with_empty_auth_secret(self):
         """Try getting the user profile with an empty authentication secret."""
         succeeded, result = self._pytwis.get_user_profile('')
         self.assertFalse(succeeded, 'Succeeded in getting the user profile with an empty authentication secret')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
     def _get_user_profile_with_incorrect_auth_secret(self):
         """Try getting the user profile with an incorrect authentication secret."""
         succeeded, result = self._pytwis.get_user_profile(self._auth_secret + '_wrong')
         self.assertFalse(succeeded, 'Succeeded in getting the user profile with an incorrect authentication secret')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
     def _get_user_profile_with_correct_auth_secret(self):
         """Get the user profile with the correct authentication secret."""
         succeeded, result = self._pytwis.get_user_profile(self._auth_secret)
         self.assertTrue(succeeded, 'Failed to get the user profile with the correct authentication secret')
-        self.assertEqual(self._usernames[0], result['username'], 'Mismatched username')
-        self.assertEqual(self._passwords[0], result['password'], 'Mismatched password')
-        self.assertEqual(self._auth_secret, result['auth'], 'Mismatched authentication secret')
+        self.assertEqual(self._usernames[0], result[pytwis.PytwisConstant.USERNAME_KEY], 'Mismatched username')
+        self.assertEqual(self._passwords[0], result[pytwis.PytwisConstant.PASSWORD_KEY], 'Mismatched password')
+        self.assertEqual(self._auth_secret, result[pytwis.PytwisConstant.AUTH_KEY], 'Mismatched authentication secret')
         
     def test_get_user_profile(self):
         """get_user_profile test routines:
@@ -307,14 +309,14 @@ class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
         self.assertTrue(succeeded, 
                         'Failed to log into user {} with the correct password {}'.\
                         format(self._usernames[0], self._passwords[0]))
-        self._post_auth_secret = result['auth']
+        self._post_auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         self._get_auth_secret = ''
     
     def _get_empty_timeline(self):
         """Get an empty timeline."""
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, -1)
         self.assertTrue(succeeded, 'Failed to get the empty timeline')
-        self.assertEqual(0, len(result['tweets']), 'Get a non-empty timeline')
+        self.assertEqual(0, len(result[pytwis.PytwisConstant.TWEETS_KEY]), 'Get a non-empty timeline')
         
     def _get_nonempty_timeline_all(self):
         """Get all the tweets of a nonempty timeline."""
@@ -326,19 +328,19 @@ class PytwisTimelineTests(PytwisTestsWithRegisteredUsers):
         # Get all the general timeline.
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, -1)
         self.assertTrue(succeeded, 'Failed to get the non-empty timeline')
-        self.assertEqual(self._cnt_tweets, len(result['tweets']), 'Get an incorrect number of tweets')
+        self.assertEqual(self._cnt_tweets, len(result[pytwis.PytwisConstant.TWEETS_KEY]), 'Get an incorrect number of tweets')
         
     def _get_nonempty_timeline_fewer(self):
         """Get fewer than available tweets."""
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets//2)
         self.assertTrue(succeeded, 'Failed to get fewer than available tweets')
-        self.assertEqual(self._cnt_tweets//2, len(result['tweets']), 'Get an incorrect number of tweets')
+        self.assertEqual(self._cnt_tweets//2, len(result[pytwis.PytwisConstant.TWEETS_KEY]), 'Get an incorrect number of tweets')
         
     def _get_nonempty_timeline_more(self):
         """Get more than available tweets."""
         succeeded, result = self._pytwis.get_timeline(self._get_auth_secret, self._cnt_tweets*2)
         self.assertTrue(succeeded, 'Failed to get more than available tweets')
-        self.assertEqual(self._cnt_tweets, len(result['tweets']), 'Get an incorrect number of tweets')
+        self.assertEqual(self._cnt_tweets, len(result[pytwis.PytwisConstant.TWEETS_KEY]), 'Get an incorrect number of tweets')
 
 
 class PytwisGeneralTimelineTests(PytwisTimelineTests):
@@ -404,25 +406,25 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
             self.assertTrue(succeeded, 
                             'Failed to log into user {} with the correct password {}'.\
                             format(self._usernames[user_index], self._passwords[user_index]))
-            self._auth_secrets.append(result['auth'])
+            self._auth_secrets.append(result[pytwis.PytwisConstant.AUTH_KEY])
     
     def _follow_unfollow_before_login(self):
         """Test for the follow-related functions before logged in."""
         succeeded, result = self._pytwis.follow('', self._usernames[0])
         self.assertFalse(succeeded, 'Succeeded in following another user before logged in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
         succeeded, result = self._pytwis.unfollow('', self._usernames[0])
         self.assertFalse(succeeded, 'Succeeded in unfollowing another user before logged in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
         succeeded, result = self._pytwis.get_followers('')
         self.assertFalse(succeeded, 'Succeeded in getting the follower list before logged in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
         
         succeeded, result = self._pytwis.get_following('')
         self.assertFalse(succeeded, 'Succeeded in getting the following list before logged in')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _follow_unfollow_correct_username_after_login(self):
         """Test for the follow-related functions after logged in 
@@ -433,12 +435,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         
         succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the following list after a follow')
-        self.assertEqual(1, len(result['following_list']), 
+        self.assertEqual(1, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                          'Incorrect number of followings after a follow')
         
         succeeded, result = self._pytwis.get_followers(self._auth_secrets[1])
         self.assertTrue(succeeded, 'Failed to get the follower list after a follow')
-        self.assertEqual(1, len(result['follower_list']), 
+        self.assertEqual(1, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                          'Incorrect number of followers after a follow')
         
         succeeded, _ = self._pytwis.unfollow(self._auth_secrets[0], self._usernames[1])
@@ -446,12 +448,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         
         succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the following list after an unfollow')
-        self.assertEqual(0, len(result['following_list']), 
+        self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                          'Incorrect number of followings after an unfollow')
         
         succeeded, result = self._pytwis.get_followers(self._auth_secrets[1])
         self.assertTrue(succeeded, 'Failed to get the follower list after an unfollow')
-        self.assertEqual(0, len(result['follower_list']), 
+        self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                          'Incorrect number of followers after an unfollow')
 
     def _follow_unfollow_wrong_username_after_login(self):
@@ -459,20 +461,20 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
         wrong_followee = self._usernames[1] + '_wrong'
         succeeded, result = self._pytwis.follow(self._auth_secrets[0], wrong_followee)
         self.assertFalse(succeeded, 'Succeeded in following a wrong username {}'.format(wrong_followee))
-        self.assertEqual("Followee {} doesn't exist".format(wrong_followee), result['error'], 
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(wrong_followee), result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
         
         succeeded, result = self._pytwis.unfollow(self._auth_secrets[0], wrong_followee)
         self.assertFalse(succeeded, 'Succeeded in unfollowing a wrong username {}'.format(wrong_followee))
-        self.assertEqual("Followee {} doesn't exist".format(wrong_followee), result['error'], 
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(wrong_followee), result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
     
     def _follow_yourself_after_login(self):
         """Test `follow()` with the logged-in username."""
         succeeded, result = self._pytwis.follow(self._auth_secrets[0], self._usernames[0])
         self.assertFalse(succeeded, 'Succeeded in following yourself {}'.format(self._usernames[0]))
-        self.assertEqual("Can't follow yourself {}".format(self._usernames[0]), result['error'], 
-                         'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT.format(self._usernames[0]), result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
 
     def _one_follow_multiple(self):
         """Test the scenario where one user follows multiple users."""
@@ -483,12 +485,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
             
             succeeded, result = self._pytwis.get_followers(self._auth_secrets[followee_index])
             self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[followee_index]))
-            self.assertEqual(1, len(result['follower_list']), 
+            self.assertEqual(1, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                             'Incorrect number of followers for {}'.format(self._usernames[followee_index]))
             
         succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[0]))
-        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result['following_list']), 
+        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                         'Incorrect number of followings for {}'.format(self._usernames[0]))
         
         for followee_index in range(1, self.CNT_REGISTERED_USERS):
@@ -498,12 +500,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
             
             succeeded, result = self._pytwis.get_followers(self._auth_secrets[followee_index])
             self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[followee_index]))
-            self.assertEqual(0, len(result['follower_list']), 
+            self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                             'Incorrect number of followers for {}'.format(self._usernames[followee_index]))
             
         succeeded, result = self._pytwis.get_following(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[0]))
-        self.assertEqual(0, len(result['following_list']), 
+        self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                         'Incorrect number of followings for {}'.format(self._usernames[0]))
         
     def _multiple_follow_one(self):
@@ -515,12 +517,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
             
             succeeded, result = self._pytwis.get_following(self._auth_secrets[follower_index])
             self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[follower_index]))
-            self.assertEqual(1, len(result['following_list']), 
+            self.assertEqual(1, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                             'Incorrect number of followings for {}'.format(self._usernames[follower_index]))
             
         succeeded, result = self._pytwis.get_followers(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[0]))
-        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result['follower_list']), 
+        self.assertEqual(self.CNT_REGISTERED_USERS - 1, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                         'Incorrect number of followers for {}'.format(self._usernames[0]))
         
         for follower_index in range(1, self.CNT_REGISTERED_USERS):
@@ -530,12 +532,12 @@ class PytwisFollowTests(PytwisTestsWithRegisteredUsers):
             
             succeeded, result = self._pytwis.get_following(self._auth_secrets[follower_index])
             self.assertTrue(succeeded, 'Failed to get the following list for {}'.format(self._usernames[follower_index]))
-            self.assertEqual(0, len(result['following_list']), 
+            self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWING_LIST_KEY]), 
                             'Incorrect number of followings for {}'.format(self._usernames[follower_index]))
             
         succeeded, result = self._pytwis.get_followers(self._auth_secrets[0])
         self.assertTrue(succeeded, 'Failed to get the follower list for {}'.format(self._usernames[0]))
-        self.assertEqual(0, len(result['follower_list']), 
+        self.assertEqual(0, len(result[pytwis.PytwisConstant.FOLLOWER_LIST_KEY]), 
                         'Incorrect number of followings for {}'.format(self._usernames[0]))
         
     def test_follow(self):
@@ -573,7 +575,7 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
             self.assertTrue(succeeded, 
                             'Failed to log into user {} with the correct password {}'.\
                             format(self._usernames[user_index], self._passwords[user_index]))
-            self._auth_secrets.append(result['auth'])
+            self._auth_secrets.append(result[pytwis.PytwisConstant.AUTH_KEY])
             
         self._expected_cnt_tweets = []
         for user_index in range(self.CNT_REGISTERED_USERS):
@@ -592,7 +594,7 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
             self._expected_cnt_tweets[user_index] += 1
             succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
             self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
-            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result[pytwis.PytwisConstant.TWEETS_KEY]), 
                              'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
     
     def _post_after_one_follow_and_one_unfollow(self):
@@ -608,7 +610,7 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
                 self._expected_cnt_tweets[user_index] += 1
             succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
             self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
-            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result[pytwis.PytwisConstant.TWEETS_KEY]), 
                              'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
         
     def _post_after_two_unfollows(self):
@@ -624,7 +626,7 @@ class PytwisPostFollowTests(PytwisTestsWithRegisteredUsers):
                 self._expected_cnt_tweets[user_index] += 1
             succeeded, result = self._pytwis.get_timeline(self._auth_secrets[user_index], -1)
             self.assertTrue(succeeded, 'Failed to get the user timeline of {}'.format(self._usernames[user_index]))
-            self.assertEqual(self._expected_cnt_tweets[user_index], len(result['tweets']), 
+            self.assertEqual(self._expected_cnt_tweets[user_index], len(result[pytwis.PytwisConstant.TWEETS_KEY]), 
                              'Incorrect number of tweets for {}'.format(self._usernames[user_index]))
             
     def test_post_follow(self):
@@ -655,7 +657,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
             self.assertTrue(succeeded, 
                             'Failed to log into user {} with the correct password {}'.\
                             format(self._usernames[user_index], self._passwords[user_index]))
-            self._auth_secrets.append(result['auth'])
+            self._auth_secrets.append(result[pytwis.PytwisConstant.AUTH_KEY])
             
         self._expected_cnt_tweets = []
         for user_index in range(self.CNT_REGISTERED_USERS):
@@ -665,14 +667,14 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
         """Test getting the user tweets without logged-in."""
         succeeded, result = self._pytwis.get_user_tweets('', self._usernames[0], -1)
         self.assertFalse(succeeded, 'Succeeded in getting the user tweets with an empty authentication secret.')
-        self.assertEqual('Not logged in', result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _get_user_tweets_with_wrong_username(self):
         """Test getting the tweets of a user with a wrong username."""
         wrong_username = self._usernames[0] + '_wrong'
         succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], wrong_username, -1)
         self.assertFalse(succeeded, 'Succeeded in getting the user tweets with a wrong username.')
-        self.assertEqual("username {} doesn't exist".format(wrong_username), result['error'], 'Incorrect error message')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(wrong_username), result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _verify_user_tweets(self, cnt_tweets, username, tweets):
         """Verify if the input list `tweets` has the correct number of tweets 
@@ -680,7 +682,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
         """
         self.assertEqual(cnt_tweets, len(tweets), 'Incorrect number of tweets posted by {}'.format(username))
         for tweet in tweets:
-            self.assertEqual(username, tweet['username'], 'Mismatched username')
+            self.assertEqual(username, tweet[pytwis.PytwisConstant.USERNAME_KEY], 'Mismatched username')
 
     def _get_user_tweets_without_follow(self):
         """Test getting the tweets of two users where they don't follow each other."""
@@ -695,7 +697,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
             succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], -1)
             self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
                             format(self._usernames[0], self._usernames[user_index]))
-            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result['tweets'])
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result[pytwis.PytwisConstant.TWEETS_KEY])
     
     def _get_user_tweets_with_follow(self):
         """Test getting the tweets of two users where one user follows the other."""
@@ -712,7 +714,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
             succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], -1)
             self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
                             format(self._usernames[0], self._usernames[user_index]))
-            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result['tweets'])
+            self._verify_user_tweets(self._expected_cnt_tweets[user_index], self._usernames[user_index], result[pytwis.PytwisConstant.TWEETS_KEY])
     
     def _get_zero_user_tweet(self):
         """Test getting zero user tweet."""
@@ -720,7 +722,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
             succeeded, result = self._pytwis.get_user_tweets(self._auth_secrets[0], self._usernames[user_index], 0)
             self.assertTrue(succeeded, '{} failed to get the tweets of {}'.\
                             format(self._usernames[0], self._usernames[user_index]))
-            self._verify_user_tweets(0, self._usernames[user_index], result['tweets'])
+            self._verify_user_tweets(0, self._usernames[user_index], result[pytwis.PytwisConstant.TWEETS_KEY])
     
     def _get_fewer_user_tweets(self):
         """Test getting user tweets fewer than available ones."""
@@ -732,7 +734,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
                             format(self._usernames[0], self._usernames[user_index]))
             self._verify_user_tweets(self._expected_cnt_tweets[user_index]//2, 
                                      self._usernames[user_index], 
-                                     result['tweets'])
+                                     result[pytwis.PytwisConstant.TWEETS_KEY])
 
     def _get_more_user_tweets(self):
         """Test getting user tweets more than available ones."""
@@ -744,7 +746,7 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
                             format(self._usernames[0], self._usernames[user_index]))
             self._verify_user_tweets(self._expected_cnt_tweets[user_index], 
                                      self._usernames[user_index], 
-                                     result['tweets'])
+                                     result[pytwis.PytwisConstant.TWEETS_KEY])
 
     def test_get_user_tweets(self):
         """Get-user-tweets test routines:

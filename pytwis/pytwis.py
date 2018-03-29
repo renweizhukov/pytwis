@@ -34,38 +34,54 @@ from redis.exceptions import (ResponseError, TimeoutError, WatchError)
 import secrets
 import time
 
-class Pytwis:
-    """This class implements all the interfaces to the Redis database of the Twitter-toy-clone."""
-    
+class PytwisConstant:
+    """This class defines all the constants used by pytwis.py."""
     REDIS_SOCKET_CONNECT_TIMEOUT = 60
     
     NEXT_USER_ID_KEY = 'next_user_id'
     
-    USERS_HASH_KEY = 'users'
+    USERS_KEY = 'users'
     
-    USER_PROFILE_HASH_KEY_FORMAT = 'user:{}'
-    USER_PROFILE_HASH_USERNAME_KEY = 'username'
-    USER_PROFILE_HASH_PASSWORD_KEY = 'password'
-    USER_PROFILE_HASH_AUTH_KEY = 'auth'
+    USER_PROFILE_KEY_FORMAT = 'user:{}'
+    USERNAME_KEY = 'username'
+    PASSWORD_KEY = 'password'
+    AUTH_KEY = 'auth'
     
-    AUTHS_HASH_KEY = 'auths'
+    AUTHS_KEY = 'auths'
     
-    FOLLOWER_ZSET_KEY_FORMAT = 'follower:{}'
-    FOLLOWING_ZSET_KEY_FORMAT = 'following:{}'
+    FOLLOWER_KEY_FORMAT = 'follower:{}'
+    FOLLOWING_KEY_FORMAT = 'following:{}'
     
     NEXT_TWEET_ID_KEY = 'next_tweet_id'
     
-    TWEET_HASH_KEY_FORMAT = 'tweet:{}'
-    TWEET_HASH_USERID_KEY = 'userid'
-    TWEET_HASH_UNIXTIME_KEY = 'unix_time'
-    TWEET_HASH_BODY_KEY = 'body'
+    TWEET_KEY_FORMAT = 'tweet:{}'
+    TWEET_USERID_KEY = 'userid'
+    TWEET_UNIXTIME_KEY = 'unix_time'
+    TWEET_BODY_KEY = 'body'
     
-    GENERAL_TIMELINE_LIST_KEY = 'timeline'
-    GENERAL_TIMELINE_LIST_MAX_TWEET_CNT = 1000
+    GENERAL_TIMELINE_KEY = 'timeline'
+    GENERAL_TIMELINE_MAX_TWEET_CNT = 1000
     
-    USER_TIMELINE_LIST_KEY_FORMAT = 'timeline:{}'
+    USER_TIMELINE_KEY_FORMAT = 'timeline:{}'
     
-    USER_TWEETS_LIST_KEY_FORMAT = 'tweets_by:{}'
+    USER_TWEETS_KEY_FORMAT = 'tweets_by:{}'
+    
+    ERROR_KEY = 'error'
+    FOLLOWER_LIST_KEY = 'follower_list'
+    FOLLOWING_LIST_KEY = 'following_list'
+    TWEETS_KEY = 'tweets'
+    
+    ERROR_USERNAME_NOT_EXIST_FORMAT = "username {} doesn't exist"
+    ERROR_USERNAME_ALREADY_EXISTS = 'username {} already exists'
+    ERROR_NOT_LOGGED_IN = 'Not logged in'
+    ERROR_INCORRECT_OLD_PASSWORD = 'Incorrect old password'
+    ERROR_INCORRECT_PASSWORD = 'Incorrect password'
+    ERROR_FOLLOWEE_NOT_EXIST_FORMAT = "Followee {} doesn't exist"
+    ERROR_FOLLOW_YOURSELF_FORMAT = "Can't follow yourself {}"
+    
+
+class Pytwis:
+    """This class implements all the interfaces to the Redis database of the Twitter-toy-clone."""
     
     def __init__(self, hostname='127.0.0.1', port=6379, db=0, password =''):
         """Initialize the class Pytiws.
@@ -98,7 +114,7 @@ class Pytwis:
             db=db,
             password=password,
             decode_responses=True, # Decode the response bytes into strings.
-            socket_connect_timeout=self.REDIS_SOCKET_CONNECT_TIMEOUT)
+            socket_connect_timeout=PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT)
         
         # Test the connection by ping.
         try:
@@ -124,13 +140,13 @@ class Pytwis:
             valid, None otherwise. 
         """
         # Get the userid from the authentication secret.
-        userid = self._rc.hget(self.AUTHS_HASH_KEY, auth_secret)
+        userid = self._rc.hget(PytwisConstant.AUTHS_KEY, auth_secret)
         if userid is None:
             return (False, None)
         
         # Compare the input authentication secret with the stored one.
-        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
-        stored_auth_secret = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY)
+        userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
+        stored_auth_secret = self._rc.hget(userid_profile_key, PytwisConstant.AUTH_KEY)
         if auth_secret == stored_auth_secret:
             return (True, userid)
         else:
@@ -153,15 +169,15 @@ class Pytwis:
             True if the new user is successfully registered, False otherwise.
         result
             An empty dict if the new user is successfully registered, a dict 
-            containing the error string with the key 'error' otherwise.
+            containing the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'username {} already exists'.format(username)
+        -  PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username)
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # TODO: add the username check.
         # TODO: add the password check.
@@ -173,19 +189,19 @@ class Pytwis:
                 try:
                     # Put a watch on the Hash 'users': username -> user-id, in case that 
                     # multiple clients are registering with the same username.
-                    pipe.watch(self.USERS_HASH_KEY)
-                    username_exists = pipe.hexists(self.USERS_HASH_KEY, username)
+                    pipe.watch(PytwisConstant.USERS_KEY)
+                    username_exists = pipe.hexists(PytwisConstant.USERS_KEY, username)
                     if username_exists:
-                        result['error'] = 'username {} already exists'.format(username)
+                        result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username)
                         return (False, result);
                     
                     # Get the next user-id. If the key "next_user_id" doesn't exist,
                     # it will be created and initialized as 0, and then incremented by 1.
-                    userid = pipe.incr(self.NEXT_USER_ID_KEY)
+                    userid = pipe.incr(PytwisConstant.NEXT_USER_ID_KEY)
                     
                     # Set the username-to-userid pair in USERS_HASH_KEY.
                     pipe.multi()
-                    pipe.hset(self.USERS_HASH_KEY, username, userid)
+                    pipe.hset(PytwisConstant.USERS_KEY, username, userid)
                     pipe.execute()
                     
                     break
@@ -194,17 +210,17 @@ class Pytwis:
                 
             # Generate the authentication secret.
             auth_secret = secrets.token_hex()
-            userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+            userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
             
             pipe.multi()
             # Update the authentication_secret-to-userid mapping.
-            pipe.hset(self.AUTHS_HASH_KEY, auth_secret, userid)
+            pipe.hset(PytwisConstant.AUTHS_KEY, auth_secret, userid)
             # Create the user profile.
             # TODO: Store the hashed password instead of the raw password.
             pipe.hmset(userid_profile_key, 
-                       {self.USER_PROFILE_HASH_USERNAME_KEY: username, 
-                        self.USER_PROFILE_HASH_PASSWORD_KEY: password,
-                        self.USER_PROFILE_HASH_AUTH_KEY: auth_secret})
+                       {PytwisConstant.USERNAME_KEY: username, 
+                        PytwisConstant.PASSWORD_KEY: password,
+                        PytwisConstant.AUTH_KEY: auth_secret})
             pipe.execute()
         
         return (True, result)
@@ -226,30 +242,30 @@ class Pytwis:
         bool
             True if the password is successfully changed, False otherwise.
         result
-            A dict containing the new authentication secret with the key 'auth' 
+            A dict containing the new authentication secret with the key PytwisConstant.AUTH_KEY 
             if the password is successfully changed, a dict containing the error 
-            string with the key 'error' otherwise.
+            string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
-        -  'Incorrect old password'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
+        -  PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Check if the old password matches.
-        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY)
+        userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_KEY)
         if stored_password != old_password:
-            result['error'] = 'Incorrect old password'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD
             return (False, result)
         
         # TODO: add the new password check.
@@ -260,13 +276,13 @@ class Pytwis:
         # Replace the old password by the new one and the old authentication secret by the new one.
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY, new_password)
-            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY, new_auth_secret)
-            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
-            pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
+            pipe.hset(userid_profile_key, PytwisConstant.PASSWORD_KEY, new_password)
+            pipe.hset(userid_profile_key, PytwisConstant.AUTH_KEY, new_auth_secret)
+            pipe.hset(PytwisConstant.AUTHS_KEY, new_auth_secret, userid)
+            pipe.hdel(PytwisConstant.AUTHS_KEY, auth_secret)
             pipe.execute()
         
-        result[self.USER_PROFILE_HASH_AUTH_KEY] = new_auth_secret
+        result[PytwisConstant.AUTH_KEY] = new_auth_secret
         return (True, result)
     
     def login(self, username, password):
@@ -284,34 +300,34 @@ class Pytwis:
         bool
             True if the login is successful, False otherwise.
         result
-            A dict containing the authentication secret with the key 'auth' 
+            A dict containing the authentication secret with the key PytwisConstant.AUTH_KEY 
             if the login is successful, a dict containing the error string 
-            with the key 'error' otherwise.
+            with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  "username {} doesn't exist".format(username)
-        -  'Incorrect password'
+        -  PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)
+        -  PytwisConstant.ERROR_INCORRECT_PASSWORD
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Get the user-id based on the username.
-        userid = self._rc.hget(self.USERS_HASH_KEY, username)
+        userid = self._rc.hget(PytwisConstant.USERS_KEY, username)
         if userid is None:
-            result['error'] = "username {} doesn't exist".format(username)
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)
             return (False, result)
         
         # Compare the input password with the stored one. If it matches, 
         # return the authentication secret.
-        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_PASSWORD_KEY)
+        userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
+        stored_password = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_KEY)
         if password == stored_password:
-            result[self.USER_PROFILE_HASH_AUTH_KEY] = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY)
+            result[PytwisConstant.AUTH_KEY] = self._rc.hget(userid_profile_key, PytwisConstant.AUTH_KEY)
             return (True, result)
         else:
-            result['error'] = 'Incorrect password'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_INCORRECT_PASSWORD
             return (False, result)
     
     def logout(self, auth_secret):
@@ -328,36 +344,36 @@ class Pytwis:
             True if the logout is successful, False otherwise.
         result
             None if the logout is successful, a dict containing the error string 
-            with the key 'error' otherwise.
+            with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Generate the new authentication secret.
         new_auth_secret = secrets.token_hex()
         
         # Replace the old authentication secret by the new one.
-        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+        userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(userid_profile_key, self.USER_PROFILE_HASH_AUTH_KEY, new_auth_secret)
-            pipe.hset(self.AUTHS_HASH_KEY, new_auth_secret, userid)
-            pipe.hdel(self.AUTHS_HASH_KEY, auth_secret)
+            pipe.hset(userid_profile_key, PytwisConstant.AUTH_KEY, new_auth_secret)
+            pipe.hset(PytwisConstant.AUTHS_KEY, new_auth_secret, userid)
+            pipe.hdel(PytwisConstant.AUTHS_KEY, auth_secret)
             pipe.execute()
             
-        result[self.USER_PROFILE_HASH_USERNAME_KEY] = self._rc.hget(userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
-        result[self.USER_PROFILE_HASH_AUTH_KEY] = ''
+        result[PytwisConstant.USERNAME_KEY] = self._rc.hget(userid_profile_key, PytwisConstant.USERNAME_KEY)
+        result[PytwisConstant.AUTH_KEY] = ''
         return (True, result)
     
     def get_user_profile(self, auth_secret):
@@ -380,23 +396,23 @@ class Pytwis:
             -  USER_PROFILE_HASH_AUTH_KEY 
             
             if the user profile is obtained successfully; otherwise a dict containing the error string 
-            with the key 'error'.
+            with the key PytwisConstant.ERROR_KEY.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
-        userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
+        userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
         result = self._rc.hgetall(userid_profile_key)
         
         return (True, result)
@@ -417,31 +433,31 @@ class Pytwis:
             True if the tweet is successfully posted, False otherwise.
         result
             None if the tweet is successfully posted, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Get the next user-id. If the key "next_user_id" doesn't exist,
         # it will be created and initialized as 0, and then incremented by 1.
-        post_id = self._rc.incr(self.NEXT_TWEET_ID_KEY)
-        post_id_key = self.TWEET_HASH_KEY_FORMAT.format(post_id)
+        post_id = self._rc.incr(PytwisConstant.NEXT_TWEET_ID_KEY)
+        post_id_key = PytwisConstant.TWEET_KEY_FORMAT.format(post_id)
         
-        post_id_timeline_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(userid)
-        post_id_user_key = self.USER_TWEETS_LIST_KEY_FORMAT.format(userid)
+        post_id_timeline_key = PytwisConstant.USER_TIMELINE_KEY_FORMAT.format(userid)
+        post_id_user_key = PytwisConstant.USER_TWEETS_KEY_FORMAT.format(userid)
         
-        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(userid)
+        follower_zset_key = PytwisConstant.FOLLOWER_KEY_FORMAT.format(userid)
         followers = self._rc.zrange(follower_zset_key, 0, -1)
         
         unix_time = int(time.time())
@@ -449,9 +465,9 @@ class Pytwis:
             pipe.multi()
             # Store the tweet with its user ID and UNIX timestamp.
             pipe.hmset(post_id_key,
-                       {self.TWEET_HASH_USERID_KEY: userid,
-                        self.TWEET_HASH_UNIXTIME_KEY: unix_time,
-                        self.TWEET_HASH_BODY_KEY: tweet})
+                       {PytwisConstant.TWEET_USERID_KEY: userid,
+                        PytwisConstant.TWEET_UNIXTIME_KEY: unix_time,
+                        PytwisConstant.TWEET_BODY_KEY: tweet})
             
             # Add the tweet to the user timeline.
             pipe.lpush(post_id_timeline_key, post_id)
@@ -461,13 +477,13 @@ class Pytwis:
             
             # Write fanout the tweet to all the followers' timelines.
             for follower in followers:
-                post_id_follower_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(follower)
+                post_id_follower_key = PytwisConstant.USER_TIMELINE_KEY_FORMAT.format(follower)
                 pipe.lpush(post_id_follower_key, post_id)
             
             # Add the tweet to the general timeline and left trim the general timeline to only retain 
             # the latest GENERAL_TIMELINE_LIST_MAX_TWEET_CNT tweets.
-            pipe.lpush(self.GENERAL_TIMELINE_LIST_KEY, post_id)
-            pipe.ltrim(self.GENERAL_TIMELINE_LIST_KEY, 0, self.GENERAL_TIMELINE_LIST_MAX_TWEET_CNT - 1)
+            pipe.lpush(PytwisConstant.GENERAL_TIMELINE_KEY, post_id)
+            pipe.ltrim(PytwisConstant.GENERAL_TIMELINE_KEY, 0, PytwisConstant.GENERAL_TIMELINE_MAX_TWEET_CNT - 1)
             
             pipe.execute()
         
@@ -489,22 +505,22 @@ class Pytwis:
             True if the follow is successful, False otherwise.
         result
             None if the follow is successful, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
-        -  "Followee {} doesn't exist".format(followee_username)
-        -  "Can't follow yourself {}".format(followee_username)
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
+        -  PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)
+        -  PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT.format(followee_username)
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         with self._rc.pipeline() as pipe:
@@ -513,13 +529,13 @@ class Pytwis:
                 try:
                     # Put a watch on the Hash 'users': username -> user-id, in case that 
                     # other clients are modifying the Hash 'users'.
-                    pipe.watch(self.USERS_HASH_KEY)
-                    followee_userid = pipe.hget(self.USERS_HASH_KEY, followee_username)
+                    pipe.watch(PytwisConstant.USERS_KEY)
+                    followee_userid = pipe.hget(PytwisConstant.USERS_KEY, followee_username)
                     if followee_userid is None:
-                        result['error'] = "Followee {} doesn't exist".format(followee_username)
+                        result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)
                         return (False, result);
                     elif followee_userid == userid:
-                        result['error'] = "Can't follow yourself {}".format(followee_username)
+                        result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT.format(followee_username)
                         return (False, result)
                     
                     break
@@ -527,8 +543,8 @@ class Pytwis:
                     continue
             
             # Update the two zset 'followers:[followee_username]' and 'following:[username]'.
-            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_userid)
-            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
+            follower_zset_key = PytwisConstant.FOLLOWER_KEY_FORMAT.format(followee_userid)
+            following_zset_key = PytwisConstant.FOLLOWING_KEY_FORMAT.format(userid)
             unix_time = int(time.time())
             pipe.multi()
             pipe.zadd(follower_zset_key, unix_time, userid)
@@ -553,21 +569,21 @@ class Pytwis:
             True if the unfollow is successful, False otherwise.
         result
             None if the unfollow is successful, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
-        -  "Followee {} doesn't exist".format(followee_username)
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
+        -  PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         with self._rc.pipeline() as pipe:
@@ -576,10 +592,10 @@ class Pytwis:
                 try:
                     # Put a watch on the Hash 'users': username -> user-id, in case that 
                     # other clients are modifying the Hash 'users'.
-                    pipe.watch(self.USERS_HASH_KEY)
-                    followee_userid = pipe.hget(self.USERS_HASH_KEY, followee_username)
+                    pipe.watch(PytwisConstant.USERS_KEY)
+                    followee_userid = pipe.hget(PytwisConstant.USERS_KEY, followee_username)
                     if followee_userid is None:
-                        result['error'] = "Followee {} doesn't exist".format(followee_username)
+                        result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)
                         return (False, result);
                     
                     break
@@ -588,8 +604,8 @@ class Pytwis:
             
             # Remove followee_userid from the zset 'following:[username]' and remove userid 
             # from the zset 'followers:[followee_username]'.
-            follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(followee_userid)
-            following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
+            follower_zset_key = PytwisConstant.FOLLOWER_KEY_FORMAT.format(followee_userid)
+            following_zset_key = PytwisConstant.FOLLOWING_KEY_FORMAT.format(userid)
             pipe.multi()
             pipe.zrem(follower_zset_key, userid)
             pipe.zrem(following_zset_key, followee_userid)
@@ -610,30 +626,30 @@ class Pytwis:
         bool
             True if the follower list is successfully obtained, False otherwise.
         result
-            A dict containing the follower list with the key 'follower_list' 
+            A dict containing the follower list with the key PytwisConstant.FOLLOWER_LIST_KEY 
             if the follower list is successfully obtained, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Get the list of followers' userids.
-        follower_zset_key = self.FOLLOWER_ZSET_KEY_FORMAT.format(userid)
+        follower_zset_key = PytwisConstant.FOLLOWER_KEY_FORMAT.format(userid)
         follower_userids = self._rc.zrange(follower_zset_key, 0, -1)
         
         if follower_userids is None or len(follower_userids) == 0:
-            result['follower_list'] = []
+            result[PytwisConstant.FOLLOWER_LIST_KEY] = []
             return (True, result)
         
         # Get the list of followers' usernames from their userids.
@@ -641,10 +657,10 @@ class Pytwis:
             pipe.multi()
             
             for follower_userid in follower_userids:
-                follower_userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(follower_userid)
-                pipe.hget(follower_userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
+                follower_userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(follower_userid)
+                pipe.hget(follower_userid_profile_key, PytwisConstant.USERNAME_KEY)
             
-            result['follower_list'] = pipe.execute()
+            result[PytwisConstant.FOLLOWER_LIST_KEY] = pipe.execute()
             
         return (True, result)
         
@@ -661,30 +677,30 @@ class Pytwis:
         bool
             True if the following list is successfully obtained, False otherwise.
         result
-            A dict containing the following list with the key 'following_list' 
+            A dict containing the following list with the key PytwisConstant.FOLLOWING_LIST_KEY 
             if the follower list is successfully obtained, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Get the list of followers' userids.
-        following_zset_key = self.FOLLOWING_ZSET_KEY_FORMAT.format(userid)
+        following_zset_key = PytwisConstant.FOLLOWING_KEY_FORMAT.format(userid)
         following_userids = self._rc.zrange(following_zset_key, 0, -1)
         
         if following_userids is None or len(following_userids) == 0:
-            result['following_list'] = []
+            result[PytwisConstant.FOLLOWING_LIST_KEY] = []
             return (True, result)
         
         # Get the list of followings' usernames from their userids.
@@ -692,10 +708,10 @@ class Pytwis:
             pipe.multi()
             
             for following_userid in following_userids:
-                following_userid_profile_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(following_userid)
-                pipe.hget(following_userid_profile_key, self.USER_PROFILE_HASH_USERNAME_KEY)
+                following_userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(following_userid)
+                pipe.hget(following_userid_profile_key, PytwisConstant.USERNAME_KEY)
             
-            result['following_list'] = pipe.execute()
+            result[PytwisConstant.FOLLOWING_LIST_KEY] = pipe.execute()
             
         return (True, result)
     
@@ -735,25 +751,25 @@ class Pytwis:
             # Get the tweets with their user IDs and UNIX timestamps.
             pipe.multi()
             for post_id in post_ids:
-                post_id_key = self.TWEET_HASH_KEY_FORMAT.format(post_id)
+                post_id_key = PytwisConstant.TWEET_KEY_FORMAT.format(post_id)
                 pipe.hgetall(post_id_key)
             tweets = pipe.execute()
         
             # Get the userid-to-username mappings for all the user IDs associated with the tweets.
-            userid_set = { tweet[self.TWEET_HASH_USERID_KEY] for tweet in tweets }
+            userid_set = { tweet[PytwisConstant.TWEET_USERID_KEY] for tweet in tweets }
             userid_list = []
             pipe.multi()
             for userid in userid_set:
                 userid_list.append(userid)
-                userid_key = self.USER_PROFILE_HASH_KEY_FORMAT.format(userid)
-                pipe.hget(userid_key, self.USER_PROFILE_HASH_USERNAME_KEY)
+                userid_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
+                pipe.hget(userid_key, PytwisConstant.USERNAME_KEY)
             username_list = pipe.execute()
         
         userid_to_username = { userid: username for userid, username in zip(userid_list, username_list) }
         
         # Add the username for the user ID of each tweet.
         for tweet in tweets:
-            tweet[self.USER_PROFILE_HASH_USERNAME_KEY] = userid_to_username[tweet[self.TWEET_HASH_USERID_KEY]]
+            tweet[PytwisConstant.USERNAME_KEY] = userid_to_username[tweet[PytwisConstant.TWEET_USERID_KEY]]
     
         return tweets
     
@@ -777,32 +793,32 @@ class Pytwis:
         bool
             True if the timeline is successfully retrieved, False otherwise.
         result
-            A dict containing a list of tweets with the key 'tweets' if 
+            A dict containing a list of tweets with the key PytwisConstant.TWEETS_KEY if 
             the timeline is successfully retrieved, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         if auth_secret == '':
             # An empty authentication secret implies getting the general timeline.
-            timeline_key = self.GENERAL_TIMELINE_LIST_KEY
+            timeline_key = PytwisConstant.GENERAL_TIMELINE_KEY
         else:
             # Check if the user is logged in.
             loggedin, userid = self._is_loggedin(auth_secret)
             if not loggedin:
-                result['error'] = 'Not logged in'
+                result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
                 return (False, result)
             
             # Get the user timeline.
-            timeline_key = self.USER_TIMELINE_LIST_KEY_FORMAT.format(userid)
+            timeline_key = PytwisConstant.USER_TIMELINE_KEY_FORMAT.format(userid)
         
-        result['tweets'] = self._get_tweets(timeline_key, max_cnt_tweets)
+        result[PytwisConstant.TWEETS_KEY] = self._get_tweets(timeline_key, max_cnt_tweets)
         return (True, result)
     
     def get_user_tweets(self, auth_secret, username, max_cnt_tweets):
@@ -823,33 +839,33 @@ class Pytwis:
         bool
             True if the tweets are successfully retrieved, False otherwise.
         result
-            A dict containing a list of tweets with the key 'tweets' if 
+            A dict containing a list of tweets with the key PytwisConstant.TWEETS_KEY if 
             the tweets are successfully retrieved, a dict containing 
-            the error string with the key 'error' otherwise.
+            the error string with the key PytwisConstant.ERROR_KEY otherwise.
             
         Note
         ----
         Possible error strings are listed as below: 
         
-        -  'Not logged in'
-        -  "username {} doesn't exist".format(username)
+        -  PytwisConstant.ERROR_NOT_LOGGED_IN
+        -  PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)
         """
-        result = {'error': None}
+        result = {PytwisConstant.ERROR_KEY: None}
         
         # Check if the user is logged in.
         loggedin, _ = self._is_loggedin(auth_secret)
         if not loggedin:
-            result['error'] = 'Not logged in'
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NOT_LOGGED_IN
             return (False, result)
         
         # Get the userid from the username.
-        userid = self._rc.hget(self.USERS_HASH_KEY, username)
+        userid = self._rc.hget(PytwisConstant.USERS_KEY, username)
         if userid is None:
-            result['error'] = "username {} doesn't exist".format(username)
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)
             return (False, result)
         
         # Get the tweets posted by the user.
-        user_tweets_key = self.USER_TWEETS_LIST_KEY_FORMAT.format(userid)
+        user_tweets_key = PytwisConstant.USER_TWEETS_KEY_FORMAT.format(userid)
         
-        result['tweets'] = self._get_tweets(user_tweets_key, max_cnt_tweets)
+        result[PytwisConstant.TWEETS_KEY] = self._get_tweets(user_tweets_key, max_cnt_tweets)
         return (True, result)
