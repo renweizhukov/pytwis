@@ -83,18 +83,20 @@ class PytwisConstant:
 class Pytwis:
     """This class implements all the interfaces to the Redis database of the Twitter-toy-clone."""
     
-    def __init__(self, hostname='127.0.0.1', port=6379, db=0, password =''):
+    def __init__(self, hostname='127.0.0.1', port=6379, socket='', db=0, password =''):
         """Initialize the class Pytiws.
         
         Parameters
         ----------
         hostname : str, optional
             The Redis server hostname which is usually an IP address (default: 127.0.0.1).
-        port : int, opti
+        port : int, optional
             The Redis server port number (default: 6379).
-        db : int 
+        socket: str, optional
+            The Redis server socket which will override hostname and port if it is given.
+        db : int, optional
             The selected Redis database index (default: 0).
-        password : str)
+        password : str, optional
             The Redis server password (default: '').
                 
         Raises
@@ -102,19 +104,21 @@ class Pytwis:
         ValueError
             If failed to connect to the Redis server with either ResponseError or TimeoutError.
         """
-        # TODO: Set unix_socket_path='/tmp/redis.sock' to use Unix domain socket 
-        # if the host name is 'localhost'. Note that need to uncomment the following 
-        # line in /etc/redis/redis.conf:
-        #
-        # unixsocket /tmp/redis.sock
-        # 
-        self._rc = redis.StrictRedis(
-            host=hostname,
-            port=port,
-            db=db,
-            password=password,
-            decode_responses=True, # Decode the response bytes into strings.
-            socket_connect_timeout=PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT)
+        if len(socket) > 0:
+            self._rc = redis.StrictRedis(
+                unix_socket_path=socket,
+                db=db,
+                password=password,
+                decode_responses=True, # Decode the response bytes into strings.
+                socket_connect_timeout=PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT)
+        else:
+            self._rc = redis.StrictRedis(
+                host=hostname,
+                port=port,
+                db=db,
+                password=password,
+                decode_responses=True, # Decode the response bytes into strings.
+                socket_connect_timeout=PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT)
         
         # Test the connection by ping.
         try:

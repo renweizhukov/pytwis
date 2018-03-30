@@ -11,13 +11,12 @@ import unittest
 from .context import pytwis
 
 INCORRECT_ERROR_MSG = 'Incorrect error message'
+# By default the database index ranges from 0 to 15.
+TEST_DATABASE_ID = 15
 
 
 class PytwisTests(unittest.TestCase):
     """Pytwis test base class which has the general setUp() and tearDown() methods."""
-    
-    # By default the database index ranges from 0 to 15.
-    TEST_DATABASE_ID = 15
     
     def setUp(self):
         """Set up the register test.
@@ -29,7 +28,7 @@ class PytwisTests(unittest.TestCase):
         keys of all the existing databases. 
         """
         try:
-            self._pytwis = pytwis.Pytwis(db=self.TEST_DATABASE_ID)
+            self._pytwis = pytwis.Pytwis(db=TEST_DATABASE_ID)
         except ValueError as e:
             self.fail('Failed to connect to the Redis server: {}'.format(str(e)))
             
@@ -765,6 +764,17 @@ class PytwisUserTweetsTests(PytwisTestsWithRegisteredUsers):
         self._get_zero_user_tweet()
         self._get_fewer_user_tweets()
         self._get_more_user_tweets()
+
+
+class PytwisSocketTests(unittest.TestCase):
+    """Test for connecting to the Redis server via the UNIX domain socket."""
+    
+    def test_connect_socket(self):
+        """Test connecting to the Redis server via socket."""
+        try:
+            self._pytwis = pytwis.Pytwis(socket='/tmp/redis.sock', db=TEST_DATABASE_ID)
+        except ValueError as e:
+            self.fail('Failed to connect to the Redis server via socket: {}'.format(str(e)))
 
 
 if __name__ == '__main__':

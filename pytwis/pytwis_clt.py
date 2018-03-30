@@ -526,6 +526,11 @@ def pytwis_cli():
                              ''')
     parser.add_argument('-p', '--port', default=6379,
                         help='the Redis server port. If the option is not specified, will be defaulted to 6379.')
+    parser.add_argument('-s', '--socket', default='',
+                        help='''the Redis server socket (usually /tmp/redis.sock). If it is given, it will override hostname 
+                             and port. Make sure that the unixsocket parameter is defined in your redis.conf file. It’s 
+                             commented out by default.
+                             ''')
     parser.add_argument('-n', '--db', default=0,
                         help='the Redis server database. If the option is not specified, will be defaulted to 0.')
     parser.add_argument('-a', '--password', default='',
@@ -538,8 +543,13 @@ def pytwis_cli():
         parser.print_help()
         return 0
 
-    print('The input Redis server hostname is {}.'.format(args.hostname))
-    print('The input Redis server port is {}.'.format(args.port))
+    if len(args.socket) > 0:
+        print('The input Redis server socket is {}'.format(args.socket))
+        prompt = args.socket
+    else:
+        print('The input Redis server hostname is {}.'.format(args.hostname))
+        print('The input Redis server port is {}.'.format(args.port))
+        prompt = '{}:{}'.format(args.hostname, args.port)
     print('The input Redis server database is {}.'.format(args.db))
     if args.password != '':
         print('The input Redis server password is "{}".'.format(args.password))
@@ -547,7 +557,10 @@ def pytwis_cli():
         print('The input Redis server password is empty.')
 
     try:
-        twis = Pytwis(args.hostname, args.port, args.db, args.password)
+        if len(args.socket) > 0:
+            twis = Pytwis(socket=args.socket, db=args.db, password=args.password)
+        else:
+            twis = Pytwis(hostname=args.hostname, port=args.port, db=args.db, password=args.password)
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)
@@ -555,12 +568,13 @@ def pytwis_cli():
 
     auth_secret = ['']
     while True:
-        try:
+        try: 
+            
             command_with_args = pytwis_command_parser(
                 input('Please enter a command '
                       '(register, login, logout, changepwd, userprofile, post, '
-                      'follow, unfollow, followers, followings, timeline, tweetsby):\n{}:{}> '\
-                      .format(args.hostname, args.port)))
+                      'follow, unfollow, followers, followings, timeline, tweetsby):\n{}> '\
+                      .format(prompt)))
             if command_with_args[0] == CmdConstant.CMD_EXIT \
                 or command_with_args[0] == CmdConstant.CMD_QUIT:
                 # Log out of the current user before exiting.

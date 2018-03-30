@@ -1,11 +1,11 @@
 language: python
 python:
 - '3.6'
-services:
-- redis-server
 install:
 - pip install -r requirements.txt
 - pip install sphinx
+before_script:
+- sudo redis-server ./redis/redis-test.conf
 script:
 - make test
 - make docs

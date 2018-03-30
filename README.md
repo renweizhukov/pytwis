@@ -121,11 +121,17 @@ $ pytwis_clt --help
 $ ./pytwis_clt.py 
 ```
     
-  2.1.2. Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.
+  2.1.2. Connect to the local Redis server via the socket file `/tmp/redis.sock` with password zzzzzz. Make sure that the unixsocket parameter is defined in your redis.conf file. It’s commented out by default.
+    
+```bash
+$ ./pytwis_clt.py -s /tmp/redis.sock -a zzzzzz
+```
+
+  2.1.3 Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.
     
 ```bash
 $ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
-```
+``` 
 
 ### 2.2. Available commands 
 

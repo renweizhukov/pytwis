@@ -19,7 +19,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='pytwis',
-    version='0.3.1',
+    version='0.3.2',
     description='A twitter-toy-clone backend using Python and Redis',
     long_description=long_description,
     url='https://renweizhukov.github.io/pytwis',
