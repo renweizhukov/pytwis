@@ -129,8 +129,10 @@ class CmdConstant:
     ARG_PASSWORD = 'password'
     ARG_OLD_PASSWORD = 'old_password'
     ARG_NEW_PASSWORD = 'new_password'
+    ARG_CONFIRMED_NEW_PASSWORD = 'confirmed_new_password'
     ARG_FOLOWEE = 'followee'
     ARG_MAX_TWEETS = 'max_cnt_tweets'
+    ARG_TWEET = 'tweet'
 
 
 def validate_command(raw_command):
@@ -227,18 +229,20 @@ def pytwis_command_parser(raw_command):
     if command_with_args[0] == CmdConstant.CMD_REGISTER:
         # register must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{username} {password}', args)
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,\
+                                                              arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_REGISTER))
         elif ' ' in arg_dict[CmdConstant.ARG_PASSWORD]:
             raise ValueError("password can't contain spaces")
 
         print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER, \
-                                                        arg_dict['username'], arg_dict[CmdConstant.ARG_PASSWORD]))
+                                                        arg_dict[CmdConstant.ARG_USERNAME], arg_dict[CmdConstant.ARG_PASSWORD]))
     elif command_with_args[0] == CmdConstant.CMD_LOGIN:
         # login must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{username} {password}', args)
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,\
+                                                              arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_LOGIN))
 
@@ -250,10 +254,12 @@ def pytwis_command_parser(raw_command):
     elif command_with_args[0] == CmdConstant.CMD_CHANGE_PASSWORD:
         # changepwd must have three arguments: old_password, new_password, and confirmed_new_password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{old_password} {new_password} {confirmed_new_password}', args)
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}} {{{arg3}}}'.format(arg1=CmdConstant.ARG_OLD_PASSWORD,\
+                                                                         arg2=CmdConstant.ARG_NEW_PASSWORD,\
+                                                                         arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_CHANGE_PASSWORD))
-        elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] != arg_dict['confirmed_new_password']:
+        elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] != arg_dict[CmdConstant.ARG_CONFIRMED_NEW_PASSWORD]:
             raise ValueError('The confirmed new password is different from the new password')
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] == arg_dict[CmdConstant.ARG_OLD_PASSWORD]:
             raise ValueError('The new password is the same as the old password')
@@ -265,7 +271,7 @@ def pytwis_command_parser(raw_command):
         pass
     elif command_with_args[0] == CmdConstant.CMD_POST:
         # post must have one argument: tweet
-        arg_dict = {'tweet': splited_raw_command[1]}
+        arg_dict = {CmdConstant.ARG_TWEET: splited_raw_command[1]}
     elif command_with_args[0] == CmdConstant.CMD_FOLLOW:
         # follow must have one argument: followee.
         arg_dict = {CmdConstant.ARG_FOLOWEE: splited_raw_command[1]}
