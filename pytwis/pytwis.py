@@ -33,10 +33,13 @@ import redis
 from redis.exceptions import (ResponseError, TimeoutError, WatchError)
 import secrets
 import time
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class PytwisConstant:
     """This class defines all the constants used by pytwis.py."""
     REDIS_SOCKET_CONNECT_TIMEOUT = 60
+    PASSWORD_HASH_METHOD = 'pbkdf2:sha512'
     
     NEXT_USER_ID_KEY = 'next_user_id'
     
@@ -44,7 +47,7 @@ class PytwisConstant:
     
     USER_PROFILE_KEY_FORMAT = 'user:{}'
     USERNAME_KEY = 'username'
-    PASSWORD_KEY = 'password'
+    PASSWORD_HASH_KEY = 'password_hash'
     AUTH_KEY = 'auth'
     
     AUTHS_KEY = 'auths'
@@ -78,7 +81,7 @@ class PytwisConstant:
     ERROR_INCORRECT_PASSWORD = 'Incorrect password'
     ERROR_FOLLOWEE_NOT_EXIST_FORMAT = "Followee {} doesn't exist"
     ERROR_FOLLOW_YOURSELF_FORMAT = "Can't follow yourself {}"
-    
+
 
 class Pytwis:
     """This class implements all the interfaces to the Redis database of the Twitter-toy-clone."""
@@ -216,14 +219,17 @@ class Pytwis:
             auth_secret = secrets.token_hex()
             userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
             
+            # Generate the password hash.
+            # The format of the password hash looks like "method$salt$hash". 
+            password_hash = generate_password_hash(password, method=PytwisConstant.PASSWORD_HASH_METHOD)
+            
             pipe.multi()
             # Update the authentication_secret-to-userid mapping.
             pipe.hset(PytwisConstant.AUTHS_KEY, auth_secret, userid)
             # Create the user profile.
-            # TODO: Store the hashed password instead of the raw password.
             pipe.hmset(userid_profile_key, 
                        {PytwisConstant.USERNAME_KEY: username, 
-                        PytwisConstant.PASSWORD_KEY: password,
+                        PytwisConstant.PASSWORD_HASH_KEY: password_hash,
                         PytwisConstant.AUTH_KEY: auth_secret})
             pipe.execute()
         
@@ -267,20 +273,25 @@ class Pytwis:
         
         # Check if the old password matches.
         userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_KEY)
-        if stored_password != old_password:
+        stored_password_hash = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_HASH_KEY)
+        if not check_password_hash(stored_password_hash, old_password):
             result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD
             return (False, result)
         
         # TODO: add the new password check.
+        # https://stackoverflow.com/questions/16709638/checking-the-strength-of-a-password-how-to-check-conditions
         
         # Generate the new authentication secret.
         new_auth_secret = secrets.token_hex()
         
-        # Replace the old password by the new one and the old authentication secret by the new one.
+        # Generate the new password hash.
+        # The format of the new password hash looks like "method$salt$hash".
+        new_password_hash = generate_password_hash(new_password, method=PytwisConstant.PASSWORD_HASH_METHOD)
+        
+        # Replace the old password hash by the new one and the old authentication secret by the new one.
         with self._rc.pipeline() as pipe:
             pipe.multi()
-            pipe.hset(userid_profile_key, PytwisConstant.PASSWORD_KEY, new_password)
+            pipe.hset(userid_profile_key, PytwisConstant.PASSWORD_HASH_KEY, new_password_hash)
             pipe.hset(userid_profile_key, PytwisConstant.AUTH_KEY, new_auth_secret)
             pipe.hset(PytwisConstant.AUTHS_KEY, new_auth_secret, userid)
             pipe.hdel(PytwisConstant.AUTHS_KEY, auth_secret)
@@ -323,11 +334,11 @@ class Pytwis:
             result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)
             return (False, result)
         
-        # Compare the input password with the stored one. If it matches, 
+        # Compare the input password hash with the stored one. If it matches, 
         # return the authentication secret.
         userid_profile_key = PytwisConstant.USER_PROFILE_KEY_FORMAT.format(userid)
-        stored_password = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_KEY)
-        if password == stored_password:
+        stored_password_hash = self._rc.hget(userid_profile_key, PytwisConstant.PASSWORD_HASH_KEY)
+        if check_password_hash(stored_password_hash, password):
             result[PytwisConstant.AUTH_KEY] = self._rc.hget(userid_profile_key, PytwisConstant.AUTH_KEY)
             return (True, result)
         else:
@@ -395,9 +406,9 @@ class Pytwis:
         result
             A dict containing the following keys:
             
-            -  USER_PROFILE_HASH_USERNAME_KEY 
-            -  USER_PROFILE_HASH_PASSWORD_KEY 
-            -  USER_PROFILE_HASH_AUTH_KEY 
+            -  USERNAME_KEY 
+            -  PASSWORD_HASH_KEY 
+            -  AUTH_KEY 
             
             if the user profile is obtained successfully; otherwise a dict containing the error string 
             with the key PytwisConstant.ERROR_KEY.

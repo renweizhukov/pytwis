@@ -8,6 +8,7 @@ This unittest does require that a Redis server is running in localhost, so
 strictly speaking, it is a little integration test.
 """
 import unittest
+from werkzeug.security import check_password_hash
 from .context import pytwis
 
 INCORRECT_ERROR_MSG = 'Incorrect error message'
@@ -278,7 +279,7 @@ class PytwisUserProfileTests(PytwisTestsWithRegisteredUsers):
         succeeded, result = self._pytwis.get_user_profile(self._auth_secret)
         self.assertTrue(succeeded, 'Failed to get the user profile with the correct authentication secret')
         self.assertEqual(self._usernames[0], result[pytwis.PytwisConstant.USERNAME_KEY], 'Mismatched username')
-        self.assertEqual(self._passwords[0], result[pytwis.PytwisConstant.PASSWORD_KEY], 'Mismatched password')
+        self.assertTrue(check_password_hash(result[pytwis.PytwisConstant.PASSWORD_HASH_KEY], self._passwords[0]), 'Mismatched password')
         self.assertEqual(self._auth_secret, result[pytwis.PytwisConstant.AUTH_KEY], 'Mismatched authentication secret')
         
     def test_get_user_profile(self):
