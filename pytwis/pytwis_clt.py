@@ -125,6 +125,7 @@ class CmdConstant:
     CMD_EXIT = 'exit'
     CMD_QUIT = 'quit'
 
+    ARG_COMMAND = 'command'
     ARG_USERNAME = 'username'
     ARG_PASSWORD = 'password'
     ARG_OLD_PASSWORD = 'old_password'
@@ -221,60 +222,62 @@ def pytwis_command_parser(raw_command):
         
     Returns
     -------
-    command_with_args: list(str, dict(str, str or int))
-        The parsed command output. The first element of the list is the command type, e.g., 'register', 
-        and the second element is the command arguments, e.g., {'username': <username>, 'password': <password>}
-        for `register`.
-    
+    arg_dict: dict(str, str or int)
+        The parsed command output.
+        {'command':'register', 'username': <username>, 'password': <password>} for `register`.
     Raises
     ------
     ValueError
         If the raw command can't be parsed correctly, e.g., it has an incorrect number of arguments or 
         incorrect arguments.
     """
-    # Separate the command from its arguments.
-    splited_raw_command = raw_command.split(' ', 1)
-    command_with_args = [splited_raw_command[0]]
-
-    # Some command (e.g., logout) may not have arguments.
-    arg_dict = {}
-
     validate_command(raw_command)
 
-    if command_with_args[0] == CmdConstant.CMD_REGISTER:
+    # Some command (e.g., logout) may not have arguments.
+    # Separate the command from its arguments.
+    splited_raw_command = raw_command.split(' ', 1)
+
+    arg_dict = {}
+
+    if splited_raw_command[0] == CmdConstant.CMD_REGISTER:
         # register must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME, 
+
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,
                                                               arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_REGISTER))
         elif ' ' in arg_dict[CmdConstant.ARG_PASSWORD]:
             raise ValueError("password can't contain spaces")
 
-        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER, 
-                                                        arg_dict[CmdConstant.ARG_USERNAME], 
+        arg_dict = arg_dict.named
+
+        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER,
+                                                        arg_dict[CmdConstant.ARG_USERNAME],
                                                         arg_dict[CmdConstant.ARG_PASSWORD]))
-    elif command_with_args[0] == CmdConstant.CMD_LOGIN:
+    elif splited_raw_command[0] == CmdConstant.CMD_LOGIN:
         # login must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME, 
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,
                                                               arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_LOGIN))
 
-        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_LOGIN, 
-                                                        arg_dict[CmdConstant.ARG_USERNAME], 
+        arg_dict = arg_dict.named
+
+        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_LOGIN,
+                                                        arg_dict[CmdConstant.ARG_USERNAME],
                                                         arg_dict[CmdConstant.ARG_PASSWORD]))
-    elif command_with_args[0] == CmdConstant.CMD_LOGOUT:
+    elif splited_raw_command[0] == CmdConstant.CMD_LOGOUT:
         # logout doesn't have any arguments.
         pass
-    elif command_with_args[0] == CmdConstant.CMD_CHANGE_PASSWORD:
+    elif splited_raw_command[0] == CmdConstant.CMD_CHANGE_PASSWORD:
         # changepwd must have three arguments: old_password, new_password, and confirmed_new_password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}} {{{arg3}}}'.format(arg1=CmdConstant.ARG_OLD_PASSWORD, 
-                                                                         arg2=CmdConstant.ARG_NEW_PASSWORD, 
-                                                                         arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD), 
-                               args)
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}} {{{arg3}}}'.format(arg1=CmdConstant.ARG_OLD_PASSWORD,
+                                                                         arg2=CmdConstant.ARG_NEW_PASSWORD,
+                                                                         arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD),
+                                                                         args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_CHANGE_PASSWORD))
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] != arg_dict[CmdConstant.ARG_CONFIRMED_NEW_PASSWORD]:
@@ -282,35 +285,37 @@ def pytwis_command_parser(raw_command):
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] == arg_dict[CmdConstant.ARG_OLD_PASSWORD]:
             raise ValueError('The new password is the same as the old password')
 
-        print('{}: old = {}, new = {}'.format(CmdConstant.CMD_CHANGE_PASSWORD, 
-                                              arg_dict[CmdConstant.ARG_OLD_PASSWORD], 
+        arg_dict = arg_dict.named
+
+        print('{}: old = {}, new = {}'.format(CmdConstant.CMD_CHANGE_PASSWORD,
+                                              arg_dict[CmdConstant.ARG_OLD_PASSWORD],
                                               arg_dict[CmdConstant.ARG_NEW_PASSWORD]))
-    elif command_with_args[0] == CmdConstant.CMD_GET_USER_PROFILE:
+    elif splited_raw_command[0] == CmdConstant.CMD_GET_USER_PROFILE:
         # userprofile doesn't have any arguments.
         pass
-    elif command_with_args[0] == CmdConstant.CMD_POST:
+    elif splited_raw_command[0] == CmdConstant.CMD_POST:
         # post must have one argument: tweet
         arg_dict = {CmdConstant.ARG_TWEET: splited_raw_command[1]}
-    elif command_with_args[0] == CmdConstant.CMD_FOLLOW:
+    elif splited_raw_command[0] == CmdConstant.CMD_FOLLOW:
         # follow must have one argument: followee.
         arg_dict = {CmdConstant.ARG_FOLLOWEE: splited_raw_command[1]}
-    elif command_with_args[0] == CmdConstant.CMD_UNFOLLOW:
+    elif splited_raw_command[0] == CmdConstant.CMD_UNFOLLOW:
         # unfollow must have one argument: followee.
         arg_dict = {CmdConstant.ARG_FOLLOWEE: splited_raw_command[1]}
-    elif command_with_args[0] == CmdConstant.CMD_GET_FOLLOWERS:
+    elif splited_raw_command[0] == CmdConstant.CMD_GET_FOLLOWERS:
         # followers doesn't have any arguments.
         pass
-    elif command_with_args[0] == CmdConstant.CMD_GET_FOLLOWINGS:
+    elif splited_raw_command[0] == CmdConstant.CMD_GET_FOLLOWINGS:
         # followings doesn't have any arguments.
         pass
-    elif command_with_args[0] == CmdConstant.CMD_TIMELINE:
+    elif splited_raw_command[0] == CmdConstant.CMD_TIMELINE:
         # timeline has either zero or one argument.
         max_cnt_tweets = -1
         if len(splited_raw_command) >= 2:
             max_cnt_tweets = int(splited_raw_command[1])
 
         arg_dict = {CmdConstant.ARG_MAX_TWEETS: max_cnt_tweets}
-    elif command_with_args[0] == CmdConstant.CMD_GET_USER_TWEETS:
+    elif splited_raw_command[0] == CmdConstant.CMD_GET_USER_TWEETS:
         # tweetsby has either zero or one or two arguments.
         arg_dict = {CmdConstant.ARG_USERNAME: None, CmdConstant.ARG_MAX_TWEETS: -1}
         
@@ -319,20 +324,20 @@ def pytwis_command_parser(raw_command):
             args = splited_raw_command[1] 
             arg_dict = parse.parse('{{{arg1}}} {{{arg2}:d}}'.format(arg1=CmdConstant.ARG_USERNAME,
                                                                     arg2=CmdConstant.ARG_MAX_TWEETS), 
-                                   args)
+                                                                    args)
             if arg_dict is None:
                 # tweetsby has only one argument.
                 arg_dict = {CmdConstant.ARG_USERNAME: args}
                 arg_dict[CmdConstant.ARG_MAX_TWEETS] = -1
-    elif command_with_args[0] == CmdConstant.CMD_EXIT or command_with_args[0] == CmdConstant.CMD_QUIT:
+    elif splited_raw_command[0] == CmdConstant.CMD_EXIT or splited_raw_command[0] == CmdConstant.CMD_QUIT:
         # exit or quit doesn't have any arguments.
         pass
     else:
         pass
 
-    command_with_args.append(arg_dict)
+    arg_dict[CmdConstant.ARG_COMMAND] = splited_raw_command[0]
 
-    return command_with_args
+    return arg_dict
 
 
 def print_tweets(tweets):
@@ -355,7 +360,7 @@ def print_tweets(tweets):
     print('=' * 60)
 
 
-def pytwis_command_processor(twis, auth_secret, command_with_args):
+def pytwis_command_processor(twis, auth_secret, args):
     """Process the parsed command.
     
     Parameters
@@ -364,11 +369,10 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
         A Pytwis instance which interacts with the Redis database of the Twitter toy clone.
     auth_secret: str
         The authentication secret of a logged-in user.
-    command_with_args:
+    args:
         The parsed command output by pytwis_command_parser().
     """
-    command = command_with_args[0]
-    args = command_with_args[1]
+    command = args[CmdConstant.ARG_COMMAND]
 
     if command == CmdConstant.CMD_REGISTER:
         succeeded, result = twis.register(args[CmdConstant.ARG_USERNAME], args[CmdConstant.ARG_PASSWORD])
@@ -479,73 +483,8 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
         pass
 
 
-def pytwis_cli():
-    """The main routine of this command-line tool."""
-    epilog = '''After launching `pytwis_clt.py`, you will be able to use the following commands:
-
-    * Register a new user:
-
-        127.0.0.1:6379> register {username} {password}
-    
-    * Log into a user:  
-    
-        127.0.0.1:6379> login {username} {password} 
-    
-    * Log out of a user:
-    
-        127.0.0.1:6379> logout
-    
-    * Change the password:
-    
-        127.0.0.1:6379> changepwd {old_password} {new_password} {confirmed_new_password}
-        
-    * Get the profile of the current user:
-    
-        127.0.0.1:6379> userprofile
-    
-    * Post a tweet:
-    
-        127.0.0.1:6379> post {tweet}
-    
-    * Follow a user:
-    
-        127.0.0.1:6379> follow {followee_username}
-    
-    * Unfollow a user:
-    
-        127.0.0.1:6379> unfollow {followee_username}
-    
-    * Get the follower list:
-    
-        127.0.0.1:6379> followers
-    
-    * Get the following list:
-    
-        127.0.0.1:6379> followings
-    
-    * Get the timeline:
-    
-        127.0.0.1:6379> timeline
-        127.0.0.1:6379> timeline {max_tweet_count}
-        
-    Note that if a user is logged in, `timeline` will return the user timeline; 
-    otherwise `timeline` will return the general timeline.
-    
-    * Get the tweets posted by a user:
-    
-        127.0.0.1:6379> tweetsby 
-        127.0.0.1:6379> tweetsby {username}
-        127.0.0.1:6379> tweetsby {username} {max_tweet_count}
-        
-    Note that if no username is given, `tweetsby` will return the tweets posted 
-    by the currently logged-in user.
-    
-    * Exit the program:
-   
-        127.0.0.1:6379> exit
-        127.0.0.1:6379> quit
-    '''
-    # Note that we set the conflict handler of ArgumentParser to 'resolve' because we reuse the short help 
+def get_pytwis(epilog):
+    # Note that we set the conflict handler of ArgumentParser to 'resolve' because we reuse the short help
     # option '-h' for the host name.
     parser = argparse.ArgumentParser(conflict_handler="resolve", 
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -593,28 +532,99 @@ def pytwis_cli():
 
     try:
         if len(args.socket) > 0:
-            twis = Pytwis(socket=args.socket, db=args.db, password=args.password)
+            pytwis = Pytwis(socket=args.socket, db=args.db, password=args.password)
         else:
-            twis = Pytwis(hostname=args.hostname, port=args.port, db=args.db, password=args.password)
+            pytwis = Pytwis(hostname=args.hostname, port=args.port, db=args.db, password=args.password)
+        return pytwis, prompt
+
     except ValueError as e:
         print('Failed to connect to the Redis server: {}'.format(str(e)),
               file=sys.stderr)
-        return -1
+        return None, None
+
+def pytwis_clt():
+    """The main routine of this command-line tool."""
+    epilog = '''After launching `pytwis_clt.py`, you will be able to use the following commands:
+
+    * Register a new user:
+
+        127.0.0.1:6379> register {username} {password}
+
+    * Log into a user:  
+
+        127.0.0.1:6379> login {username} {password} 
+
+    * Log out of a user:
+
+        127.0.0.1:6379> logout
+
+    * Change the password:
+
+        127.0.0.1:6379> changepwd {old_password} {new_password} {confirmed_new_password}
+
+    * Get the profile of the current user:
+
+        127.0.0.1:6379> userprofile
+
+    * Post a tweet:
+
+        127.0.0.1:6379> post {tweet}
+
+    * Follow a user:
+
+        127.0.0.1:6379> follow {followee_username}
+
+    * Unfollow a user:
+
+        127.0.0.1:6379> unfollow {followee_username}
+
+    * Get the follower list:
+
+        127.0.0.1:6379> followers
+
+    * Get the following list:
+
+        127.0.0.1:6379> followings
+
+    * Get the timeline:
+
+        127.0.0.1:6379> timeline
+        127.0.0.1:6379> timeline {max_tweet_count}
+
+    Note that if a user is logged in, `timeline` will return the user timeline; 
+    otherwise `timeline` will return the general timeline.
+
+    * Get the tweets posted by a user:
+
+        127.0.0.1:6379> tweetsby 
+        127.0.0.1:6379> tweetsby {username}
+        127.0.0.1:6379> tweetsby {username} {max_tweet_count}
+
+    Note that if no username is given, `tweetsby` will return the tweets posted 
+    by the currently logged-in user.
+
+    * Exit the program:
+
+        127.0.0.1:6379> exit
+        127.0.0.1:6379> quit
+    '''
+    pytwis, prompt = get_pytwis(epilog)
+    if pytwis == None:
+        return
 
     auth_secret = ['']
     while True:
-        try: 
-            
-            command_with_args = pytwis_command_parser(
+        try:
+            arg_dict = pytwis_command_parser(
                 input('Please enter a command '
                       '(register, login, logout, changepwd, userprofile, post, '
                       'follow, unfollow, followers, followings, timeline, tweetsby):\n{}> '\
                       .format(prompt)))
-            if command_with_args[0] == CmdConstant.CMD_EXIT \
-                or command_with_args[0] == CmdConstant.CMD_QUIT:
+            if arg_dict[CmdConstant.ARG_COMMAND] == CmdConstant.CMD_EXIT \
+                or arg_dict[CmdConstant.ARG_COMMAND] == CmdConstant.CMD_QUIT:
                 # Log out of the current user before exiting.
                 if len(auth_secret[0]) > 0:
-                    pytwis_command_processor(twis, auth_secret, [CmdConstant.CMD_LOGOUT, {}])
+                    pytwis_command_processor(pytwis, auth_secret, {CmdConstant.ARG_COMMAND:CmdConstant.CMD_LOGOUT})
                 print('pytwis is exiting.')
                 return 0;
 
@@ -623,8 +633,8 @@ def pytwis_cli():
                   file=sys.stderr)
             continue
 
-        pytwis_command_processor(twis, auth_secret, command_with_args)
+        pytwis_command_processor(pytwis, auth_secret, arg_dict)
 
 
 if __name__ == "__main__":
-    pytwis_cli()
+    pytwis_clt()
