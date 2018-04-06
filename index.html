@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pytwis &#8212; pytwis 0.3.3 documentation</title>
+    <title>pytwis &#8212; pytwis 0.4.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -183,9 +183,17 @@ interact with the Redis database of the Twitter-toy clone.</li>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install pytwis
 </pre></div>
 </div>
-<p>Note that <strong>this package requires Python 3.6 and later</strong> since it
-depends on Python 3.6 built-in module
-<a class="reference external" href="https://docs.python.org/3/library/secrets.html">secrets</a>.</p>
+<p>Note that</p>
+<ul class="simple">
+<li><strong>This package requires Python 3.6 and later</strong> since it depends on
+Python 3.6 built-in module
+<a class="reference external" href="https://docs.python.org/3/library/secrets.html">secrets</a>.</li>
+<li>There is a breaking change introduced in v0.4.0: the salted password
+hashes are stored in the Redis database instead of the plain-text
+passwords, so the Redis database created by the version before v0.4.0
+won’t work with the version v0.4.0 and after unless a manual database
+migration is done.</li>
+</ul>
 <div class="section" id="pytwis-1">
 <span id="id1"></span><h2>1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code><a class="headerlink" href="#pytwis-1" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="introduction">
@@ -209,6 +217,8 @@ Redis database.</p>
 <p>TODOs:</p>
 <ul class="simple">
 <li>Search users</li>
+<li>Delete a user</li>
+<li>Recover user password</li>
 <li>#hashtags</li>
 <li>&#64;mentions</li>
 <li>Retweets</li>
