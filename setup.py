@@ -34,7 +34,13 @@ setup(
         ],
     keywords='redis twitter python3.6',
     packages=find_packages(exclude=['docs', 'tests']),
-    install_requires=['parse', 'redis'],
+    install_requires=[
+        'parse', 
+        'redis', 
+        'setuptools', 
+        'sphinx_bootstrap_theme', 
+        'Werkzeug',
+        ],
     # This project depends on a built-in module `secrets` only available 
     # in Python 3.6 and later,
     python_requires='>=3.6',
