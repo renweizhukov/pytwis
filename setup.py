@@ -38,7 +38,6 @@ setup(
         'parse', 
         'redis', 
         'setuptools', 
-        'sphinx_bootstrap_theme', 
         'Werkzeug',
         ],
     # This project depends on a built-in module `secrets` only available 

@@ -14,6 +14,3 @@ redis >= 2.10.6
 
 # setup.py: 9
 setuptools >= 38.5.1
-
-# docs/conf.py: 22
-sphinx_bootstrap_theme >= 0.6.4
