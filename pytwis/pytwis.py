@@ -19,6 +19,8 @@ It supports the following features:
 TODOs:
 
 -  Search users
+-  Delete a user
+-  Recover user password
 -  #hashtags
 -  @mentions
 -  Retweets
@@ -29,6 +31,7 @@ TODOs:
 
 """
 
+import re
 import redis
 from redis.exceptions import (ResponseError, TimeoutError, WatchError)
 import secrets
@@ -76,9 +79,22 @@ class PytwisConstant:
     
     ERROR_USERNAME_NOT_EXIST_FORMAT = "username {} doesn't exist"
     ERROR_USERNAME_ALREADY_EXISTS = 'username {} already exists'
+    ERROR_INVALID_USERNAME = '''Invalid username. A valid username must 
+                             * have 3 characters more;
+                             * have only letters (either uppercase or lowercase), digits, '_', or '-';
+                             * start with a letter.
+                             '''
     ERROR_NOT_LOGGED_IN = 'Not logged in'
-    ERROR_INCORRECT_OLD_PASSWORD = 'Incorrect old password'
     ERROR_INCORRECT_PASSWORD = 'Incorrect password'
+    ERROR_INCORRECT_OLD_PASSWORD = 'Incorrect old password'
+    ERROR_NEW_PASSWORD_NO_CHANGE = 'New password same as old one'
+    ERROR_WEAK_PASSWORD = '''Weak password. A strong password must have 
+                          * 8 characters or more;
+                          * 1 digit or more;
+                          * 1 uppercase letter or more;
+                          * 1 lowercase letter or more;
+                          * 1 symbol (excluding whitespace characters) or more.
+                          '''
     ERROR_FOLLOWEE_NOT_EXIST_FORMAT = "Followee {} doesn't exist"
     ERROR_FOLLOW_YOURSELF_FORMAT = "Can't follow yourself {}"
 
@@ -159,6 +175,59 @@ class Pytwis:
         else:
             # TODO: Resolve the inconsistency of the two authentication secrets. 
             return (False, None)
+            
+    def _check_username(self, username):
+        """Check if a username is valid.
+        A username is considered valid if:
+            3 characters length or more
+            each character can only be letter (either uppercase or lowercase), digit, '_', or '-'
+            the first character is a letter
+            
+        Parameters
+        ----------
+        username: str
+        
+        Returns
+        -------
+        bool
+            True if the username is valid, False otherwise.
+        """
+        return re.match(r'^[A-Za-z][A-Za-z0-9_-]{2,}$', username) is not None
+    
+    def _check_password(self, password):
+        """Check the strength of a password.
+        A password is considered strong if 
+            8 characters length or more
+            1 digit or more
+            1 uppercase letter or more
+            1 lowercase letter or more
+            1 symbol (excluding whitespace characters) or more 
+            
+        Parameters
+        ----------
+        password: str
+        
+        Returns
+        -------
+        bool 
+            True if the password is strong enough, False otherwise.  
+        """
+        # Check the length.
+        length_error = len(password) < 8
+        
+        # Search for digits.
+        digit_error = re.search(r'\d', password) is None
+        
+        # Search for uppercase letters.
+        uppercase_error = re.search(r'[A-Z]', password) is None
+        
+        # Search for lowercase letters.
+        lowercase_error = re.search(r'[a-z]', password) is None
+        
+        # Search for symbols (excluding whitespace characters).
+        symbol_error = re.search(r'[^A-Za-z\d\s]', password) is None
+        
+        return not (length_error or digit_error or uppercase_error or lowercase_error or symbol_error)
 
     def register(self, username, password):
         """Register a new user.
@@ -183,13 +252,20 @@ class Pytwis:
         Possible error strings are listed as below: 
         
         -  PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username)
+        -  PytwisConstant.ERROR_WEAK_PASSWORD
         """
         result = {PytwisConstant.ERROR_KEY: None}
         
-        # TODO: add the username check.
-        # TODO: add the password check.
-        # https://stackoverflow.com/questions/16709638/checking-the-strength-of-a-password-how-to-check-conditions
+        # Check the username.
+        if not self._check_username(username):
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_INVALID_USERNAME
+            return (False, result)      
         
+        # Check the password.
+        if not self._check_password(password):
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_WEAK_PASSWORD
+            return (False, result)
+
         # Update the username-to-userid mapping.
         with self._rc.pipeline() as pipe:
             while True:
@@ -260,10 +336,16 @@ class Pytwis:
         ----
         Possible error strings are listed as below: 
         
+        -  PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE
         -  PytwisConstant.ERROR_NOT_LOGGED_IN
         -  PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD
+        -  PytwisConstant.ERROR_WEAK_PASSWORD
         """
         result = {PytwisConstant.ERROR_KEY: None}
+        
+        if old_password == new_password:
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE
+            return (False, result)
         
         # Check if the user is logged in.
         loggedin, userid = self._is_loggedin(auth_secret)
@@ -278,8 +360,10 @@ class Pytwis:
             result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD
             return (False, result)
         
-        # TODO: add the new password check.
-        # https://stackoverflow.com/questions/16709638/checking-the-strength-of-a-password-how-to-check-conditions
+        # Check the password.
+        if not self._check_password(new_password):
+            result[PytwisConstant.ERROR_KEY] = PytwisConstant.ERROR_WEAK_PASSWORD
+            return (False, result)
         
         # Generate the new authentication secret.
         new_auth_secret = secrets.token_hex()
