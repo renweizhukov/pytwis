@@ -13,9 +13,16 @@ To install this package,
 
     $ pip install pytwis
 
-Note that **this package requires Python 3.6 and later** since it
-depends on Python 3.6 built-in module
-`secrets <https://docs.python.org/3/library/secrets.html>`__.
+Note that
+
+-  **This package requires Python 3.6 and later** since it depends on
+   Python 3.6 built-in module
+   `secrets <https://docs.python.org/3/library/secrets.html>`__.
+-  There is a breaking change introduced in v0.4.0: the salted password
+   hashes are stored in the Redis database instead of the plain-text
+   passwords, so the Redis database created by the version before v0.4.0
+   won’t work with the version v0.4.0 and after unless a manual database
+   migration is done.
 
 .. _pytwis-1:
 
@@ -45,6 +52,8 @@ It supports the following features:
 TODOs:
 
 -  Search users
+-  Delete a user
+-  Recover user password
 -  #hashtags
 -  @mentions
 -  Retweets

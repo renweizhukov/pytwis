@@ -130,7 +130,7 @@ class CmdConstant:
     ARG_OLD_PASSWORD = 'old_password'
     ARG_NEW_PASSWORD = 'new_password'
     ARG_CONFIRMED_NEW_PASSWORD = 'confirmed_new_password'
-    ARG_FOLOWEE = 'followee'
+    ARG_FOLLOWEE = 'followee'
     ARG_MAX_TWEETS = 'max_cnt_tweets'
     ARG_TWEET = 'tweet'
 
@@ -158,38 +158,53 @@ def validate_command(raw_command):
 
     if (parsed_command[0] == CmdConstant.CMD_REGISTER):
         if (arg_count < 2):
-            raise ValueError('{} {{username}} {{password}}'.format(CmdConstant.CMD_REGISTER))
+            raise ValueError('{cmd} {{{arg1}}} {{{arg2}}}'.\
+                             format(cmd=CmdConstant.CMD_REGISTER,
+                                    arg1=CmdConstant.ARG_USERNAME,
+                                    arg2=CmdConstant.ARG_PASSWORD))
     elif (parsed_command[0] == CmdConstant.CMD_LOGIN):
         if (arg_count < 2):
-            raise ValueError('{} {{username}} {{password}}'.format(CmdConstant.CMD_LOGIN))
+            raise ValueError('{cmd} {{{arg1}}} {{{arg2}}}'.\
+                             format(cmd=CmdConstant.CMD_LOGIN,
+                                    arg1=CmdConstant.ARG_USERNAME,
+                                    arg2=CmdConstant.ARG_PASSWORD))
     elif (parsed_command[0] == CmdConstant.CMD_LOGOUT):
         pass
     elif (parsed_command[0] == CmdConstant.CMD_CHANGE_PASSWORD):
         if (arg_count < 3):
-            raise ValueError('{} {{old_password}} {{new_password}} {{confirmed_new_password}}'.\
-                             format(CmdConstant.CMD_CHANGE_PASSWORD))
+            raise ValueError('{cmd} {{{arg1}}} {{{arg2}}} {{{arg3}}}'.\
+                             format(cmd=CmdConstant.CMD_CHANGE_PASSWORD,
+                                    arg1=CmdConstant.ARG_OLD_PASSWORD,
+                                    arg2=CmdConstant.ARG_NEW_PASSWORD,
+                                    arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD))
     elif (parsed_command[0] == CmdConstant.CMD_GET_USER_PROFILE):
         pass
     elif (parsed_command[0] == CmdConstant.CMD_POST):
         if (arg_count < 1):
-            raise ValueError('{} {{tweet}}'.format(CmdConstant.CMD_POST))
+            raise ValueError('{cmd} {{{arg}}}'.format(cmd=CmdConstant.CMD_POST,
+                                                      arg=CmdConstant.ARG_TWEET))
     elif (parsed_command[0] == CmdConstant.CMD_FOLLOW):
         if (arg_count < 1):
-            raise ValueError('{} {{followee_username}}'.format(CmdConstant.CMD_FOLLOW))
+            raise ValueError('{cmd} {{{arg}}}'.format(cmd=CmdConstant.CMD_FOLLOW,
+                                                      arg=CmdConstant.ARG_FOLLOWEE))
     elif (parsed_command[0] == CmdConstant.CMD_UNFOLLOW):
         if (arg_count < 1):
-            raise ValueError('{} {{followee_username}}'.format(CmdConstant.CMD_UNFOLLOW))
+            raise ValueError('{cmd} {{{arg}}}'.format(cmd=CmdConstant.CMD_UNFOLLOW,
+                                                      arg=CmdConstant.ARG_FOLLOWEE))
     elif (parsed_command[0] == CmdConstant.CMD_GET_FOLLOWERS):
         pass
     elif (parsed_command[0] == CmdConstant.CMD_GET_FOLLOWINGS):
         pass
     elif (parsed_command[0] == CmdConstant.CMD_TIMELINE):
-        if (arg_count > 2):
-            raise ValueError('{CMD} {{max_tweet count}} or {CMD}'.format(CMD=CmdConstant.CMD_TIMELINE))
+        if (arg_count > 1):
+            raise ValueError('{cmd} {{{arg}}} or {cmd}'.format(cmd=CmdConstant.CMD_TIMELINE,
+                                                               arg=CmdConstant.ARG_MAX_TWEETS))
     elif (parsed_command[0] == CmdConstant.CMD_GET_USER_TWEETS):
-        if (arg_count > 3):
-            raise ValueError('{CMD} {{username}} {{max_tweet count}} or {CMD} {{username}} or {CMD}'.\
-                             format(CMD=CmdConstant.CMD_GET_USER_TWEETS))
+        if (arg_count > 2):
+            raise ValueError('{cmd} {{{arg1}}} {{{arg2}}} or {cmd} {{{arg1}}} or {cmd}'.\
+                             format(cmd=CmdConstant.CMD_GET_USER_TWEETS,
+                                    arg1=CmdConstant.ARG_USERNAME,
+                                    arg2=CmdConstant.ARG_MAX_TWEETS))
     elif (parsed_command[0] == CmdConstant.CMD_EXIT) or (parsed_command[0] == CmdConstant.CMD_QUIT):
         pass
     else:
@@ -229,34 +244,37 @@ def pytwis_command_parser(raw_command):
     if command_with_args[0] == CmdConstant.CMD_REGISTER:
         # register must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,\
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME, 
                                                               arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_REGISTER))
         elif ' ' in arg_dict[CmdConstant.ARG_PASSWORD]:
             raise ValueError("password can't contain spaces")
 
-        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER, \
-                                                        arg_dict[CmdConstant.ARG_USERNAME], arg_dict[CmdConstant.ARG_PASSWORD]))
+        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER, 
+                                                        arg_dict[CmdConstant.ARG_USERNAME], 
+                                                        arg_dict[CmdConstant.ARG_PASSWORD]))
     elif command_with_args[0] == CmdConstant.CMD_LOGIN:
         # login must have two arguments: username and password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME,\
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}}'.format(arg1=CmdConstant.ARG_USERNAME, 
                                                               arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_LOGIN))
 
-        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_LOGIN, \
-                                                        arg_dict[CmdConstant.ARG_USERNAME], arg_dict[CmdConstant.ARG_PASSWORD]))
+        print('{}: username = {}, password = {}'.format(CmdConstant.CMD_LOGIN, 
+                                                        arg_dict[CmdConstant.ARG_USERNAME], 
+                                                        arg_dict[CmdConstant.ARG_PASSWORD]))
     elif command_with_args[0] == CmdConstant.CMD_LOGOUT:
         # logout doesn't have any arguments.
         pass
     elif command_with_args[0] == CmdConstant.CMD_CHANGE_PASSWORD:
         # changepwd must have three arguments: old_password, new_password, and confirmed_new_password.
         args = splited_raw_command[1]
-        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}} {{{arg3}}}'.format(arg1=CmdConstant.ARG_OLD_PASSWORD,\
-                                                                         arg2=CmdConstant.ARG_NEW_PASSWORD,\
-                                                                         arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD), args)
+        arg_dict = parse.parse('{{{arg1}}} {{{arg2}}} {{{arg3}}}'.format(arg1=CmdConstant.ARG_OLD_PASSWORD, 
+                                                                         arg2=CmdConstant.ARG_NEW_PASSWORD, 
+                                                                         arg3=CmdConstant.ARG_CONFIRMED_NEW_PASSWORD), 
+                               args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_CHANGE_PASSWORD))
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] != arg_dict[CmdConstant.ARG_CONFIRMED_NEW_PASSWORD]:
@@ -264,8 +282,9 @@ def pytwis_command_parser(raw_command):
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] == arg_dict[CmdConstant.ARG_OLD_PASSWORD]:
             raise ValueError('The new password is the same as the old password')
 
-        print('{}: old = {}, new = {}'.format(CmdConstant.CMD_CHANGE_PASSWORD, \
-                                              arg_dict[CmdConstant.ARG_OLD_PASSWORD], arg_dict[CmdConstant.ARG_NEW_PASSWORD]))
+        print('{}: old = {}, new = {}'.format(CmdConstant.CMD_CHANGE_PASSWORD, 
+                                              arg_dict[CmdConstant.ARG_OLD_PASSWORD], 
+                                              arg_dict[CmdConstant.ARG_NEW_PASSWORD]))
     elif command_with_args[0] == CmdConstant.CMD_GET_USER_PROFILE:
         # userprofile doesn't have any arguments.
         pass
@@ -274,10 +293,10 @@ def pytwis_command_parser(raw_command):
         arg_dict = {CmdConstant.ARG_TWEET: splited_raw_command[1]}
     elif command_with_args[0] == CmdConstant.CMD_FOLLOW:
         # follow must have one argument: followee.
-        arg_dict = {CmdConstant.ARG_FOLOWEE: splited_raw_command[1]}
+        arg_dict = {CmdConstant.ARG_FOLLOWEE: splited_raw_command[1]}
     elif command_with_args[0] == CmdConstant.CMD_UNFOLLOW:
         # unfollow must have one argument: followee.
-        arg_dict = {CmdConstant.ARG_FOLOWEE: splited_raw_command[1]}
+        arg_dict = {CmdConstant.ARG_FOLLOWEE: splited_raw_command[1]}
     elif command_with_args[0] == CmdConstant.CMD_GET_FOLLOWERS:
         # followers doesn't have any arguments.
         pass
@@ -293,15 +312,18 @@ def pytwis_command_parser(raw_command):
         arg_dict = {CmdConstant.ARG_MAX_TWEETS: max_cnt_tweets}
     elif command_with_args[0] == CmdConstant.CMD_GET_USER_TWEETS:
         # tweetsby has either zero or one or two arguments.
-        username = None
+        arg_dict = {CmdConstant.ARG_USERNAME: None, CmdConstant.ARG_MAX_TWEETS: -1}
+        
         if len(splited_raw_command) >= 2:
-            username = splited_raw_command[1]
-            
-        max_cnt_tweets = -1
-        if len(splited_raw_command) >= 3:
-            max_cnt_tweets = splited_raw_command[2]
-            
-        arg_dict = {CmdConstant.ARG_USERNAME: username, CmdConstant.ARG_MAX_TWEETS: max_cnt_tweets}
+            # tweetsby has either one or two arguments.
+            args = splited_raw_command[1] 
+            arg_dict = parse.parse('{{{arg1}}} {{{arg2}:d}}'.format(arg1=CmdConstant.ARG_USERNAME,
+                                                                    arg2=CmdConstant.ARG_MAX_TWEETS), 
+                                   args)
+            if arg_dict is None:
+                # tweetsby has only one argument.
+                arg_dict = {CmdConstant.ARG_USERNAME: args}
+                arg_dict[CmdConstant.ARG_MAX_TWEETS] = -1
     elif command_with_args[0] == CmdConstant.CMD_EXIT or command_with_args[0] == CmdConstant.CMD_QUIT:
         # exit or quit doesn't have any arguments.
         pass
@@ -392,17 +414,17 @@ def pytwis_command_processor(twis, auth_secret, command_with_args):
         else:
             print("Couldn't post the tweet with error = {}".format(result[PytwisConstant.ERROR_KEY]))
     elif command == CmdConstant.CMD_FOLLOW:
-        succeeded, result = twis.follow(auth_secret[0], args[CmdConstant.ARG_FOLOWEE])
+        succeeded, result = twis.follow(auth_secret[0], args[CmdConstant.ARG_FOLLOWEE])
         if succeeded:
-            print('Followed username {}'.format(args[CmdConstant.ARG_FOLOWEE]))
+            print('Followed username {}'.format(args[CmdConstant.ARG_FOLLOWEE]))
         else:
-            print("Couldn't follow the username {} with error = {}".format(args[CmdConstant.ARG_FOLOWEE], result[PytwisConstant.ERROR_KEY]))
+            print("Couldn't follow the username {} with error = {}".format(args[CmdConstant.ARG_FOLLOWEE], result[PytwisConstant.ERROR_KEY]))
     elif command == CmdConstant.CMD_UNFOLLOW:
-        succeeded, result = twis.unfollow(auth_secret[0], args[CmdConstant.ARG_FOLOWEE])
+        succeeded, result = twis.unfollow(auth_secret[0], args[CmdConstant.ARG_FOLLOWEE])
         if succeeded:
-            print('Unfollowed username {}'.format(args[CmdConstant.ARG_FOLOWEE]))
+            print('Unfollowed username {}'.format(args[CmdConstant.ARG_FOLLOWEE]))
         else:
-            print("Couldn't unfollow the username {} with error = {}".format(args[CmdConstant.ARG_FOLOWEE], result[PytwisConstant.ERROR_KEY]))
+            print("Couldn't unfollow the username {} with error = {}".format(args[CmdConstant.ARG_FOLLOWEE], result[PytwisConstant.ERROR_KEY]))
     elif command == CmdConstant.CMD_GET_FOLLOWERS:
         succeeded, result = twis.get_followers(auth_secret[0])
         if succeeded:

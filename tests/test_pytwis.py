@@ -8,6 +8,7 @@ This unittest does require that a Redis server is running in localhost, so
 strictly speaking, it is a little integration test.
 """
 import unittest
+from werkzeug.security import check_password_hash
 from .context import pytwis
 
 INCORRECT_ERROR_MSG = 'Incorrect error message'
@@ -47,20 +48,21 @@ class PytwisRegisterTests(PytwisTests):
     
     def _register_new_and_existing_users(self):
         """Register a new user and then an existing user."""
-        username = 'test_username'
-        password = 'test_password'
+        username = 'test1_username'
+        password = 'test1_Password'
         succeeded, _ = self._pytwis.register(username, password)
         self.assertTrue(succeeded, 'Failed to register a new username')
         
         succeeded, result = self._pytwis.register(username, password)
         self.assertFalse(succeeded, 'Succeeded in registering an existing username')
-        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username), result[pytwis.PytwisConstant.ERROR_KEY],
+        self.assertEqual(pytwis.PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username), 
+                         result[pytwis.PytwisConstant.ERROR_KEY],
                          INCORRECT_ERROR_MSG)
         
     def _register_same_user_at_same_time(self):
         """Register the same user in two threads almost simultaneously."""
         username = 'test2_username'
-        password = 'test2_password'
+        password = 'test2_Password'
         
         from multiprocessing.pool import ThreadPool
         pool = ThreadPool(processes=1)
@@ -74,13 +76,37 @@ class PytwisRegisterTests(PytwisTests):
         self.assertTrue(succeeded1 != succeeded2, 
                         'One register should succeed and the other register should fail')
         
+    def _register_invalid_username(self):
+        """Register a new user with an invalid username."""
+        username = '12345678'
+        password = 'test3_Password'
+        succeeded, result = self._pytwis.register(username, password)
+        self.assertFalse(succeeded, 'Succeeded in registering an invalid username')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_INVALID_USERNAME, 
+                         result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
+        
+    def _register_weak_password(self):
+        """Register a new user with a weak password."""
+        username = 'test4_username'
+        password = '11111111'
+        succeeded, result = self._pytwis.register(username, password)
+        self.assertFalse(succeeded, 'Succeeded in registering a user with a weak password')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_WEAK_PASSWORD, 
+                         result[pytwis.PytwisConstant.ERROR_KEY], 
+                         INCORRECT_ERROR_MSG)
+        
     def test_register(self):
         """Register test routine:
         (1) _register_new_and_existing_users
         (2) _register_same_user_at_same_time
+        (3) _register_invalid_username
+        (4) _register_weak_password
         """
         self._register_new_and_existing_users()
         self._register_same_user_at_same_time()
+        self._register_invalid_username()
+        self._register_weak_password()
 
 
 class PytwisTestsWithRegisteredUsers(PytwisTests):
@@ -93,7 +119,7 @@ class PytwisTestsWithRegisteredUsers(PytwisTests):
         PytwisTests.setUp(self)
         
         self._usernames = ['username_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
-        self._passwords = ['password_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
+        self._passwords = ['Password_{}'.format(i) for i in range(self.CNT_REGISTERED_USERS)]
 
         for username, password in zip(self._usernames, self._passwords):
             succeeded, _ = self._pytwis.register(username, password)
@@ -202,12 +228,32 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
     def _change_password_with_wrong_old_password(self):
         """Change the password with the wrong old password."""
         succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
-        self.assertTrue(succeeded, 'Succeeded in logging in.')
+        self.assertTrue(succeeded, 'Failed to log in.')
         auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
         
         succeeded, result = self._pytwis.change_password(auth_secret, self._passwords[0] + '_wrong', '')
-        self.assertFalse(succeeded, 'Succeeded in changing the password into the same one')
+        self.assertFalse(succeeded, 'Succeeded in changing the password with incorrect old password')
         self.assertEqual(pytwis.PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
+        
+    def _change_password_with_same_new_password(self):
+        """Change the password with the same new password."""
+        succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
+        self.assertTrue(succeeded, 'Failed to log in.')
+        auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
+        
+        succeeded, result = self._pytwis.change_password(auth_secret, self._passwords[0], self._passwords[0])
+        self.assertFalse(succeeded, 'Succeeded in changing the password with same new password')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
+        
+    def _change_password_with_weak_new_password(self):
+        """Change the password with a weak new password."""
+        succeeded, result = self._pytwis.login(self._usernames[0], self._passwords[0])
+        self.assertTrue(succeeded, 'Failed to log in.')
+        auth_secret = result[pytwis.PytwisConstant.AUTH_KEY]
+        
+        succeeded, result = self._pytwis.change_password(auth_secret, self._passwords[0], '12345678')
+        self.assertFalse(succeeded, 'Succeeded in changing the password with a weak new password')
+        self.assertEqual(pytwis.PytwisConstant.ERROR_WEAK_PASSWORD, result[pytwis.PytwisConstant.ERROR_KEY], INCORRECT_ERROR_MSG)
     
     def _change_password_after_login_then_logout_login(self):
         """Change the password after logging in, 
@@ -239,10 +285,14 @@ class PytwisChangePasswordTests(PytwisTestsWithRegisteredUsers):
         """change_password test routines:
         (1) _change_password_before_login
         (2) _change_password_with_wrong_old_password
-        (3) _change_password_after_login_then_logout_login
+        (3) _change_password_with_same_new_password
+        (4) _change_password_with_weak_new_password
+        (5) _change_password_after_login_then_logout_login
         """
         self._change_password_before_login()
         self._change_password_with_wrong_old_password()
+        self._change_password_with_same_new_password()
+        self._change_password_with_weak_new_password()
         self._change_password_after_login_then_logout_login()
 
 
@@ -278,7 +328,7 @@ class PytwisUserProfileTests(PytwisTestsWithRegisteredUsers):
         succeeded, result = self._pytwis.get_user_profile(self._auth_secret)
         self.assertTrue(succeeded, 'Failed to get the user profile with the correct authentication secret')
         self.assertEqual(self._usernames[0], result[pytwis.PytwisConstant.USERNAME_KEY], 'Mismatched username')
-        self.assertEqual(self._passwords[0], result[pytwis.PytwisConstant.PASSWORD_KEY], 'Mismatched password')
+        self.assertTrue(check_password_hash(result[pytwis.PytwisConstant.PASSWORD_HASH_KEY], self._passwords[0]), 'Mismatched password')
         self.assertEqual(self._auth_secret, result[pytwis.PytwisConstant.AUTH_KEY], 'Mismatched authentication secret')
         
     def test_get_user_profile(self):

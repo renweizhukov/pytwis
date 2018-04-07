@@ -2,8 +2,15 @@
 # https://github.com/Damnever/pigar
 # BUGBUG: change the version comparison operator from '==' into '>=' by hand.
 
-# pytwis/pytwis_clt.py: 6
+# pytwis/pytwis.py: 39
+# tests/test_pytwis.py: 11
+Werkzeug >= 0.14.1
+
+# pytwis/pytwis_clt.py: 106
 parse >= 1.8.2
 
-# pytwis/pytwis.py: 4
+# pytwis/pytwis.py: 36
 redis >= 2.10.6
+
+# setup.py: 9
+setuptools >= 38.5.1
