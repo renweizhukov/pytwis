@@ -250,8 +250,6 @@ def pytwis_command_parser(raw_command):
         elif ' ' in arg_dict[CmdConstant.ARG_PASSWORD]:
             raise ValueError("password can't contain spaces")
 
-        arg_dict = arg_dict.named
-
         print('{}: username = {}, password = {}'.format(CmdConstant.CMD_REGISTER,
                                                         arg_dict[CmdConstant.ARG_USERNAME],
                                                         arg_dict[CmdConstant.ARG_PASSWORD]))
@@ -262,8 +260,6 @@ def pytwis_command_parser(raw_command):
                                                               arg2=CmdConstant.ARG_PASSWORD), args)
         if arg_dict is None:
             raise ValueError('{} has incorrect arguments'.format(CmdConstant.CMD_LOGIN))
-
-        arg_dict = arg_dict.named
 
         print('{}: username = {}, password = {}'.format(CmdConstant.CMD_LOGIN,
                                                         arg_dict[CmdConstant.ARG_USERNAME],
@@ -284,8 +280,6 @@ def pytwis_command_parser(raw_command):
             raise ValueError('The confirmed new password is different from the new password')
         elif arg_dict[CmdConstant.ARG_NEW_PASSWORD] == arg_dict[CmdConstant.ARG_OLD_PASSWORD]:
             raise ValueError('The new password is the same as the old password')
-
-        arg_dict = arg_dict.named
 
         print('{}: old = {}, new = {}'.format(CmdConstant.CMD_CHANGE_PASSWORD,
                                               arg_dict[CmdConstant.ARG_OLD_PASSWORD],
@@ -335,6 +329,8 @@ def pytwis_command_parser(raw_command):
     else:
         pass
 
+    if (type(arg_dict) is parse.Result):
+        arg_dict = arg_dict.named
     arg_dict[CmdConstant.ARG_COMMAND] = splited_raw_command[0]
 
     return arg_dict
