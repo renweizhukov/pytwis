@@ -606,7 +606,7 @@ def pytwis_clt():
     '''
     pytwis, prompt = get_pytwis(epilog)
     if pytwis == None:
-        return
+        return -1
 
     auth_secret = ['']
     while True:
@@ -622,7 +622,7 @@ def pytwis_clt():
                 if len(auth_secret[0]) > 0:
                     pytwis_command_processor(pytwis, auth_secret, {CmdConstant.ARG_COMMAND:CmdConstant.CMD_LOGOUT})
                 print('pytwis is exiting.')
-                return 0;
+                return 0
 
         except ValueError as e:
             print('Invalid pytwis command: {}'.format(str(e)),
