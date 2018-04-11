@@ -142,7 +142,10 @@ class Pytwis:
         # Test the connection by ping.
         try:
             if self._rc.ping() == True:
-                print('Ping {} returned True'.format(hostname))
+                if len(socket) > 0:
+                    print('Ping {} returned True'.format(socket))
+                else:
+                    print('Ping {}:{} returned True'.format(hostname, port))
         except (ResponseError, TimeoutError) as e:
             raise ValueError(str(e)) from e
         
