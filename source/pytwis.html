@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pytwis package &#8212; pytwis 0.4.0 documentation</title>
+    <title>pytwis package &#8212; pytwis 0.4.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../_static/documentation_options.js"></script>
@@ -870,6 +870,11 @@ by the currently logged-in user.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class defines all the constants used by pytwis_clt.py.</p>
 <dl class="attribute">
+<dt id="pytwis.pytwis_clt.CmdConstant.ARG_COMMAND">
+<code class="descname">ARG_COMMAND</code><em class="property"> = 'command'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_COMMAND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pytwis.pytwis_clt.CmdConstant.ARG_CONFIRMED_NEW_PASSWORD">
 <code class="descname">ARG_CONFIRMED_NEW_PASSWORD</code><em class="property"> = 'confirmed_new_password'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_CONFIRMED_NEW_PASSWORD" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -982,6 +987,11 @@ by the currently logged-in user.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pytwis.pytwis_clt.get_pytwis">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">get_pytwis</code><span class="sig-paren">(</span><em>epilog</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.get_pytwis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="pytwis.pytwis_clt.print_tweets">
 <code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">print_tweets</code><span class="sig-paren">(</span><em>tweets</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.print_tweets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print a list of tweets one by one separated by “=”s.</p>
@@ -997,8 +1007,8 @@ and the tweet body.</td>
 </dd></dl>
 
 <dl class="function">
-<dt id="pytwis.pytwis_clt.pytwis_cli">
-<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_cli</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_cli" title="Permalink to this definition">¶</a></dt>
+<dt id="pytwis.pytwis_clt.pytwis_clt">
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_clt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_clt" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main routine of this command-line tool.</p>
 </dd></dl>
 
@@ -1012,11 +1022,10 @@ and the tweet body.</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>raw_command</strong> (<em>str</em>) – The raw command input, e.g., <cite>register xxxxxx yyyyyy</cite>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>command_with_args</strong> – The parsed command output. The first element of the list is the command type, e.g., ‘register’,
-and the second element is the command arguments, e.g., {‘username’: &lt;username&gt;, ‘password’: &lt;password&gt;}
-for <cite>register</cite>.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>arg_dict</strong> – The parsed command output.
+{‘command’:’register’, ‘username’: &lt;username&gt;, ‘password’: &lt;password&gt;} for <cite>register</cite>.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list(str, dict(str, str or int))</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict(str, str or int)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If the raw command can’t be parsed correctly, e.g., it has an incorrect number of arguments or
 incorrect arguments.</td>
@@ -1027,7 +1036,7 @@ incorrect arguments.</td>
 
 <dl class="function">
 <dt id="pytwis.pytwis_clt.pytwis_command_processor">
-<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_command_processor</code><span class="sig-paren">(</span><em>twis</em>, <em>auth_secret</em>, <em>command_with_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_command_processor" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">pytwis_command_processor</code><span class="sig-paren">(</span><em>twis</em>, <em>auth_secret</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.pytwis_command_processor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process the parsed command.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1036,7 +1045,7 @@ incorrect arguments.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>twis</strong> (<a class="reference internal" href="#pytwis.pytwis.Pytwis" title="pytwis.pytwis.Pytwis"><em>Pytwis</em></a>) – A Pytwis instance which interacts with the Redis database of the Twitter toy clone.</li>
 <li><strong>auth_secret</strong> (<em>str</em>) – The authentication secret of a logged-in user.</li>
-<li><strong>command_with_args</strong> – The parsed command output by pytwis_command_parser().</li>
+<li><strong>args</strong> – The parsed command output by pytwis_command_parser().</li>
 </ul>
 </td>
 </tr>
