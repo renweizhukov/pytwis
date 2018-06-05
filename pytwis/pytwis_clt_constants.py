@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+"""This module defines all the constants used by pytwis_clt.py."""
+
+CMD_REGISTER = 'register'
+CMD_LOGIN = 'login'
+CMD_LOGOUT = 'logout'
+CMD_CHANGE_PASSWORD = 'changepwd'
+CMD_GET_USER_PROFILE = 'userprofile'
+CMD_POST = 'post'
+CMD_FOLLOW = 'follow'
+CMD_UNFOLLOW = 'unfollow'
+CMD_GET_FOLLOWERS = 'followers'
+CMD_GET_FOLLOWINGS = 'followings'
+CMD_TIMELINE = 'timeline'
+CMD_GET_USER_TWEETS = 'tweetsby'
+CMD_EXIT = 'exit'
+CMD_QUIT = 'quit'
+
+ARG_COMMAND = 'command'
+ARG_USERNAME = 'username'
+ARG_PASSWORD = 'password'
+ARG_OLD_PASSWORD = 'old_password'
+ARG_NEW_PASSWORD = 'new_password'
+ARG_CONFIRMED_NEW_PASSWORD = 'confirmed_new_password'
+ARG_FOLLOWEE = 'followee'
+ARG_MAX_TWEETS = 'max_cnt_tweets'
+ARG_TWEET = 'tweet'
