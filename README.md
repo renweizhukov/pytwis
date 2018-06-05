@@ -259,7 +259,19 @@ Note that some of the above commands have to be executed after a successful log-
 * post
 * tweetsby
 
-## 3. Unit test
+## 3. PEP8
+
+We use `pylint` to enforce the Python Style Guide PEP8.
+
+```bash
+$ pylint pytwis
+$ pylint tests
+```
+
+We have fixed all the convention violations, warnings, and errors in the packages `pytwis` and `tests`. We will address the refactor recommendations made by `pylint` later (see issue #8).
+
+
+## 4. Unit test
 
 Since this unit test requires a running local Redis server, it is in fact a small integration test. To run the test,
 
@@ -267,9 +279,9 @@ Since this unit test requires a running local Redis server, it is in fact a smal
 $ make test
 ```
 
-## 4. Documentation
+## 5. Documentation
 
-### 4.1. `Sphinx`
+### 5.1. `Sphinx`
 
 To generate the `Sphinx` HTML documentation,
 
@@ -277,7 +289,7 @@ To generate the `Sphinx` HTML documentation,
 $ make docs
 ```
 
-### 4.2. README.rst
+### 5.2. README.rst
 
 README.rst is generated from README.md via `pandoc`.
 
