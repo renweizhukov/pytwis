@@ -15,11 +15,11 @@ here = path.abspath(path.dirname(__file__))
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
-    
+
 
 setup(
     name='pytwis',
-    version='0.4.2',
+    version='0.5.0',
     description='A twitter-toy-clone backend using Python and Redis',
     long_description=long_description,
     url='https://renweizhukov.github.io/pytwis',
@@ -35,12 +35,12 @@ setup(
     keywords='redis twitter python3.6',
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=[
-        'parse', 
-        'redis', 
-        'setuptools', 
+        'parse',
+        'redis',
+        'setuptools',
         'Werkzeug',
         ],
-    # This project depends on a built-in module `secrets` only available 
+    # This project depends on a built-in module `secrets` only available
     # in Python 3.6 and later,
     python_requires='>=3.6',
     extras_require={
