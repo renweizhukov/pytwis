@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pytwis package &#8212; pytwis 0.4.2 documentation</title>
+    <title>pytwis package &#8212; pytwis 0.5.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../_static/documentation_options.js"></script>
@@ -71,6 +71,8 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pytwis.pytwis">pytwis.pytwis module</a></li>
 <li><a class="reference internal" href="#module-pytwis.pytwis_clt">pytwis.pytwis_clt module</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis_clt_constants">pytwis.pytwis_clt_constants module</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis_constants">pytwis.pytwis_constants module</a></li>
 <li><a class="reference internal" href="#module-pytwis">Module contents</a></li>
 </ul>
 </li>
@@ -121,6 +123,8 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pytwis.pytwis">pytwis.pytwis module</a></li>
 <li><a class="reference internal" href="#module-pytwis.pytwis_clt">pytwis.pytwis_clt module</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis_clt_constants">pytwis.pytwis_clt_constants module</a></li>
+<li><a class="reference internal" href="#module-pytwis.pytwis_constants">pytwis.pytwis_constants module</a></li>
 <li><a class="reference internal" href="#module-pytwis">Module contents</a></li>
 </ul>
 </li>
@@ -202,9 +206,9 @@ the data layout of the Redis database.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the password is successfully changed, False otherwise.</li>
-<li><em>result</em> – A dict containing the new authentication secret with the key PytwisConstant.AUTH_KEY
+<li><em>result</em> – A dict containing the new authentication secret with the key AUTH_KEY
 if the password is successfully changed, a dict containing the error
-string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -215,10 +219,10 @@ string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE</li>
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
-<li>PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD</li>
-<li>PytwisConstant.ERROR_WEAK_PASSWORD</li>
+<li>ERROR_NEW_PASSWORD_NO_CHANGE</li>
+<li>ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_INCORRECT_OLD_PASSWORD</li>
+<li>ERROR_WEAK_PASSWORD</li>
 </ul>
 </div>
 </dd></dl>
@@ -240,7 +244,7 @@ string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the follow is successful, False otherwise.</li>
 <li><em>result</em> – None if the follow is successful, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -251,9 +255,9 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
-<li>PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)</li>
-<li>PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT.format(followee_username)</li>
+<li>ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)</li>
+<li>ERROR_FOLLOW_YOURSELF_FORMAT.format(followee_username)</li>
 </ul>
 </div>
 </dd></dl>
@@ -270,9 +274,9 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
 <li><em>bool</em> – True if the follower list is successfully obtained, False otherwise.</li>
-<li><em>result</em> – A dict containing the follower list with the key PytwisConstant.FOLLOWER_LIST_KEY
+<li><em>result</em> – A dict containing the follower list with the key FOLLOWER_LIST_KEY
 if the follower list is successfully obtained, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </td>
 </tr>
@@ -282,7 +286,7 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -299,9 +303,9 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
 <li><em>bool</em> – True if the following list is successfully obtained, False otherwise.</li>
-<li><em>result</em> – A dict containing the following list with the key PytwisConstant.FOLLOWING_LIST_KEY
+<li><em>result</em> – A dict containing the following list with the key FOLLOWING_LIST_KEY
 if the follower list is successfully obtained, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </td>
 </tr>
@@ -311,7 +315,7 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -320,9 +324,9 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <dt id="pytwis.pytwis.Pytwis.get_timeline">
 <code class="descname">get_timeline</code><span class="sig-paren">(</span><em>auth_secret</em>, <em>max_cnt_tweets</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis.Pytwis.get_timeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the general or user timeline.</p>
-<p>If an empty authentication secret is given, this method will return the general timeline.
-If an authentication secret is given and it is valid, this method will return the user timeline.
-If an authentication secret is given but it is invalid, this method will return an error.</p>
+<p>If an empty authentication secret is given, this method returns the general timeline.
+If an authentication secret is given and it is valid, this method returns the user timeline.
+If an authentication secret is given but it is invalid, this method returns an error.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -336,9 +340,9 @@ then all the available tweets will be included.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the timeline is successfully retrieved, False otherwise.</li>
-<li><em>result</em> – A dict containing a list of tweets with the key PytwisConstant.TWEETS_KEY if
+<li><em>result</em> – A dict containing a list of tweets with the key TWEETS_KEY if
 the timeline is successfully retrieved, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -349,7 +353,7 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -371,8 +375,8 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <li>PASSWORD_HASH_KEY</li>
 <li>AUTH_KEY</li>
 </ul>
-<p>if the user profile is obtained successfully; otherwise a dict containing the error string
-with the key PytwisConstant.ERROR_KEY.</p>
+<p>if the user profile is obtained successfully; otherwise a dict
+containing the error string with the key ERROR_KEY.</p>
 </li>
 </ul>
 </td>
@@ -383,7 +387,7 @@ with the key PytwisConstant.ERROR_KEY.</p>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -406,9 +410,9 @@ then all the tweets posted by the user will be included.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the tweets are successfully retrieved, False otherwise.</li>
-<li><em>result</em> – A dict containing a list of tweets with the key PytwisConstant.TWEETS_KEY if
+<li><em>result</em> – A dict containing a list of tweets with the key TWEETS_KEY if
 the tweets are successfully retrieved, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -419,8 +423,8 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
-<li>PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)</li>
+<li>ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)</li>
 </ul>
 </div>
 </dd></dl>
@@ -441,9 +445,9 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the login is successful, False otherwise.</li>
-<li><em>result</em> – A dict containing the authentication secret with the key PytwisConstant.AUTH_KEY
+<li><em>result</em> – A dict containing the authentication secret with the key AUTH_KEY
 if the login is successful, a dict containing the error string
-with the key PytwisConstant.ERROR_KEY otherwise.</li>
+with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -454,8 +458,8 @@ with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)</li>
-<li>PytwisConstant.ERROR_INCORRECT_PASSWORD</li>
+<li>ERROR_USERNAME_NOT_EXIST_FORMAT.format(username)</li>
+<li>ERROR_INCORRECT_PASSWORD</li>
 </ul>
 </div>
 </dd></dl>
@@ -473,7 +477,7 @@ with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
 <li><em>bool</em> – True if the logout is successful, False otherwise.</li>
 <li><em>result</em> – None if the logout is successful, a dict containing the error string
-with the key PytwisConstant.ERROR_KEY otherwise.</li>
+with the key ERROR_KEY otherwise.</li>
 </ul>
 </td>
 </tr>
@@ -483,7 +487,7 @@ with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -505,7 +509,7 @@ with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the tweet is successfully posted, False otherwise.</li>
 <li><em>result</em> – None if the tweet is successfully posted, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -516,7 +520,7 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_NOT_LOGGED_IN</li>
 </ul>
 </div>
 </dd></dl>
@@ -538,7 +542,7 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the new user is successfully registered, False otherwise.</li>
 <li><em>result</em> – An empty dict if the new user is successfully registered, a dict
-containing the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+containing the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -549,8 +553,8 @@ containing the error string with the key PytwisConstant.ERROR_KEY otherwise.</li
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS.format(username)</li>
-<li>PytwisConstant.ERROR_WEAK_PASSWORD</li>
+<li>ERROR_USERNAME_ALREADY_EXISTS.format(username)</li>
+<li>ERROR_WEAK_PASSWORD</li>
 </ul>
 </div>
 </dd></dl>
@@ -572,7 +576,7 @@ containing the error string with the key PytwisConstant.ERROR_KEY otherwise.</li
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
 <li><em>bool</em> – True if the unfollow is successful, False otherwise.</li>
 <li><em>result</em> – None if the unfollow is successful, a dict containing
-the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
+the error string with the key ERROR_KEY otherwise.</li>
 </ul>
 </p>
 </td>
@@ -583,195 +587,19 @@ the error string with the key PytwisConstant.ERROR_KEY otherwise.</li>
 <p class="first admonition-title">Note</p>
 <p>Possible error strings are listed as below:</p>
 <ul class="last simple">
-<li>PytwisConstant.ERROR_NOT_LOGGED_IN</li>
-<li>PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)</li>
+<li>ERROR_NOT_LOGGED_IN</li>
+<li>ERROR_FOLLOWEE_NOT_EXIST_FORMAT.format(followee_username)</li>
 </ul>
 </div>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="pytwis.pytwis.PytwisConstant">
-<em class="property">class </em><code class="descclassname">pytwis.pytwis.</code><code class="descname">PytwisConstant</code><a class="headerlink" href="#pytwis.pytwis.PytwisConstant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class defines all the constants used by pytwis.py.</p>
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.AUTHS_KEY">
-<code class="descname">AUTHS_KEY</code><em class="property"> = 'auths'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.AUTHS_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.AUTH_KEY">
-<code class="descname">AUTH_KEY</code><em class="property"> = 'auth'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.AUTH_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT">
-<code class="descname">ERROR_FOLLOWEE_NOT_EXIST_FORMAT</code><em class="property"> = &quot;Followee {} doesn't exist&quot;</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_FOLLOWEE_NOT_EXIST_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT">
-<code class="descname">ERROR_FOLLOW_YOURSELF_FORMAT</code><em class="property"> = &quot;Can't follow yourself {}&quot;</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_FOLLOW_YOURSELF_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD">
-<code class="descname">ERROR_INCORRECT_OLD_PASSWORD</code><em class="property"> = 'Incorrect old password'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_INCORRECT_OLD_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_INCORRECT_PASSWORD">
-<code class="descname">ERROR_INCORRECT_PASSWORD</code><em class="property"> = 'Incorrect password'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_INCORRECT_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_INVALID_USERNAME">
-<code class="descname">ERROR_INVALID_USERNAME</code><em class="property"> = &quot;Invalid username. A valid username must \n                             * have 3 characters more;\n                             * have only letters (either uppercase or lowercase), digits, '_', or '-';\n                             * start with a letter.\n                             &quot;</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_INVALID_USERNAME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_KEY">
-<code class="descname">ERROR_KEY</code><em class="property"> = 'error'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE">
-<code class="descname">ERROR_NEW_PASSWORD_NO_CHANGE</code><em class="property"> = 'New password same as old one'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_NEW_PASSWORD_NO_CHANGE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN">
-<code class="descname">ERROR_NOT_LOGGED_IN</code><em class="property"> = 'Not logged in'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_NOT_LOGGED_IN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS">
-<code class="descname">ERROR_USERNAME_ALREADY_EXISTS</code><em class="property"> = 'username {} already exists'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_USERNAME_ALREADY_EXISTS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT">
-<code class="descname">ERROR_USERNAME_NOT_EXIST_FORMAT</code><em class="property"> = &quot;username {} doesn't exist&quot;</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_USERNAME_NOT_EXIST_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.ERROR_WEAK_PASSWORD">
-<code class="descname">ERROR_WEAK_PASSWORD</code><em class="property"> = 'Weak password. A strong password must have \n                          * 8 characters or more;\n                          * 1 digit or more;\n                          * 1 uppercase letter or more;\n                          * 1 lowercase letter or more;\n                          * 1 symbol (excluding whitespace characters) or more.\n                          '</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.ERROR_WEAK_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.FOLLOWER_KEY_FORMAT">
-<code class="descname">FOLLOWER_KEY_FORMAT</code><em class="property"> = 'follower:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.FOLLOWER_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.FOLLOWER_LIST_KEY">
-<code class="descname">FOLLOWER_LIST_KEY</code><em class="property"> = 'follower_list'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.FOLLOWER_LIST_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.FOLLOWING_KEY_FORMAT">
-<code class="descname">FOLLOWING_KEY_FORMAT</code><em class="property"> = 'following:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.FOLLOWING_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.FOLLOWING_LIST_KEY">
-<code class="descname">FOLLOWING_LIST_KEY</code><em class="property"> = 'following_list'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.FOLLOWING_LIST_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.GENERAL_TIMELINE_KEY">
-<code class="descname">GENERAL_TIMELINE_KEY</code><em class="property"> = 'timeline'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.GENERAL_TIMELINE_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.GENERAL_TIMELINE_MAX_TWEET_CNT">
-<code class="descname">GENERAL_TIMELINE_MAX_TWEET_CNT</code><em class="property"> = 1000</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.GENERAL_TIMELINE_MAX_TWEET_CNT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.NEXT_TWEET_ID_KEY">
-<code class="descname">NEXT_TWEET_ID_KEY</code><em class="property"> = 'next_tweet_id'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.NEXT_TWEET_ID_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.NEXT_USER_ID_KEY">
-<code class="descname">NEXT_USER_ID_KEY</code><em class="property"> = 'next_user_id'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.NEXT_USER_ID_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.PASSWORD_HASH_KEY">
-<code class="descname">PASSWORD_HASH_KEY</code><em class="property"> = 'password_hash'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.PASSWORD_HASH_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.PASSWORD_HASH_METHOD">
-<code class="descname">PASSWORD_HASH_METHOD</code><em class="property"> = 'pbkdf2:sha512'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.PASSWORD_HASH_METHOD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT">
-<code class="descname">REDIS_SOCKET_CONNECT_TIMEOUT</code><em class="property"> = 60</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.REDIS_SOCKET_CONNECT_TIMEOUT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.TWEETS_KEY">
-<code class="descname">TWEETS_KEY</code><em class="property"> = 'tweets'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.TWEETS_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.TWEET_BODY_KEY">
-<code class="descname">TWEET_BODY_KEY</code><em class="property"> = 'body'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.TWEET_BODY_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.TWEET_KEY_FORMAT">
-<code class="descname">TWEET_KEY_FORMAT</code><em class="property"> = 'tweet:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.TWEET_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.TWEET_UNIXTIME_KEY">
-<code class="descname">TWEET_UNIXTIME_KEY</code><em class="property"> = 'unix_time'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.TWEET_UNIXTIME_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.TWEET_USERID_KEY">
-<code class="descname">TWEET_USERID_KEY</code><em class="property"> = 'userid'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.TWEET_USERID_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.USERNAME_KEY">
-<code class="descname">USERNAME_KEY</code><em class="property"> = 'username'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.USERNAME_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.USERS_KEY">
-<code class="descname">USERS_KEY</code><em class="property"> = 'users'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.USERS_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.USER_PROFILE_KEY_FORMAT">
-<code class="descname">USER_PROFILE_KEY_FORMAT</code><em class="property"> = 'user:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.USER_PROFILE_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.USER_TIMELINE_KEY_FORMAT">
-<code class="descname">USER_TIMELINE_KEY_FORMAT</code><em class="property"> = 'timeline:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.USER_TIMELINE_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis.PytwisConstant.USER_TWEETS_KEY_FORMAT">
-<code class="descname">USER_TWEETS_KEY_FORMAT</code><em class="property"> = 'tweets_by:{}'</em><a class="headerlink" href="#pytwis.pytwis.PytwisConstant.USER_TWEETS_KEY_FORMAT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="module-pytwis.pytwis_clt">
 <span id="pytwis-pytwis-clt-module"></span><h2>pytwis.pytwis_clt module<a class="headerlink" href="#module-pytwis.pytwis_clt" title="Permalink to this headline">¶</a></h2>
-<p>A command-line tool which uses <cite>pytwis</cite> to interact with the Redis database of a Twitter toy clone.</p>
+<p>A command-line tool which uses <cite>pytwis</cite> to interact with the Redis database of
+a Twitter toy clone.</p>
 <p>To see the help information,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py -h
 $ ./pytwis_clt.py --help
@@ -864,132 +692,27 @@ by the currently logged-in user.</p>
 <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
 </pre></div>
 </div>
-<dl class="class">
-<dt id="pytwis.pytwis_clt.CmdConstant">
-<em class="property">class </em><code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">CmdConstant</code><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class defines all the constants used by pytwis_clt.py.</p>
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_COMMAND">
-<code class="descname">ARG_COMMAND</code><em class="property"> = 'command'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_COMMAND" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_CONFIRMED_NEW_PASSWORD">
-<code class="descname">ARG_CONFIRMED_NEW_PASSWORD</code><em class="property"> = 'confirmed_new_password'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_CONFIRMED_NEW_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_FOLLOWEE">
-<code class="descname">ARG_FOLLOWEE</code><em class="property"> = 'followee'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_FOLLOWEE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_MAX_TWEETS">
-<code class="descname">ARG_MAX_TWEETS</code><em class="property"> = 'max_cnt_tweets'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_MAX_TWEETS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_NEW_PASSWORD">
-<code class="descname">ARG_NEW_PASSWORD</code><em class="property"> = 'new_password'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_NEW_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_OLD_PASSWORD">
-<code class="descname">ARG_OLD_PASSWORD</code><em class="property"> = 'old_password'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_OLD_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_PASSWORD">
-<code class="descname">ARG_PASSWORD</code><em class="property"> = 'password'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_TWEET">
-<code class="descname">ARG_TWEET</code><em class="property"> = 'tweet'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_TWEET" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.ARG_USERNAME">
-<code class="descname">ARG_USERNAME</code><em class="property"> = 'username'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.ARG_USERNAME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_CHANGE_PASSWORD">
-<code class="descname">CMD_CHANGE_PASSWORD</code><em class="property"> = 'changepwd'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_CHANGE_PASSWORD" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_EXIT">
-<code class="descname">CMD_EXIT</code><em class="property"> = 'exit'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_EXIT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_FOLLOW">
-<code class="descname">CMD_FOLLOW</code><em class="property"> = 'follow'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_FOLLOW" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_GET_FOLLOWERS">
-<code class="descname">CMD_GET_FOLLOWERS</code><em class="property"> = 'followers'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_GET_FOLLOWERS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_GET_FOLLOWINGS">
-<code class="descname">CMD_GET_FOLLOWINGS</code><em class="property"> = 'followings'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_GET_FOLLOWINGS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_GET_USER_PROFILE">
-<code class="descname">CMD_GET_USER_PROFILE</code><em class="property"> = 'userprofile'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_GET_USER_PROFILE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_GET_USER_TWEETS">
-<code class="descname">CMD_GET_USER_TWEETS</code><em class="property"> = 'tweetsby'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_GET_USER_TWEETS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_LOGIN">
-<code class="descname">CMD_LOGIN</code><em class="property"> = 'login'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_LOGIN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_LOGOUT">
-<code class="descname">CMD_LOGOUT</code><em class="property"> = 'logout'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_LOGOUT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_POST">
-<code class="descname">CMD_POST</code><em class="property"> = 'post'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_POST" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_QUIT">
-<code class="descname">CMD_QUIT</code><em class="property"> = 'quit'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_QUIT" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_REGISTER">
-<code class="descname">CMD_REGISTER</code><em class="property"> = 'register'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_REGISTER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_TIMELINE">
-<code class="descname">CMD_TIMELINE</code><em class="property"> = 'timeline'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_TIMELINE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pytwis.pytwis_clt.CmdConstant.CMD_UNFOLLOW">
-<code class="descname">CMD_UNFOLLOW</code><em class="property"> = 'unfollow'</em><a class="headerlink" href="#pytwis.pytwis_clt.CmdConstant.CMD_UNFOLLOW" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="function">
 <dt id="pytwis.pytwis_clt.get_pytwis">
 <code class="descclassname">pytwis.pytwis_clt.</code><code class="descname">get_pytwis</code><span class="sig-paren">(</span><em>epilog</em><span class="sig-paren">)</span><a class="headerlink" href="#pytwis.pytwis_clt.get_pytwis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Connect to the Redis database and return the Pytwis instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>epilog</strong> (<em>str</em>) – An epilog string which will be displayed by ArgumentParser.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>pytwis</strong> (<em>A Pytwis instance.</em>)</li>
+<li><strong>prompt</strong> (<em>str</em>) – The prompt string which contains either the hostname and the port or the socket.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If we fail to connect to the Redis server.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="pytwis.pytwis_clt.print_tweets">
@@ -999,8 +722,8 @@ by the currently logged-in user.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tweets</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – A list of tweets. Each tweet is a dict containing the username of the tweet’s author, the post time,
-and the tweet body.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tweets</strong> (<em>list</em><em>(</em><em>dict</em><em>)</em>) – A list of tweets. Each tweet is a dict containing the username of the tweet’s author,
+the post time, and the tweet body.</td>
 </tr>
 </tbody>
 </table>
@@ -1027,8 +750,8 @@ and the tweet body.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict(str, str or int)</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If the raw command can’t be parsed correctly, e.g., it has an incorrect number of arguments or
-incorrect arguments.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – If the raw command can’t be parsed correctly, e.g., it has an incorrect number of
+arguments or incorrect arguments.</td>
 </tr>
 </tbody>
 </table>
@@ -1071,8 +794,17 @@ incorrect arguments.</td>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pytwis.pytwis_clt_constants">
+<span id="pytwis-pytwis-clt-constants-module"></span><h2>pytwis.pytwis_clt_constants module<a class="headerlink" href="#module-pytwis.pytwis_clt_constants" title="Permalink to this headline">¶</a></h2>
+<p>This module defines all the constants used by pytwis_clt.py.</p>
+</div>
+<div class="section" id="module-pytwis.pytwis_constants">
+<span id="pytwis-pytwis-constants-module"></span><h2>pytwis.pytwis_constants module<a class="headerlink" href="#module-pytwis.pytwis_constants" title="Permalink to this headline">¶</a></h2>
+<p>This module defines all the constants used by pytwis.py.</p>
+</div>
 <div class="section" id="module-pytwis">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pytwis" title="Permalink to this headline">¶</a></h2>
+<p>Define the package.</p>
 </div>
 </div>
 

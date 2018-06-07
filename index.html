@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pytwis &#8212; pytwis 0.4.2 documentation</title>
+    <title>pytwis &#8212; pytwis 0.5.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -78,10 +78,11 @@
 <li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#unit-test">3. Unit test</a></li>
-<li><a class="reference internal" href="#documentation">4. Documentation</a><ul>
-<li><a class="reference internal" href="#sphinx">4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
-<li><a class="reference internal" href="#readme-rst">4.2. README.rst</a></li>
+<li><a class="reference internal" href="#pep8">3. PEP8</a></li>
+<li><a class="reference internal" href="#unit-test">4. Unit test</a></li>
+<li><a class="reference internal" href="#documentation">5. Documentation</a><ul>
+<li><a class="reference internal" href="#sphinx">5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
+<li><a class="reference internal" href="#readme-rst">5.2. README.rst</a></li>
 </ul>
 </li>
 </ul>
@@ -141,10 +142,11 @@
 <li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#unit-test">3. Unit test</a></li>
-<li><a class="reference internal" href="#documentation">4. Documentation</a><ul>
-<li><a class="reference internal" href="#sphinx">4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
-<li><a class="reference internal" href="#readme-rst">4.2. README.rst</a></li>
+<li><a class="reference internal" href="#pep8">3. PEP8</a></li>
+<li><a class="reference internal" href="#unit-test">4. Unit test</a></li>
+<li><a class="reference internal" href="#documentation">5. Documentation</a><ul>
+<li><a class="reference internal" href="#sphinx">5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
+<li><a class="reference internal" href="#readme-rst">5.2. README.rst</a></li>
 </ul>
 </li>
 </ul>
@@ -410,8 +412,19 @@ successful log-in.</p>
 </ul>
 </div>
 </div>
+<div class="section" id="pep8">
+<h2>3. PEP8<a class="headerlink" href="#pep8" title="Permalink to this headline">¶</a></h2>
+<p>We use <code class="docutils literal notranslate"><span class="pre">pylint</span></code> to enforce the Python Style Guide PEP8.</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pylint pytwis
+$ pylint tests
+</pre></div>
+</div>
+<p>We have fixed all the convention violations, warnings, and errors in the
+packages <code class="docutils literal notranslate"><span class="pre">pytwis</span></code> and <code class="docutils literal notranslate"><span class="pre">tests</span></code>. We will address the refactor
+recommendations made by <code class="docutils literal notranslate"><span class="pre">pylint</span></code> later (see issue #8).</p>
+</div>
 <div class="section" id="unit-test">
-<h2>3. Unit test<a class="headerlink" href="#unit-test" title="Permalink to this headline">¶</a></h2>
+<h2>4. Unit test<a class="headerlink" href="#unit-test" title="Permalink to this headline">¶</a></h2>
 <p>Since this unit test requires a running local Redis server, it is in
 fact a small integration test. To run the test,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make test
@@ -419,16 +432,16 @@ fact a small integration test. To run the test,</p>
 </div>
 </div>
 <div class="section" id="documentation">
-<h2>4. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<h2>5. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="sphinx">
-<h3>4.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code><a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h3>
+<h3>5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code><a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h3>
 <p>To generate the <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code> HTML documentation,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make docs
 </pre></div>
 </div>
 </div>
 <div class="section" id="readme-rst">
-<h3>4.2. README.rst<a class="headerlink" href="#readme-rst" title="Permalink to this headline">¶</a></h3>
+<h3>5.2. README.rst<a class="headerlink" href="#readme-rst" title="Permalink to this headline">¶</a></h3>
 <p>README.rst is generated from README.md via <code class="docutils literal notranslate"><span class="pre">pandoc</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pandoc --from=markdown --to=rst --output=README.rst README.md
 </pre></div>

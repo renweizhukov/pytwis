@@ -20,6 +20,22 @@ pytwis.pytwis\_clt module
     :undoc-members:
     :show-inheritance:
 
+pytwis.pytwis\_clt\_constants module
+------------------------------------
+
+.. automodule:: pytwis.pytwis_clt_constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pytwis.pytwis\_constants module
+-------------------------------
+
+.. automodule:: pytwis.pytwis_constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
