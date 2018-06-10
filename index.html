@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>pytwis &#8212; pytwis 0.5.0 documentation</title>
+    <title>pytwis &#8212; pytwis 0.5.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -67,15 +67,36 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">pytwis</a><ul>
+<li><a class="reference internal" href="#">pytwis</a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
 <li><a class="reference internal" href="#pytwis-1">1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code></a><ul>
 <li><a class="reference internal" href="#introduction">1.1 Introduction</a></li>
 <li><a class="reference internal" href="#sample-usage">1.2 Sample usage</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pytwis-clt">2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code></a><ul>
-<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a></li>
-<li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
+<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a><ul>
+<li><a class="reference internal" href="#connect-to-the-local-redis-server-at-the-default-port-6379-with-no-password">2.1.1. Connect to the local Redis server at the default port 6379 with no password.</a></li>
+<li><a class="reference internal" href="#connect-to-the-local-redis-server-via-the-socket-file-tmp-redis-sock-with-password-zzzzzz">2.1.2. Connect to the local Redis server via the socket file <code class="docutils literal notranslate"><span class="pre">/tmp/redis.sock</span></code> with password zzzzzz.</a></li>
+<li><a class="reference internal" href="#connect-to-a-remote-redis-server-with-ip-xxx-xxx-xxx-xxx-at-port-yyyy-with-password-zzzzzz">2.1.3 Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#available-commands">2.2. Available commands</a><ul>
+<li><a class="reference internal" href="#register">2.2.1. <code class="docutils literal notranslate"><span class="pre">register</span></code></a></li>
+<li><a class="reference internal" href="#login">2.2.2. <code class="docutils literal notranslate"><span class="pre">login</span></code></a></li>
+<li><a class="reference internal" href="#logout">2.2.3. <code class="docutils literal notranslate"><span class="pre">logout</span></code></a></li>
+<li><a class="reference internal" href="#changepwd">2.2.4. <code class="docutils literal notranslate"><span class="pre">changepwd</span></code></a></li>
+<li><a class="reference internal" href="#userprofile">2.2.5. <code class="docutils literal notranslate"><span class="pre">userprofile</span></code></a></li>
+<li><a class="reference internal" href="#follow">2.2.6. <code class="docutils literal notranslate"><span class="pre">follow</span></code></a></li>
+<li><a class="reference internal" href="#unfollow">2.2.7. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></a></li>
+<li><a class="reference internal" href="#followers">2.2.8. <code class="docutils literal notranslate"><span class="pre">followers</span></code></a></li>
+<li><a class="reference internal" href="#followings">2.2.9. <code class="docutils literal notranslate"><span class="pre">followings</span></code></a></li>
+<li><a class="reference internal" href="#post">2.2.10. <code class="docutils literal notranslate"><span class="pre">post</span></code></a></li>
+<li><a class="reference internal" href="#timeline">2.2.11. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></a></li>
+<li><a class="reference internal" href="#tweetsby">2.2.12. <code class="docutils literal notranslate"><span class="pre">tweetsby</span></code></a></li>
+<li><a class="reference internal" href="#exit-or-quit">2.2.13. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pep8">3. PEP8</a></li>
@@ -83,8 +104,6 @@
 <li><a class="reference internal" href="#documentation">5. Documentation</a><ul>
 <li><a class="reference internal" href="#sphinx">5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
 <li><a class="reference internal" href="#readme-rst">5.2. README.rst</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -131,15 +150,36 @@
   <div class="row">
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">pytwis</a><ul>
+<li><a class="reference internal" href="#">pytwis</a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
 <li><a class="reference internal" href="#pytwis-1">1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code></a><ul>
 <li><a class="reference internal" href="#introduction">1.1 Introduction</a></li>
 <li><a class="reference internal" href="#sample-usage">1.2 Sample usage</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pytwis-clt">2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code></a><ul>
-<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a></li>
-<li><a class="reference internal" href="#available-commands">2.2. Available commands</a></li>
+<li><a class="reference internal" href="#connect-to-redis">2.1. Connect to Redis</a><ul>
+<li><a class="reference internal" href="#connect-to-the-local-redis-server-at-the-default-port-6379-with-no-password">2.1.1. Connect to the local Redis server at the default port 6379 with no password.</a></li>
+<li><a class="reference internal" href="#connect-to-the-local-redis-server-via-the-socket-file-tmp-redis-sock-with-password-zzzzzz">2.1.2. Connect to the local Redis server via the socket file <code class="docutils literal notranslate"><span class="pre">/tmp/redis.sock</span></code> with password zzzzzz.</a></li>
+<li><a class="reference internal" href="#connect-to-a-remote-redis-server-with-ip-xxx-xxx-xxx-xxx-at-port-yyyy-with-password-zzzzzz">2.1.3 Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#available-commands">2.2. Available commands</a><ul>
+<li><a class="reference internal" href="#register">2.2.1. <code class="docutils literal notranslate"><span class="pre">register</span></code></a></li>
+<li><a class="reference internal" href="#login">2.2.2. <code class="docutils literal notranslate"><span class="pre">login</span></code></a></li>
+<li><a class="reference internal" href="#logout">2.2.3. <code class="docutils literal notranslate"><span class="pre">logout</span></code></a></li>
+<li><a class="reference internal" href="#changepwd">2.2.4. <code class="docutils literal notranslate"><span class="pre">changepwd</span></code></a></li>
+<li><a class="reference internal" href="#userprofile">2.2.5. <code class="docutils literal notranslate"><span class="pre">userprofile</span></code></a></li>
+<li><a class="reference internal" href="#follow">2.2.6. <code class="docutils literal notranslate"><span class="pre">follow</span></code></a></li>
+<li><a class="reference internal" href="#unfollow">2.2.7. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></a></li>
+<li><a class="reference internal" href="#followers">2.2.8. <code class="docutils literal notranslate"><span class="pre">followers</span></code></a></li>
+<li><a class="reference internal" href="#followings">2.2.9. <code class="docutils literal notranslate"><span class="pre">followings</span></code></a></li>
+<li><a class="reference internal" href="#post">2.2.10. <code class="docutils literal notranslate"><span class="pre">post</span></code></a></li>
+<li><a class="reference internal" href="#timeline">2.2.11. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></a></li>
+<li><a class="reference internal" href="#tweetsby">2.2.12. <code class="docutils literal notranslate"><span class="pre">tweetsby</span></code></a></li>
+<li><a class="reference internal" href="#exit-or-quit">2.2.13. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pep8">3. PEP8</a></li>
@@ -147,8 +187,6 @@
 <li><a class="reference internal" href="#documentation">5. Documentation</a><ul>
 <li><a class="reference internal" href="#sphinx">5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code></a></li>
 <li><a class="reference internal" href="#readme-rst">5.2. README.rst</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -175,6 +213,7 @@
       
   <div class="section" id="pytwis">
 <h1>pytwis<a class="headerlink" href="#pytwis" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://travis-ci.org/renweizhukov/pytwis"><img alt="Build Status" src="https://travis-ci.org/renweizhukov/pytwis.svg?branch=master" /></a></p>
 <p>This package contains two modules <code class="docutils literal notranslate"><span class="pre">pytwis</span></code> and <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code> where</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">pytwis</span></code> is a Twitter-toy-clone backend using Redis;</li>
@@ -196,10 +235,59 @@ passwords, so the Redis database created by the version before v0.4.0
 won’t work with the version v0.4.0 and after unless a manual database
 migration is done.</li>
 </ul>
+</div>
+<div class="section" id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference external" href="#1-pytwis">1. pytwis</a><ul>
+<li><a class="reference external" href="#11-introduction">1.1 Introduction</a></li>
+<li><a class="reference external" href="#12-sample-usage">1.2 Sample usage</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#2-pytwis_clt">2. pytwis_clt</a><ul>
+<li><a class="reference external" href="#21-connect-to-redis">2.1. Connect to Redis</a><ul>
+<li><a class="reference external" href="#211-connect-to-the-local-redis-server-at-the-default-port-6379-with-no-password">2.1.1. Connect to the local Redis server at the default port
+6379 with no
+password.</a></li>
+<li><a class="reference external" href="#212-connect-to-the-local-redis-server-via-the-socket-file-tmpredissock-with-password-zzzzzz">2.1.2. Connect to the local Redis server via the socket file
+/tmp/redis.sock with password
+zzzzzz.</a></li>
+<li><a class="reference external" href="#213-connect-to-a-remote-redis-server-with-ip--xxxxxxxxxxxx-at-port-yyyy-with-password-zzzzzz">2.1.3 Connect to a remote Redis server with IP =
+xxx.xxx.xxx.xxx at port yyyy with password
+zzzzzz.</a></li>
+</ul>
+</li>
+<li><a class="reference external" href="#22-available-commands">2.2. Available commands</a><ul>
+<li><a class="reference external" href="#221-register">2.2.1. register</a></li>
+<li><a class="reference external" href="#222-login">2.2.2. login</a></li>
+<li><a class="reference external" href="#223-logout">2.2.3. logout</a></li>
+<li><a class="reference external" href="#224-changepwd">2.2.4. changepwd</a></li>
+<li><a class="reference external" href="#225-userprofile">2.2.5. userprofile</a></li>
+<li><a class="reference external" href="#226-follow">2.2.6. follow</a></li>
+<li><a class="reference external" href="#227-unfollow">2.2.7. unfollow</a></li>
+<li><a class="reference external" href="#228-followers">2.2.8. followers</a></li>
+<li><a class="reference external" href="#229-followings">2.2.9. followings</a></li>
+<li><a class="reference external" href="#2210-post">2.2.10. post</a></li>
+<li><a class="reference external" href="#2211-timeline">2.2.11. timeline</a></li>
+<li><a class="reference external" href="#2212-tweetsby">2.2.12. tweetsby</a></li>
+<li><a class="reference external" href="#2213-exit-or-quit">2.2.13. exit or quit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference external" href="#3-pep8">3. PEP8</a></li>
+<li><a class="reference external" href="#4-unit-test">4. Unit test</a></li>
+<li><a class="reference external" href="#5-documentation">5. Documentation</a><ul>
+<li><a class="reference external" href="#51-sphinx">5.1. Sphinx</a></li>
+<li><a class="reference external" href="#52-readmerst">5.2. README.rst</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="section" id="pytwis-1">
-<span id="id1"></span><h2>1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code><a class="headerlink" href="#pytwis-1" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h1>1. <code class="docutils literal notranslate"><span class="pre">pytwis</span></code><a class="headerlink" href="#pytwis-1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
-<h3>1.1 Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h3>
+<h2>1.1 Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>This module implements the backend for a simplified Twitter clone based
 on Redis. We follow the Redis tutorial
 (<a class="reference external" href="https://redis.io/topics/twitter-clone">https://redis.io/topics/twitter-clone</a>) to design the data layout of the
@@ -231,7 +319,7 @@ Redis database.</p>
 </ul>
 </div>
 <div class="section" id="sample-usage">
-<h3>1.2 Sample usage<a class="headerlink" href="#sample-usage" title="Permalink to this headline">¶</a></h3>
+<h2>1.2 Sample usage<a class="headerlink" href="#sample-usage" title="Permalink to this headline">¶</a></h2>
 <p>Below is a sample usage of this module. You can find a more detailed
 example in the module <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytwis</span>
@@ -294,7 +382,7 @@ example in the module <code class="docutils literal notranslate"><span class="pr
 </div>
 </div>
 <div class="section" id="pytwis-clt">
-<h2>2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code><a class="headerlink" href="#pytwis-clt" title="Permalink to this headline">¶</a></h2>
+<h1>2. <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code><a class="headerlink" href="#pytwis-clt" title="Permalink to this headline">¶</a></h1>
 <p>After you install the package, you will be able to launch <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>
 as a console command. To get the help information,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytwis_clt -h
@@ -302,81 +390,105 @@ $ pytwis_clt --help
 </pre></div>
 </div>
 <div class="section" id="connect-to-redis">
-<h3>2.1. Connect to Redis<a class="headerlink" href="#connect-to-redis" title="Permalink to this headline">¶</a></h3>
-<p>2.1.1. Connect to the local Redis server at the default port 6379 with
-no password.</p>
+<h2>2.1. Connect to Redis<a class="headerlink" href="#connect-to-redis" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="connect-to-the-local-redis-server-at-the-default-port-6379-with-no-password">
+<h3>2.1.1. Connect to the local Redis server at the default port 6379 with no password.<a class="headerlink" href="#connect-to-the-local-redis-server-at-the-default-port-6379-with-no-password" title="Permalink to this headline">¶</a></h3>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py
 </pre></div>
 </div>
-<p>2.1.2. Connect to the local Redis server via the socket file
-<code class="docutils literal notranslate"><span class="pre">/tmp/redis.sock</span></code> with password zzzzzz. Make sure that the unixsocket
-parameter is defined in your redis.conf file. It’s commented out by
-default.</p>
+</div>
+<div class="section" id="connect-to-the-local-redis-server-via-the-socket-file-tmp-redis-sock-with-password-zzzzzz">
+<h3>2.1.2. Connect to the local Redis server via the socket file <code class="docutils literal notranslate"><span class="pre">/tmp/redis.sock</span></code> with password zzzzzz.<a class="headerlink" href="#connect-to-the-local-redis-server-via-the-socket-file-tmp-redis-sock-with-password-zzzzzz" title="Permalink to this headline">¶</a></h3>
+<p>Make sure that the unixsocket parameter is defined in your redis.conf
+file. It’s commented out by default.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py -s /tmp/redis.sock -a zzzzzz
 </pre></div>
 </div>
-<p>2.1.3 Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port
-yyyy with password zzzzzz.</p>
+</div>
+<div class="section" id="connect-to-a-remote-redis-server-with-ip-xxx-xxx-xxx-xxx-at-port-yyyy-with-password-zzzzzz">
+<h3>2.1.3 Connect to a remote Redis server with IP = xxx.xxx.xxx.xxx at port yyyy with password zzzzzz.<a class="headerlink" href="#connect-to-a-remote-redis-server-with-ip-xxx-xxx-xxx-xxx-at-port-yyyy-with-password-zzzzzz" title="Permalink to this headline">¶</a></h3>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./pytwis_clt.py -h xxx.xxx.xxx.xxx -p yyyy -a zzzzzz
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="available-commands">
-<h3>2.2. Available commands<a class="headerlink" href="#available-commands" title="Permalink to this headline">¶</a></h3>
+<h2>2.2. Available commands<a class="headerlink" href="#available-commands" title="Permalink to this headline">¶</a></h2>
 <p>After successfully connecting to the twitter clone, you can try the
 following commands in <code class="docutils literal notranslate"><span class="pre">pytwis_clt</span></code>.</p>
-<p>2.2.1. <code class="docutils literal notranslate"><span class="pre">register</span></code></p>
+<div class="section" id="register">
+<h3>2.2.1. <code class="docutils literal notranslate"><span class="pre">register</span></code><a class="headerlink" href="#register" title="Permalink to this headline">¶</a></h3>
 <p>Register a new user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code> with password <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">register</span> <span class="n">xxxxxx</span> <span class="n">yyyyyy</span>
 </pre></div>
 </div>
-<p>2.2.2. <code class="docutils literal notranslate"><span class="pre">login</span></code></p>
+</div>
+<div class="section" id="login">
+<h3>2.2.2. <code class="docutils literal notranslate"><span class="pre">login</span></code><a class="headerlink" href="#login" title="Permalink to this headline">¶</a></h3>
 <p>Log into a user <code class="docutils literal notranslate"><span class="pre">xxxxxxx</span></code> with password <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">login</span> <span class="n">xxxxxx</span> <span class="n">yyyyyy</span>
 </pre></div>
 </div>
-<p>2.2.3. <code class="docutils literal notranslate"><span class="pre">logout</span></code></p>
+</div>
+<div class="section" id="logout">
+<h3>2.2.3. <code class="docutils literal notranslate"><span class="pre">logout</span></code><a class="headerlink" href="#logout" title="Permalink to this headline">¶</a></h3>
 <p>Log out of the current user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">logout</span>
 </pre></div>
 </div>
-<p>2.2.4. <code class="docutils literal notranslate"><span class="pre">changepwd</span></code></p>
+</div>
+<div class="section" id="changepwd">
+<h3>2.2.4. <code class="docutils literal notranslate"><span class="pre">changepwd</span></code><a class="headerlink" href="#changepwd" title="Permalink to this headline">¶</a></h3>
 <p>Change the password. Assume that the old password is <code class="docutils literal notranslate"><span class="pre">yyyyyy</span></code> and the
 new password is <code class="docutils literal notranslate"><span class="pre">zzzzzz</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">changepwd</span> <span class="n">yyyyyy</span> <span class="n">zzzzzz</span> <span class="n">zzzzzz</span>
 </pre></div>
 </div>
-<p>2.2.5. <code class="docutils literal notranslate"><span class="pre">userprofile</span></code></p>
+</div>
+<div class="section" id="userprofile">
+<h3>2.2.5. <code class="docutils literal notranslate"><span class="pre">userprofile</span></code><a class="headerlink" href="#userprofile" title="Permalink to this headline">¶</a></h3>
 <p>Get the profile of the currently logged-in user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">userprofile</span>
 </pre></div>
 </div>
-<p>2.2.6. <code class="docutils literal notranslate"><span class="pre">follow</span></code></p>
+</div>
+<div class="section" id="follow">
+<h3>2.2.6. <code class="docutils literal notranslate"><span class="pre">follow</span></code><a class="headerlink" href="#follow" title="Permalink to this headline">¶</a></h3>
 <p>Follow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">follow</span> <span class="n">xxxxxx</span>
 </pre></div>
 </div>
-<p>2.2.7. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code></p>
+</div>
+<div class="section" id="unfollow">
+<h3>2.2.7. <code class="docutils literal notranslate"><span class="pre">unfollow</span></code><a class="headerlink" href="#unfollow" title="Permalink to this headline">¶</a></h3>
 <p>Unfollow a user <code class="docutils literal notranslate"><span class="pre">xxxxxx</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">unfollow</span> <span class="n">xxxxxx</span>
 </pre></div>
 </div>
-<p>2.2.8. <code class="docutils literal notranslate"><span class="pre">followers</span></code></p>
+</div>
+<div class="section" id="followers">
+<h3>2.2.8. <code class="docutils literal notranslate"><span class="pre">followers</span></code><a class="headerlink" href="#followers" title="Permalink to this headline">¶</a></h3>
 <p>Get the follower list of the current user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followers</span>
 </pre></div>
 </div>
-<p>2.2.9. <code class="docutils literal notranslate"><span class="pre">followings</span></code></p>
+</div>
+<div class="section" id="followings">
+<h3>2.2.9. <code class="docutils literal notranslate"><span class="pre">followings</span></code><a class="headerlink" href="#followings" title="Permalink to this headline">¶</a></h3>
 <p>Get the following list of the current user.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">followings</span>
 </pre></div>
 </div>
-<p>2.2.10. <code class="docutils literal notranslate"><span class="pre">post</span></code></p>
+</div>
+<div class="section" id="post">
+<h3>2.2.10. <code class="docutils literal notranslate"><span class="pre">post</span></code><a class="headerlink" href="#post" title="Permalink to this headline">¶</a></h3>
 <p>Post a tweet.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">post</span> <span class="o">&lt;</span><span class="n">tweet</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>2.2.11. <code class="docutils literal notranslate"><span class="pre">timeline</span></code></p>
+</div>
+<div class="section" id="timeline">
+<h3>2.2.11. <code class="docutils literal notranslate"><span class="pre">timeline</span></code><a class="headerlink" href="#timeline" title="Permalink to this headline">¶</a></h3>
 <p>Get the general/user timeline. It will return the user timeline if a
 user is logged in and will return the general timeline otherwise. Also,
 it will return all the tweets in the timeline if max-tweet-count is not
@@ -384,14 +496,18 @@ specified.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">timeline</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>2.2.12. <code class="docutils literal notranslate"><span class="pre">tweetsby</span></code></p>
+</div>
+<div class="section" id="tweetsby">
+<h3>2.2.12. <code class="docutils literal notranslate"><span class="pre">tweetsby</span></code><a class="headerlink" href="#tweetsby" title="Permalink to this headline">¶</a></h3>
 <p>Get the tweets posted by a user. It will return the tweets posted by the
 current logged-in user if no username is specified. Also, it will return
 all the tweets posted by the user if max-tweet-count is not specified.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">tweetsby</span> <span class="p">[</span><span class="n">username</span><span class="p">]</span> <span class="p">[</span><span class="nb">max</span><span class="o">-</span><span class="n">tweet</span><span class="o">-</span><span class="n">count</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>2.2.13. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code></p>
+</div>
+<div class="section" id="exit-or-quit">
+<h3>2.2.13. <code class="docutils literal notranslate"><span class="pre">exit</span></code> or <code class="docutils literal notranslate"><span class="pre">quit</span></code><a class="headerlink" href="#exit-or-quit" title="Permalink to this headline">¶</a></h3>
 <p>Exit the console program.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">exit</span>
 <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">6379</span><span class="o">&gt;</span> <span class="n">quit</span>
@@ -412,8 +528,9 @@ successful log-in.</p>
 </ul>
 </div>
 </div>
+</div>
 <div class="section" id="pep8">
-<h2>3. PEP8<a class="headerlink" href="#pep8" title="Permalink to this headline">¶</a></h2>
+<h1>3. PEP8<a class="headerlink" href="#pep8" title="Permalink to this headline">¶</a></h1>
 <p>We use <code class="docutils literal notranslate"><span class="pre">pylint</span></code> to enforce the Python Style Guide PEP8.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pylint pytwis
 $ pylint tests
@@ -424,7 +541,7 @@ packages <code class="docutils literal notranslate"><span class="pre">pytwis</sp
 recommendations made by <code class="docutils literal notranslate"><span class="pre">pylint</span></code> later (see issue #8).</p>
 </div>
 <div class="section" id="unit-test">
-<h2>4. Unit test<a class="headerlink" href="#unit-test" title="Permalink to this headline">¶</a></h2>
+<h1>4. Unit test<a class="headerlink" href="#unit-test" title="Permalink to this headline">¶</a></h1>
 <p>Since this unit test requires a running local Redis server, it is in
 fact a small integration test. To run the test,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make test
@@ -432,16 +549,16 @@ fact a small integration test. To run the test,</p>
 </div>
 </div>
 <div class="section" id="documentation">
-<h2>5. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<h1>5. Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="sphinx">
-<h3>5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code><a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h3>
+<h2>5.1. <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code><a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h2>
 <p>To generate the <code class="docutils literal notranslate"><span class="pre">Sphinx</span></code> HTML documentation,</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ make docs
 </pre></div>
 </div>
 </div>
 <div class="section" id="readme-rst">
-<h3>5.2. README.rst<a class="headerlink" href="#readme-rst" title="Permalink to this headline">¶</a></h3>
+<h2>5.2. README.rst<a class="headerlink" href="#readme-rst" title="Permalink to this headline">¶</a></h2>
 <p>README.rst is generated from README.md via <code class="docutils literal notranslate"><span class="pre">pandoc</span></code>.</p>
 <div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ pandoc --from=markdown --to=rst --output=README.rst README.md
 </pre></div>
@@ -454,7 +571,6 @@ fact a small integration test. To run the test,</p>
 </ul>
 </li>
 </ul>
-</div>
 </div>
 </div>
 </div>
